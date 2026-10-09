@@ -11,9 +11,15 @@ const GraphView = lazy(() => import('./components/GraphView.jsx'))
 
 const VIEWS = ['map', 'timeline', 'graph']
 
-function readViewFromHash() {
+/**
+ * `#map`, `#timeline`, `#graph` select a view; `#r/123` is a permalink to one
+ * record (shared from the community) and opens the timeline focused on it.
+ */
+function readHash() {
   const hash = window.location.hash.replace(/^#\/?/, '')
-  return VIEWS.includes(hash) ? hash : 'map'
+  const record = /^r\/(\d+)$/.exec(hash)
+  if (record) return { view: 'timeline', eventId: Number(record[1]) }
+  return { view: VIEWS.includes(hash) ? hash : 'map', eventId: null }
 }
 
 /** Year with the most records: a data-rich first frame for the map. */
@@ -31,13 +37,16 @@ function busiestYear(dataset) {
 
 export default function App() {
   const [lang, setLang] = useState(detectLanguage)
-  const [view, setView] = useState(readViewFromHash)
+  const [view, setView] = useState(() => readHash().view)
   const { dataset, textReady, error, retry } = useDataset(lang)
 
   // Shared time window used by the map (and respected by cross-view jumps).
   const [time, setTime] = useState({ year: null, window: 5, includeInferred: true })
   // Cross-view navigation target: { eventId } for the map/timeline, { person } for the graph.
-  const [focus, setFocus] = useState(null)
+  const [focus, setFocus] = useState(() => {
+    const { eventId } = readHash()
+    return eventId ? { eventId, nonce: Date.now() } : null
+  })
 
   useEffect(() => {
     document.documentElement.lang = lang
@@ -46,7 +55,11 @@ export default function App() {
   }, [lang])
 
   useEffect(() => {
-    const onHash = () => setView(readViewFromHash())
+    const onHash = () => {
+      const { view: nextView, eventId } = readHash()
+      setView(nextView)
+      if (eventId) setFocus({ eventId, nonce: Date.now() })
+    }
     window.addEventListener('hashchange', onHash)
     return () => window.removeEventListener('hashchange', onHash)
   }, [])

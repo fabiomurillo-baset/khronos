@@ -60,6 +60,15 @@ const STRINGS = {
     reset: 'Ver las más conectadas',
     graphHint: 'Haga clic en un nodo para ver sus registros. Arrastre para reorganizar.',
     footer: 'Fuente: Índice de los Protocolos de Cartago, Archivo Nacional de Costa Rica. Extracción asistida por IA; puede contener errores.',
+    // community
+    community: 'Comunidad',
+    communityTitle: 'Comentar, corregir y aportar documentos',
+    contribute: 'Aportar',
+    contributeTitle: 'Copia la referencia de este registro y abre la comunidad para comentarlo, corregirlo o aportar documentos',
+    copied: 'Referencia copiada',
+    copyLink: 'Copiar enlace',
+    linkCopied: 'Enlace copiado',
+    referenceTitle: 'Geno · registro',
   },
   en: {
     appTitle: 'Geno',
@@ -119,6 +128,14 @@ const STRINGS = {
     reset: 'Show most connected',
     graphHint: 'Click a node to see its records. Drag to rearrange.',
     footer: 'Source: Index of the Cartago Notarial Protocols, National Archive of Costa Rica. AI-assisted extraction; may contain errors.',
+    community: 'Community',
+    communityTitle: 'Comment, correct and contribute documents',
+    contribute: 'Contribute',
+    contributeTitle: 'Copies a reference to this record and opens the community to comment on it, correct it or contribute documents',
+    copied: 'Reference copied',
+    copyLink: 'Copy link',
+    linkCopied: 'Link copied',
+    referenceTitle: 'Geno · record',
   },
 }
 

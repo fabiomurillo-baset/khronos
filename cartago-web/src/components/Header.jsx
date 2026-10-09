@@ -1,5 +1,13 @@
+import { communityUrl } from '../lib/community.js'
 import { t } from '../lib/i18n.js'
 import { formatNumber } from '../lib/text.js'
+
+const CHAT_ICON = (
+  <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+    <path d="M3.5 5.5A2 2 0 0 1 5.5 3.5h9a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H9l-3.8 2.8a.4.4 0 0 1-.7-.3v-2.5h-.5a2 2 0 0 1-2-2z" strokeLinejoin="round" />
+    <path d="M7 7.5h6M7 10.5h4" strokeLinecap="round" />
+  </svg>
+)
 
 const ICONS = {
   map: (
@@ -57,6 +65,16 @@ export default function Header({ lang, onLangChange, view, onViewChange, dataset
             {formatNumber(dataset.events.length, lang)} {t(lang, 'events')}
           </span>
         )}
+        <a
+          href={communityUrl(lang)}
+          target="_blank"
+          rel="noopener"
+          className="btn-ghost flex items-center gap-1.5 text-gold-soft"
+          title={t(lang, 'communityTitle')}
+        >
+          {CHAT_ICON}
+          <span className="hidden sm:inline">{t(lang, 'community')}</span>
+        </a>
         <a
           href={t(lang, 'aboutUrl')}
           target="_blank"
