@@ -45,6 +45,10 @@ python scripts/generate_json_views.py     # rebuilds cartago-web/public/data/*.j
 
 `generate_json_views.py` prints the most frequent place names it could not geolocate; add them to `GAZETTEER` / `ALIASES` in that file to improve map coverage. Records without a year inherit the year of the previous dated entry (the index is chronological) and are flagged in the UI.
 
+## Community
+
+Every record has an **Aportar** button that opens a side panel: sign in (Discord, Google, Facebook), read the conversation about the record, post messages and attach images or PDFs. The panel talks to the `geno-api` Worker (`murillo-sites/sites/geno-api`), which bridges to the `#aportes` forum of the Discord server *Historia Documental Costa Rica*; Discord holds the conversation and every upload is also copied to R2. Permalinks: `#r/<id>` opens the timeline on a record. Point the app at a local API with `VITE_GENO_API=http://localhost:8788 npm run dev`.
+
 ## Numbers (October 2026)
 
 | | |

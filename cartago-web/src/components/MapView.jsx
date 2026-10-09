@@ -284,7 +284,7 @@ export default function MapView({ lang, dataset, time, onTimeChange, focus, acti
                     compact
                     active={ev.id === highlightId}
                     onPerson={actions.showInGraph}
-                    actions={{ showInTimeline: actions.showInTimeline }}
+                    actions={{ showInTimeline: actions.showInTimeline, contribute: actions.contribute }}
                   />
                 ))}
               </div>

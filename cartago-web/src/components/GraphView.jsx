@@ -273,7 +273,7 @@ export default function GraphView({ lang, dataset, focus, actions }) {
                   setSelectedKey(key)
                   if (!graph.nodes.get(center)?.neighbors.has(key) && key !== center) setCenter(key)
                 }}
-                actions={{ showOnMap: actions.showOnMap, showInTimeline: actions.showInTimeline }}
+                actions={{ showOnMap: actions.showOnMap, showInTimeline: actions.showInTimeline, contribute: actions.contribute }}
               />
             ))}
           </div>

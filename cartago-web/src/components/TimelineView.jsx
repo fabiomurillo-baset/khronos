@@ -157,7 +157,7 @@ export default function TimelineView({ lang, dataset, focus, actions }) {
                   query={highlight}
                   onPerson={(name) => setQuery(name)}
                   onPlace={(name) => setQuery(name)}
-                  actions={{ showOnMap: actions.showOnMap }}
+                  actions={{ showOnMap: actions.showOnMap, contribute: actions.contribute }}
                   active={deferredQuery.trim() === `#${ev.id}`}
                 />
               </li>

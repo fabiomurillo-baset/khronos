@@ -1,6 +1,8 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
+import ContributePanel from './components/ContributePanel.jsx'
 import Header from './components/Header.jsx'
 import StatusScreen from './components/StatusScreen.jsx'
+import { consumeAuthFromUrl } from './lib/community.js'
 import { useDataset } from './lib/data.js'
 import { detectLanguage, persistLanguage, t } from './lib/i18n.js'
 
@@ -46,6 +48,11 @@ export default function App() {
   const [focus, setFocus] = useState(() => {
     const { eventId } = readHash()
     return eventId ? { eventId, nonce: Date.now() } : null
+  })
+  // Record open in the contribution panel. Coming back from sign-in (?auth=…#r/N) reopens it.
+  const [contributing, setContributing] = useState(() => {
+    const auth = consumeAuthFromUrl()
+    return auth?.ok ? readHash().eventId : null
   })
 
   useEffect(() => {
@@ -101,9 +108,12 @@ export default function App() {
     [goTo],
   )
 
+  const contribute = useCallback((ev) => setContributing(ev.id), [])
+  const closeContribute = useCallback(() => setContributing(null), [])
+
   const actions = useMemo(
-    () => ({ showOnMap, showInGraph, showInTimeline }),
-    [showOnMap, showInGraph, showInTimeline],
+    () => ({ showOnMap, showInGraph, showInTimeline, contribute }),
+    [showOnMap, showInGraph, showInTimeline, contribute],
   )
 
   const ready = dataset && textReady && time.year != null
@@ -127,6 +137,10 @@ export default function App() {
           </Suspense>
         )}
       </main>
+
+      {ready && contributing != null && dataset.byId.get(contributing) && (
+        <ContributePanel ev={dataset.byId.get(contributing)} lang={lang} onClose={closeContribute} />
+      )}
     </div>
   )
 }

@@ -1,4 +1,5 @@
-import { communityUrl } from '../lib/community.js'
+import { useEffect, useState } from 'react'
+import { api } from '../lib/community.js'
 import { t } from '../lib/i18n.js'
 import { formatNumber } from '../lib/text.js'
 
@@ -33,6 +34,11 @@ const ICONS = {
 
 export default function Header({ lang, onLangChange, view, onViewChange, dataset }) {
   const views = ['map', 'timeline', 'graph']
+  // Discord invite comes from the API; until it answers, the link goes to the write-up's "Participa" section.
+  const [invite, setInvite] = useState(null)
+  useEffect(() => {
+    api.config().then((c) => c.invite && setInvite(c.invite)).catch(() => {})
+  }, [])
   return (
     <header className="z-20 flex shrink-0 flex-wrap items-center gap-x-6 gap-y-2 border-b border-white/8 bg-ink-950/80 px-4 py-2.5 backdrop-blur sm:px-6">
       <div className="flex min-w-0 items-baseline gap-3">
@@ -66,7 +72,7 @@ export default function Header({ lang, onLangChange, view, onViewChange, dataset
           </span>
         )}
         <a
-          href={communityUrl(lang)}
+          href={invite || `${t(lang, 'aboutUrl')}#participa`}
           target="_blank"
           rel="noopener"
           className="btn-ghost flex items-center gap-1.5 text-gold-soft"

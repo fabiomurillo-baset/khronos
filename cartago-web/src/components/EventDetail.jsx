@@ -1,48 +1,6 @@
-import { useEffect, useState } from 'react'
-import { communityUrl, copyText, recordReference, recordUrl } from '../lib/community.js'
 import { getSummary } from '../lib/data.js'
 import { t } from '../lib/i18n.js'
 import { highlightSegments } from '../lib/text.js'
-
-/**
- * "Contribute": copies a plain-text reference to the record (number, year, place,
- * summary, permalink) and opens the community in a new tab, so the contributor
- * only has to paste. The tab is opened synchronously to stay inside the click
- * gesture (popup blockers); the clipboard write happens alongside.
- */
-function ContributeButton({ ev, lang }) {
-  const [done, setDone] = useState(null) // 'copied' | 'linkCopied' | null
-  useEffect(() => {
-    if (!done) return undefined
-    const id = setTimeout(() => setDone(null), 2200)
-    return () => clearTimeout(id)
-  }, [done])
-
-  const contribute = () => {
-    window.open(communityUrl(lang), '_blank', 'noopener')
-    copyText(recordReference(ev, lang)).then((ok) => ok && setDone('copied'))
-  }
-  const copyLink = () => copyText(recordUrl(ev)).then((ok) => ok && setDone('linkCopied'))
-
-  return (
-    <span className="ml-auto flex items-center gap-2">
-      <span role="status" aria-live="polite" className={`text-gold-soft transition-opacity ${done ? 'opacity-100' : 'opacity-0'}`}>
-        {done ? t(lang, done) : ''}
-      </span>
-      <button type="button" className="text-slate-500 hover:text-gold" onClick={copyLink} title={recordUrl(ev)}>
-        {t(lang, 'copyLink')}
-      </button>
-      <button
-        type="button"
-        className="chip border-gold/40 text-gold-soft hover:bg-gold/10"
-        onClick={contribute}
-        title={t(lang, 'contributeTitle')}
-      >
-        {t(lang, 'contribute')} ↗
-      </button>
-    </span>
-  )
-}
 
 function Highlight({ text, query }) {
   if (!query) return text
@@ -128,7 +86,16 @@ export default function EventDetail({ ev, lang, query, onPerson, onPlace, action
               {t(lang, 'viewTimeline')} →
             </button>
           )}
-          <ContributeButton ev={ev} lang={lang} />
+          {actions.contribute && (
+            <button
+              type="button"
+              className="chip ml-auto border-gold/40 text-gold-soft hover:bg-gold/10"
+              onClick={() => actions.contribute(ev)}
+              title={t(lang, 'contributeTitle')}
+            >
+              {t(lang, 'contribute')}
+            </button>
+          )}
         </div>
       </div>
     </article>
