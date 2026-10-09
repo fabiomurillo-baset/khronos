@@ -1,0 +1,24 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Source scans and scraped pages (hundreds of MB; keep them local)
+*.pdf
+*.txt
+Full text of _Indice de los protocolos de Cartago_*
+cabildo-guatemala-images/
+
+# Pipeline working data (regenerable from the PDFs with scripts/)
+scripts/data/raw_extracted_events.json
+scripts/data/legacy_views/
+
+# Web app
+cartago-web/node_modules/
+cartago-web/dist/
+
+# Secrets
+.env
+
+# Keep the pinned Python deps even though *.txt is ignored above
+!scripts/requirements.txt
