@@ -57,6 +57,15 @@ export default function Header({ lang, onLangChange, view, onViewChange, dataset
             {formatNumber(dataset.events.length, lang)} {t(lang, 'events')}
           </span>
         )}
+        <a
+          href={t(lang, 'aboutUrl')}
+          target="_blank"
+          rel="noopener"
+          className="btn-ghost text-slate-300"
+          title={t(lang, 'about')}
+        >
+          {t(lang, 'about')}
+        </a>
         <button
           onClick={() => onLangChange(lang === 'es' ? 'en' : 'es')}
           className="btn-ghost"
