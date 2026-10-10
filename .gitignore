@@ -13,12 +13,15 @@ cabildo-guatemala-images/
 scripts/data/raw_extracted_events.json
 scripts/data/legacy_views/
 
-# Web app
+# Web app and API
 cartago-web/node_modules/
 cartago-web/dist/
+geno-api/node_modules/
+geno-api/.wrangler/
 
 # Secrets
 .env
+.dev.vars
 
 # Keep the pinned Python deps even though *.txt is ignored above
 !scripts/requirements.txt

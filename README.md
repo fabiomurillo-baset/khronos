@@ -15,6 +15,7 @@ scripts/                      data pipeline (Python)
   data/gemini_output/         extraction and translation output (*.jsonl) and progress files
 cartago-web/                  React 19 + Vite + Tailwind app: map (MapLibre), timeline, people network
   public/data/                events.json, text_en.json, text_es.json consumed by the app
+geno-api/                     Cloudflare Worker behind the contribution panel: sign-in + bridge to Discord (see its README)
 ```
 
 The source scans (`*.pdf`), the OCR text (`Cartago.txt`) and the Cabildo de Guatemala page images are not in the repository (hundreds of MB); see `.gitignore`. The pipeline output under `scripts/data/gemini_output/` **is** committed, so the web app can be built without re-running the extraction.
@@ -47,7 +48,7 @@ python scripts/generate_json_views.py     # rebuilds cartago-web/public/data/*.j
 
 ## Community
 
-Every record has an **Aportar** button that opens a side panel: sign in (Discord, Google, Facebook), read the conversation about the record, post messages and attach images or PDFs. The panel talks to the `geno-api` Worker (`murillo-sites/sites/geno-api`), which bridges to the `#aportes` forum of the Discord server *Historia Documental Costa Rica*; Discord holds the conversation and every upload is also copied to R2. Permalinks: `#r/<id>` opens the timeline on a record. Point the app at a local API with `VITE_GENO_API=http://localhost:8788 npm run dev`.
+Every record has an **Aportar** button that opens a side panel: sign in (Discord, Google, Facebook), read the conversation about the record, post messages and attach images or PDFs. The panel talks to the `geno-api` Worker ([`geno-api/`](geno-api/README.md), deployed at geno-api.basetlabs.com), which bridges to the `#aportes` forum of the Discord server *Historia Documental Costa Rica*; Discord holds the conversation and every upload is also copied to R2. Permalinks: `#r/<id>` opens the timeline on a record. Point the app at a local API with `VITE_GENO_API=http://localhost:8788 npm run dev`.
 
 ## Numbers (October 2026)
 

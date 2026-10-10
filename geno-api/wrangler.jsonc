@@ -1,0 +1,27 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "geno-api",
+  "main": "./src/index.js",
+  "compatibility_date": "2026-01-01",
+  "observability": { "enabled": true },
+
+  // Bridge between the Geno explorer and the Discord server "Historia Documental Costa Rica".
+  // Secrets (set once with `npm run secret NAME`, see README.md):
+  //   SESSION_SECRET, DISCORD_BOT_TOKEN, DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET,
+  //   GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, FACEBOOK_APP_ID, FACEBOOK_APP_SECRET
+  // A sign-in provider is offered only when both of its secrets exist.
+  "vars": {
+    "SITE_URL": "https://basetlabs.com/costaricahist1500-1800/",
+    "ALLOWED_ORIGINS": "https://basetlabs.com,https://www.basetlabs.com,http://localhost:5173,http://localhost:4173",
+    "DISCORD_GUILD_ID": "PASTE_SERVER_ID",
+    "DISCORD_FORUM_CHANNEL_ID": "PASTE_APORTES_FORUM_ID",
+    "DISCORD_INVITE": "https://discord.gg/PASTE_INVITE"
+  },
+
+  // Create once:  npx wrangler kv namespace create KV
+  //               npx wrangler r2 bucket create geno-uploads
+  "kv_namespaces": [{ "binding": "KV", "id": "PASTE_KV_ID" }],
+  "r2_buckets": [{ "binding": "UPLOADS", "bucket_name": "geno-uploads" }],
+
+  "routes": [{ "pattern": "geno-api.basetlabs.com", "custom_domain": true }]
+}
