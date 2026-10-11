@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import ForceGraph2D from 'react-force-graph-2d'
 import EventDetail from './EventDetail.jsx'
-import { getGraph, getPeopleIndex } from '../lib/data.js'
+import { getGraph, getPeopleIndex, personKey } from '../lib/data.js'
 import { t } from '../lib/i18n.js'
 import { fold, formatNumber } from '../lib/text.js'
 
@@ -12,8 +12,8 @@ export default function GraphView({ lang, dataset, focus, actions }) {
   const graph = useMemo(() => getGraph(dataset), [dataset])
   const people = useMemo(() => getPeopleIndex(dataset), [dataset])
 
-  const [center, setCenter] = useState(() => (focus?.person ? fold(focus.person) : null))
-  const [selectedKey, setSelectedKey] = useState(() => (focus?.person ? fold(focus.person) : null))
+  const [center, setCenter] = useState(() => (focus?.person ? personKey(focus.person) : null))
+  const [selectedKey, setSelectedKey] = useState(() => (focus?.person ? personKey(focus.person) : null))
   const [hoverKey, setHoverKey] = useState(null)
   const [query, setQuery] = useState('')
   const [size, setSize] = useState({ width: 800, height: 600 })
@@ -24,7 +24,7 @@ export default function GraphView({ lang, dataset, focus, actions }) {
   // A new "show in network" request arrived while mounted (state adjusted during render).
   if (focus?.person && focus.nonce !== appliedFocus) {
     setAppliedFocus(focus.nonce)
-    const key = fold(focus.person)
+    const key = personKey(focus.person)
     setCenter(key)
     setSelectedKey(key)
   }
@@ -269,7 +269,7 @@ export default function GraphView({ lang, dataset, focus, actions }) {
                 lang={lang}
                 compact
                 onPerson={(name) => {
-                  const key = fold(name)
+                  const key = personKey(name)
                   setSelectedKey(key)
                   if (!graph.nodes.get(center)?.neighbors.has(key) && key !== center) setCenter(key)
                 }}

@@ -3,6 +3,7 @@ import { Map, Source, Layer, Popup, NavigationControl, ScaleControl } from '@vis
 import 'maplibre-gl/dist/maplibre-gl.css'
 import TimeControls from './TimeControls.jsx'
 import EventDetail from './EventDetail.jsx'
+import { personKey, placeKey } from '../lib/data.js'
 import { t } from '../lib/i18n.js'
 import { formatNumber } from '../lib/text.js'
 
@@ -283,7 +284,8 @@ export default function MapView({ lang, dataset, time, onTimeChange, focus, acti
                     lang={lang}
                     compact
                     active={ev.id === highlightId}
-                    onPerson={actions.showInGraph}
+                    onPerson={(name) => actions.openProfile('person', personKey(name))}
+                    onPlace={(name) => actions.openProfile('place', placeKey(name))}
                     actions={{ showInTimeline: actions.showInTimeline, contribute: actions.contribute }}
                   />
                 ))}

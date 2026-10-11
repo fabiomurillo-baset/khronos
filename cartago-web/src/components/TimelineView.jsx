@@ -1,13 +1,13 @@
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
 import EventDetail from './EventDetail.jsx'
-import { getSummary } from '../lib/data.js'
+import { getSummary, personKey, placeKey } from '../lib/data.js'
 import { t } from '../lib/i18n.js'
 import { fold, formatNumber } from '../lib/text.js'
 
 const PAGE = 60
 
 export default function TimelineView({ lang, dataset, focus, actions }) {
-  const [query, setQuery] = useState(() => (focus?.eventId ? `#${focus.eventId}` : ''))
+  const [query, setQuery] = useState(() => focus?.query ?? (focus?.eventId ? `#${focus.eventId}` : ''))
   const deferredQuery = useDeferredValue(query)
   const [decade, setDecade] = useState(null)
   const listRef = useRef(null)
@@ -15,9 +15,9 @@ export default function TimelineView({ lang, dataset, focus, actions }) {
   const [appliedFocus, setAppliedFocus] = useState(focus?.nonce ?? null)
 
   // Jump requested from another view while this one is mounted (state adjusted during render).
-  if (focus?.eventId && focus.nonce !== appliedFocus) {
+  if ((focus?.eventId || focus?.query) && focus.nonce !== appliedFocus) {
     setAppliedFocus(focus.nonce)
-    setQuery(`#${focus.eventId}`)
+    setQuery(focus.query ?? `#${focus.eventId}`)
     setDecade(null)
   }
 
@@ -155,8 +155,8 @@ export default function TimelineView({ lang, dataset, focus, actions }) {
                   ev={ev}
                   lang={lang}
                   query={highlight}
-                  onPerson={(name) => setQuery(name)}
-                  onPlace={(name) => setQuery(name)}
+                  onPerson={(name) => actions.openProfile('person', personKey(name))}
+                  onPlace={(name) => actions.openProfile('place', placeKey(name))}
                   actions={{ showOnMap: actions.showOnMap, contribute: actions.contribute }}
                   active={deferredQuery.trim() === `#${ev.id}`}
                 />

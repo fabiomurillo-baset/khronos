@@ -8,7 +8,9 @@ Geno (browser) ──► geno-api.basetlabs.com (this Worker) ──► Discord 
                        └► R2: copy of every uploaded file, with record/author metadata
 ```
 
-Endpoints: `GET /config`, `GET /auth/:provider/start?record=N`, `GET /auth/:provider/callback`, `GET /me`, `GET|POST /records/:id/messages`, `GET /files/:key`.
+Endpoints: `GET /config`, `GET /auth/:provider/start?return=<hash>`, `GET /auth/:provider/callback`, `GET /me`, `GET|POST /records/:id/messages`, `GET /files/:key`, `GET|POST /curation`, `POST /curation/:id/undo`.
+
+It also stores **curation**: the community's decisions about people and places (merging spelling variants of the same person or place, renaming an entry). They live in a D1 database so every visitor sees the same canonical names, each one is attributed to the signed-in user, can be undone from the profile page, and is optionally logged to a Discord channel.
 
 ## One-time setup
 
@@ -50,7 +52,8 @@ cd geno-api
 npm install
 npx wrangler login                              # once, opens the browser
 npx wrangler kv namespace create KV             # paste the id into wrangler.jsonc
-npx wrangler r2 bucket create geno-uploads
+npx wrangler d1 create geno                     # paste the database_id into wrangler.jsonc (curation)
+npx wrangler r2 bucket create geno-uploads      # optional: copies of uploaded files
 npm run deploy                                  # first deploy, so the secrets have somewhere to go
 npm run secret SESSION_SECRET                   # any long random string, e.g. `openssl rand -base64 48`
 npm run secret DISCORD_BOT_TOKEN
@@ -79,6 +82,11 @@ cd ../cartago-web && VITE_GENO_API=http://localhost:8788 npm run dev
 
 For sign-in to work locally, add `http://localhost:8788/auth/<provider>/callback` to each provider's redirect URIs and set `SITE_URL` to `http://localhost:5173/` (e.g. `wrangler dev --var SITE_URL:http://localhost:5173/`).
 
+Optional extras in `wrangler.jsonc`:
+
+- `DISCORD_CURATION_CHANNEL_ID`: a text channel (e.g. `#curaduría`) where every merge, rename and undo is posted as one line. Leave empty to skip.
+- `r2_buckets`: remove the line to keep uploaded files only in Discord; the API works the same without it.
+
 ## Limits and behaviour
 
 - Messages up to 2 000 characters; up to 4 files per message, 10 MB each (Discord's cap), images and PDF only.
@@ -86,3 +94,4 @@ For sign-in to work locally, add `http://localhost:8788/auth/<provider>/callback
 - Posts are made through a webhook so they carry the contributor's own name and avatar ("Ana Mora (Google)" for non-Discord sign-ins). Replies written in Discord appear in the panel within ~5 s.
 - Files land in Discord **and** in the `geno-uploads` R2 bucket under `records/<id>/…` with metadata (record, thread, message, user), ready for the pipeline to ingest.
 - The bot's starter message in each post is the record reference; the panel hides it.
+- Curation: anyone signed in can merge, rename or undo; nothing is destructive (the raw names stay in the data and a merge is a row that can be reverted). The curation table is created automatically on first use.

@@ -259,7 +259,7 @@ export default function ContributePanel({ ev, lang, onClose }) {
             <p className="text-sm text-slate-300">{t(lang, 'signInToContribute')}</p>
             <div className="mt-2 flex flex-wrap gap-2">
               {providers.map((p) => (
-                <a key={p.id} href={loginUrl(p.id, ev)} className="btn-ghost flex items-center gap-2 border border-white/10 bg-ink-950/60">
+                <a key={p.id} href={loginUrl(p.id, `r/${ev.id}`)} className="btn-ghost flex items-center gap-2 border border-white/10 bg-ink-950/60">
                   {PROVIDER_ICONS[p.id]}
                   {p.label}
                 </a>

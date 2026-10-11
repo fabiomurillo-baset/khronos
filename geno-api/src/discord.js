@@ -119,3 +119,13 @@ function normalize(m) {
     })),
   }
 }
+
+/** One line in the curation log channel (optional: needs DISCORD_CURATION_CHANNEL_ID). */
+export async function postLog(env, content) {
+  if (!env.DISCORD_CURATION_CHANNEL_ID) return
+  try {
+    await bot(env, `/channels/${env.DISCORD_CURATION_CHANNEL_ID}/messages`, json({ content, allowed_mentions: { parse: [] } }))
+  } catch (err) {
+    console.error('curation log failed', err)
+  }
+}

@@ -91,8 +91,9 @@ export function consumeAuthFromUrl() {
   return { ok: true }
 }
 
-export function loginUrl(provider, ev) {
-  return `${API_URL}/auth/${provider}/start?record=${ev.id}`
+/** `returnHash` is where to land after sign-in, e.g. `r/12`, `p/juan de ocon`, `places`. */
+export function loginUrl(provider, returnHash) {
+  return `${API_URL}/auth/${provider}/start?return=${encodeURIComponent(returnHash)}`
 }
 
 // ---- API ---------------------------------------------------------------------
@@ -124,4 +125,8 @@ export const api = {
     for (const f of files) form.append('files', f, f.name)
     return call(`/records/${ev.id}/messages`, { method: 'POST', body: form })
   },
+  // curation (merges / renames of people and places)
+  curation: () => call('/curation', { cache: 'no-store' }),
+  curate: (body) => call('/curation', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) }),
+  undo: (id) => call(`/curation/${id}/undo`, { method: 'POST' }),
 }

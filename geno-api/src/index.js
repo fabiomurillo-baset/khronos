@@ -8,15 +8,20 @@
 //   GET  /me                             the signed-in user (Bearer token)
 //   GET  /records/:id/messages?after=M   thread of a record (public)
 //   POST /records/:id/messages           multipart: content, title, summary, files[] (Bearer token)
-//   GET  /files/:key                     copy of an uploaded file kept in R2
+//   GET  /files/:key                     copy of an uploaded file kept in R2 (when the bucket is bound)
+//   GET  /curation                       shared decisions about people/places (merges, renames)
+//   POST /curation                       {kind, action, subject, target, note}   (Bearer token)
+//   POST /curation/:id/undo              revert a decision                        (Bearer token)
 
 import { enabledProviders, finishLogin, isEnabled, readSession, startLogin } from './auth.js'
-import { createThread, findThread, postAsUser, readMessages, threadUrl } from './discord.js'
+import { addCuration, describe, listCuration, undoCuration, validate } from './curation.js'
+import { createThread, findThread, postAsUser, postLog, readMessages, threadUrl } from './discord.js'
 
 const MAX_CONTENT = 2000
 const MAX_FILES = 4
 const MAX_FILE_BYTES = 10 * 1024 * 1024 // Discord's limit for an unboosted server
 const ALLOWED_TYPES = /^(image\/(jpeg|png|gif|webp|heic|tiff)|application\/pdf)$/
+const RETURN_HASH = /^(r\/\d+|p\/[^\s#]{1,200}|l\/[^\s#]{1,200}|map|timeline|graph|people|places)$/
 
 export default {
   async fetch(request, env, ctx) {
@@ -54,8 +59,10 @@ async function route(request, env, ctx, url) {
     const [, provider, step] = m
     if (!isEnabled(env, provider)) return reply({ error: 'provider not configured' }, 404)
     if (step === 'start') {
+      // Where to land after sign-in: a record (`record=N`) or any app hash (`return=p/juan...`).
       const record = (url.searchParams.get('record') || '').replace(/\D/g, '')
-      return startLogin(env, request.url, provider, record)
+      const ret = url.searchParams.get('return') || (record ? `r/${record}` : '')
+      return startLogin(env, request.url, provider, RETURN_HASH.test(ret) ? ret : '')
     }
     return finishLogin(env, request.url, provider)
   }
@@ -72,7 +79,37 @@ async function route(request, env, ctx, url) {
     return reply({ error: 'method not allowed' }, 405)
   }
 
+  if (path === '/curation') {
+    if (!env.DB) return reply({ entries: [], disabled: true })
+    if (method === 'GET') {
+      const entries = await listCuration(env.DB)
+      return reply({ entries }, 200, { 'cache-control': 'no-store' })
+    }
+    if (method === 'POST') {
+      const user = await readSession(env, request)
+      if (!user) return reply({ error: 'unauthorized' }, 401)
+      const body = await request.json().catch(() => null)
+      const bad = validate(body)
+      if (bad) return reply({ error: `invalid ${bad}` }, 400)
+      const row = await addCuration(env.DB, user, body)
+      ctx.waitUntil(postLog(env, describe(row, user)))
+      return reply({ entry: row }, 201)
+    }
+    return reply({ error: 'method not allowed' }, 405)
+  }
+
+  if ((m = path.match(/^\/curation\/(\d+)\/undo$/)) && method === 'POST') {
+    if (!env.DB) return reply({ error: 'curation disabled' }, 404)
+    const user = await readSession(env, request)
+    if (!user) return reply({ error: 'unauthorized' }, 401)
+    const row = await undoCuration(env.DB, user, Number(m[1]))
+    if (!row) return reply({ error: 'not found' }, 404)
+    ctx.waitUntil(postLog(env, describe(row, user, true)))
+    return reply({ undone: row.id })
+  }
+
   if ((m = path.match(/^\/files\/(.+)$/))) {
+    if (!env.UPLOADS) return reply({ error: 'not found' }, 404)
     const obj = await env.UPLOADS.get(decodeURIComponent(m[1]))
     if (!obj) return reply({ error: 'not found' }, 404)
     const headers = new Headers()
@@ -120,8 +157,8 @@ async function postMessage(request, env, ctx, recordId) {
 
   const message = await postAsUser(env, threadId, user, content, files)
 
-  // Keep our own copy of every file, with provenance, so the data outlives Discord.
-  ctx.waitUntil(
+  // Keep our own copy of every file, with provenance, so the data outlives Discord (optional: needs the R2 binding).
+  if (env.UPLOADS) ctx.waitUntil(
     Promise.all(
       files.map((f, i) =>
         env.UPLOADS.put(`records/${recordId}/${message.id}-${i}-${safeName(f.name)}`, f.stream(), {

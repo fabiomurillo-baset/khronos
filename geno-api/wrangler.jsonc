@@ -15,13 +15,19 @@
     "ALLOWED_ORIGINS": "https://basetlabs.com,https://www.basetlabs.com,http://localhost:5173,http://localhost:4173",
     "DISCORD_GUILD_ID": "PASTE_SERVER_ID",
     "DISCORD_FORUM_CHANNEL_ID": "PASTE_APORTES_FORUM_ID",
-    "DISCORD_INVITE": "https://discord.gg/PASTE_INVITE"
+    "DISCORD_INVITE": "https://discord.gg/PASTE_INVITE",
+    // Optional: text channel where merges/renames are logged ("" to disable).
+    "DISCORD_CURATION_CHANNEL_ID": ""
   },
 
   // Create once:  npx wrangler kv namespace create KV
   //               npx wrangler r2 bucket create geno-uploads
   "kv_namespaces": [{ "binding": "KV", "id": "PASTE_KV_ID" }],
+  // Optional: copies of uploaded files. Remove the line to keep files only in Discord.
   "r2_buckets": [{ "binding": "UPLOADS", "bucket_name": "geno-uploads" }],
+  // Curation (merges/renames of people and places). Create once:  npx wrangler d1 create geno
+  // then paste the database_id below. Tables are created automatically on first use.
+  "d1_databases": [{ "binding": "DB", "database_name": "geno", "database_id": "PASTE_D1_ID" }],
 
   "routes": [{ "pattern": "geno-api.basetlabs.com", "custom_domain": true }]
 }

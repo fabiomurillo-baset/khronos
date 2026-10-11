@@ -2,26 +2,38 @@ import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react
 import ContributePanel from './components/ContributePanel.jsx'
 import Header from './components/Header.jsx'
 import StatusScreen from './components/StatusScreen.jsx'
-import { consumeAuthFromUrl } from './lib/community.js'
-import { useDataset } from './lib/data.js'
+import { api, consumeAuthFromUrl } from './lib/community.js'
+import { setCuration, useDataset } from './lib/data.js'
+import { useSession } from './lib/session.js'
 import { detectLanguage, persistLanguage, t } from './lib/i18n.js'
 
 // Each view is its own chunk: MapLibre (~1 MB) and the force-graph engine load only when needed.
 const MapView = lazy(() => import('./components/MapView.jsx'))
 const TimelineView = lazy(() => import('./components/TimelineView.jsx'))
 const GraphView = lazy(() => import('./components/GraphView.jsx'))
+const EntityIndex = lazy(() => import('./components/EntityIndex.jsx'))
+const ProfileView = lazy(() => import('./components/ProfileView.jsx'))
 
-const VIEWS = ['map', 'timeline', 'graph']
+const VIEWS = ['map', 'timeline', 'graph', 'people', 'places']
 
 /**
- * `#map`, `#timeline`, `#graph` select a view; `#r/123` is a permalink to one
- * record (shared from the community) and opens the timeline focused on it.
+ * Routes live in the hash: `#map` `#timeline` `#graph` `#people` `#places` select a view;
+ * `#r/123` opens the timeline on a record; `#p/<name>` and `#l/<name>` open a person or
+ * place profile (keys are folded names, URL-encoded).
  */
 function readHash() {
-  const hash = window.location.hash.replace(/^#\/?/, '')
-  const record = /^r\/(\d+)$/.exec(hash)
-  if (record) return { view: 'timeline', eventId: Number(record[1]) }
-  return { view: VIEWS.includes(hash) ? hash : 'map', eventId: null }
+  const hash = decodeURIComponent(window.location.hash.replace(/^#\/?/, ''))
+  let m
+  if ((m = /^r\/(\d+)$/.exec(hash))) return { view: 'timeline', eventId: Number(m[1]), entityKey: null }
+  if ((m = /^p\/(.+)$/.exec(hash))) return { view: 'person', eventId: null, entityKey: m[1] }
+  if ((m = /^l\/(.+)$/.exec(hash))) return { view: 'place', eventId: null, entityKey: m[1] }
+  return { view: VIEWS.includes(hash) ? hash : 'map', eventId: null, entityKey: null }
+}
+
+function hashFor(view, entityKey) {
+  if (view === 'person') return `#p/${encodeURIComponent(entityKey)}`
+  if (view === 'place') return `#l/${encodeURIComponent(entityKey)}`
+  return `#${view}`
 }
 
 /** Year with the most records: a data-rich first frame for the map. */
@@ -39,8 +51,30 @@ function busiestYear(dataset) {
 
 export default function App() {
   const [lang, setLang] = useState(detectLanguage)
-  const [view, setView] = useState(() => readHash().view)
+  const [route, setRoute] = useState(() => {
+    const { view, entityKey } = readHash()
+    return { view, entityKey }
+  })
+  const view = route.view
   const { dataset, textReady, error, retry } = useDataset(lang)
+  const session = useSession()
+
+  // Shared curation (merges / renames). `cv` bumps whenever it changes so views rebuild their indexes.
+  const [cv, setCv] = useState(0)
+  const refreshCuration = useCallback(async () => {
+    try {
+      const r = await api.curation()
+      setCuration(r.entries)
+    } catch {
+      setCuration([])
+    }
+    setCv((n) => n + 1)
+  }, [])
+  const [curationStarted, setCurationStarted] = useState(false)
+  if (!curationStarted) {
+    setCurationStarted(true)
+    refreshCuration()
+  }
 
   // Shared time window used by the map (and respected by cross-view jumps).
   const [time, setTime] = useState({ year: null, window: 5, includeInferred: true })
@@ -63,8 +97,8 @@ export default function App() {
 
   useEffect(() => {
     const onHash = () => {
-      const { view: nextView, eventId } = readHash()
-      setView(nextView)
+      const { view: nextView, eventId, entityKey } = readHash()
+      setRoute({ view: nextView, entityKey })
       if (eventId) setFocus({ eventId, nonce: Date.now() })
     }
     window.addEventListener('hashchange', onHash)
@@ -76,12 +110,26 @@ export default function App() {
     setTime((prev) => (prev.year == null ? { ...prev, year: busiestYear(dataset) } : prev))
   }
 
-  const goTo = useCallback((nextView) => {
-    setView(nextView)
-    if (window.location.hash !== `#${nextView}`) {
-      window.history.replaceState(null, '', `#${nextView}`)
+  const goTo = useCallback((nextView, entityKey = null) => {
+    setRoute({ view: nextView, entityKey })
+    const hash = hashFor(nextView, entityKey)
+    if (window.location.hash !== hash) {
+      // Profiles get a history entry (back button returns to the previous one); view switches do not.
+      if (entityKey) window.history.pushState(null, '', hash)
+      else window.history.replaceState(null, '', hash)
     }
   }, [])
+
+  /** Open a person or place profile, or a list ('people' / 'places'). */
+  const openProfile = useCallback((kind, key) => goTo(kind, key ?? null), [goTo])
+
+  const searchTimeline = useCallback(
+    (query) => {
+      setFocus({ query, nonce: Date.now() })
+      goTo('timeline')
+    },
+    [goTo],
+  )
 
   const showOnMap = useCallback(
     (ev) => {
@@ -112,8 +160,8 @@ export default function App() {
   const closeContribute = useCallback(() => setContributing(null), [])
 
   const actions = useMemo(
-    () => ({ showOnMap, showInGraph, showInTimeline, contribute }),
-    [showOnMap, showInGraph, showInTimeline, contribute],
+    () => ({ showOnMap, showInGraph, showInTimeline, contribute, openProfile, searchTimeline }),
+    [showOnMap, showInGraph, showInTimeline, contribute, openProfile, searchTimeline],
   )
 
   const ready = dataset && textReady && time.year != null
@@ -130,10 +178,26 @@ export default function App() {
         ) : (
           <Suspense fallback={<StatusScreen lang={lang} message={t(lang, 'loading')} />}>
             {view === 'map' && (
-              <MapView lang={lang} dataset={dataset} time={time} onTimeChange={setTime} focus={focus} actions={actions} />
+              <MapView key={cv} lang={lang} dataset={dataset} time={time} onTimeChange={setTime} focus={focus} actions={actions} />
             )}
-            {view === 'timeline' && <TimelineView lang={lang} dataset={dataset} focus={focus} actions={actions} />}
-            {view === 'graph' && <GraphView lang={lang} dataset={dataset} focus={focus} actions={actions} />}
+            {view === 'timeline' && <TimelineView key={cv} lang={lang} dataset={dataset} focus={focus} actions={actions} />}
+            {view === 'graph' && <GraphView key={cv} lang={lang} dataset={dataset} focus={focus} actions={actions} />}
+            {(view === 'people' || view === 'places') && (
+              <EntityIndex key={`${view}-${cv}`} kind={view === 'people' ? 'person' : 'place'} lang={lang} dataset={dataset} onOpen={openProfile} />
+            )}
+            {(view === 'person' || view === 'place') && (
+              <ProfileView
+                key={`${view}-${route.entityKey}-${cv}`}
+                kind={view}
+                entityKey={route.entityKey}
+                lang={lang}
+                dataset={dataset}
+                session={session}
+                actions={actions}
+                onOpen={openProfile}
+                onCurationChanged={refreshCuration}
+              />
+            )}
           </Suspense>
         )}
       </main>

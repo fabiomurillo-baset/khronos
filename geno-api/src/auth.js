@@ -93,9 +93,9 @@ export function redirectUri(requestUrl, provider) {
 }
 
 /** Step 1: remember where to come back to, send the browser to the provider. */
-export async function startLogin(env, requestUrl, provider, record) {
+export async function startLogin(env, requestUrl, provider, returnHash) {
   const state = randomToken()
-  await env.KV.put(`oauth:${state}`, JSON.stringify({ provider, record }), { expirationTtl: 600 })
+  await env.KV.put(`oauth:${state}`, JSON.stringify({ provider, returnHash }), { expirationTtl: 600 })
   const p = PROVIDERS[provider]
   const url = new URL(p.authorize)
   url.search = new URLSearchParams({
@@ -128,7 +128,7 @@ export async function finishLogin(env, requestUrl, provider) {
   const token = await signSession(env, user)
   const back = new URL(env.SITE_URL)
   back.searchParams.set('auth', token)
-  if (saved.record) back.hash = `r/${saved.record}`
+  if (saved.returnHash) back.hash = saved.returnHash
   return Response.redirect(back.toString(), 302)
 }
 

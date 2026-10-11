@@ -30,10 +30,24 @@ const ICONS = {
       <path d="M8.8 6.8 6.2 13.2M11.2 6.8l2.6 6.4M7 15h6" />
     </svg>
   ),
+  people: (
+    <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+      <circle cx="7.5" cy="7" r="2.5" />
+      <circle cx="13.5" cy="8" r="2" />
+      <path d="M3 16c0-2.5 2-4.2 4.5-4.2S12 13.5 12 16M11.5 15.5c0-2 1.3-3.3 3-3.3s2.8 1.3 2.8 3.3" strokeLinecap="round" />
+    </svg>
+  ),
+  places: (
+    <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+      <path d="M10 17.5s5-4.6 5-9a5 5 0 0 0-10 0c0 4.4 5 9 5 9z" strokeLinejoin="round" />
+      <circle cx="10" cy="8.5" r="1.8" />
+    </svg>
+  ),
 }
 
 export default function Header({ lang, onLangChange, view, onViewChange, dataset }) {
-  const views = ['map', 'timeline', 'graph']
+  const views = ['map', 'timeline', 'graph', 'people', 'places']
+  const activeTab = view === 'person' ? 'people' : view === 'place' ? 'places' : view
   // Discord invite comes from the API; until it answers, the link goes to the write-up's "Participa" section.
   const [invite, setInvite] = useState(null)
   useEffect(() => {
@@ -55,12 +69,12 @@ export default function Header({ lang, onLangChange, view, onViewChange, dataset
           <button
             key={v}
             role="tab"
-            aria-selected={view === v}
+            aria-selected={activeTab === v}
             onClick={() => onViewChange(v)}
             className="btn-ghost flex flex-1 items-center justify-center gap-1.5 sm:flex-none"
           >
             {ICONS[v]}
-            {t(lang, v === 'map' ? 'viewMap' : v === 'timeline' ? 'viewTimeline' : 'viewGraph')}
+            {t(lang, { map: 'viewMap', timeline: 'viewTimeline', graph: 'viewGraph', people: 'viewPeople', places: 'viewPlaces' }[v])}
           </button>
         ))}
       </nav>

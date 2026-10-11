@@ -118,27 +118,138 @@ export function useDataset(lang) {
 }
 
 // ------------------------------------------------------------------------------------
-// Derived indexes (computed lazily, cached)
+// Curation: community decisions (merges, renames) applied on top of the raw names
+// ------------------------------------------------------------------------------------
+const curation = {
+  entries: [],
+  canon: { person: new Map(), place: new Map() }, // folded key -> folded key it was merged into
+  names: { person: new Map(), place: new Map() }, // folded key -> display name chosen by a rename
+  version: 0,
+}
+
+/** Install the active curation entries (from geno-api) and drop every derived index. */
+export function setCuration(entries) {
+  curation.entries = entries || []
+  curation.canon = { person: new Map(), place: new Map() }
+  curation.names = { person: new Map(), place: new Map() }
+  for (const e of curation.entries) {
+    if (!curation.canon[e.kind]) continue
+    if (e.action === 'merge') curation.canon[e.kind].set(e.subject, e.target)
+    else if (e.action === 'rename') curation.names[e.kind].set(e.subject, e.target)
+  }
+  peopleIndex = null
+  placesIndex = null
+  graphCache = null
+  curation.version++
+}
+
+export const getCuration = () => curation.entries
+export const curationVersion = () => curation.version
+
+/** Follow merges to the canonical key (with a guard against accidental cycles). */
+export function canonicalKey(kind, key) {
+  const map = curation.canon[kind]
+  let k = key
+  for (let i = 0; i < 25 && map.has(k); i++) {
+    const next = map.get(k)
+    if (next === key) break
+    k = next
+  }
+  return k
+}
+
+export const personKey = (name) => canonicalKey('person', fold(name))
+export const placeKey = (name) => canonicalKey('place', fold(name))
+
+/** Active decisions that touch a key (as subject or target). */
+export function curationFor(kind, key) {
+  return curation.entries.filter((e) => e.kind === kind && (e.subject === key || e.target === key))
+}
+
+// ------------------------------------------------------------------------------------
+// Derived indexes (computed lazily, cached, rebuilt when curation changes)
 // ------------------------------------------------------------------------------------
 let peopleIndex = null
+let placesIndex = null
 
-/** Map folded name -> { name, events: Event[] } */
-export function getPeopleIndex(dataset) {
-  if (peopleIndex) return peopleIndex
+/**
+ * Generic index: folded + canonical key -> { key, name, events, aliases }.
+ * `aliases` maps each raw spelling that landed on the key to its number of mentions,
+ * and `name` is the rename if any, else the most frequent spelling.
+ */
+function buildIndex(dataset, kind, pick) {
   const index = new Map()
   for (const ev of dataset.events) {
-    for (const person of ev.people) {
-      const key = fold(person)
+    let lastKey = null
+    for (const raw of pick(ev)) {
+      const key = canonicalKey(kind, fold(raw))
       let entry = index.get(key)
       if (!entry) {
-        entry = { name: person, key, events: [] }
+        entry = { key, kind, name: raw, events: [], aliases: new Map() }
         index.set(key, entry)
       }
-      entry.events.push(ev)
+      entry.aliases.set(raw, (entry.aliases.get(raw) || 0) + 1)
+      if (entry.events[entry.events.length - 1] !== ev && key !== lastKey) entry.events.push(ev)
+      lastKey = key
     }
   }
-  peopleIndex = index
+  for (const entry of index.values()) {
+    const rename = curation.names[kind].get(entry.key)
+    if (rename) entry.name = rename
+    else {
+      let best = null
+      let bestCount = -1
+      for (const [raw, count] of entry.aliases) {
+        // Prefer the spelling that is itself the canonical key, then the most frequent one.
+        const own = fold(raw) === entry.key ? 1e9 : 0
+        if (own + count > bestCount) {
+          bestCount = own + count
+          best = raw
+        }
+      }
+      entry.name = best
+    }
+  }
   return index
+}
+
+/** Map canonical key -> { name, key, events, aliases } for people */
+export function getPeopleIndex(dataset) {
+  if (peopleIndex) return peopleIndex
+  peopleIndex = buildIndex(dataset, 'person', (ev) => ev.people)
+  return peopleIndex
+}
+
+/** Same for places (raw location names), with coordinates when the gazetteer placed them. */
+export function getPlacesIndex(dataset) {
+  if (placesIndex) return placesIndex
+  placesIndex = buildIndex(dataset, 'place', (ev) => ev.locations)
+  for (const ev of dataset.events) {
+    if (ev.lat == null || !ev.place) continue
+    const entry = placesIndex.get(canonicalKey('place', fold(ev.place)))
+    if (entry && entry.lat == null) {
+      entry.lat = ev.lat
+      entry.lng = ev.lng
+    }
+  }
+  return placesIndex
+}
+
+/** [first, last] year of an entry's dated records, or null. */
+export function yearSpan(entry) {
+  let a = Infinity
+  let b = -Infinity
+  for (const ev of entry.events) {
+    if (ev.year == null) continue
+    if (ev.year < a) a = ev.year
+    if (ev.year > b) b = ev.year
+  }
+  return a === Infinity ? null : [a, b]
+}
+
+/** Entries sorted by number of records, descending. */
+export function sortedEntries(index) {
+  return [...index.values()].sort((a, b) => b.events.length - a.events.length || a.name.localeCompare(b.name))
 }
 
 let graphCache = null
@@ -163,7 +274,7 @@ export function getGraph(dataset) {
     return n
   }
   for (const ev of dataset.events) {
-    const keys = [...new Set(ev.people.map(fold))]
+    const keys = [...new Set(ev.people.map(personKey))]
     if (keys.length < 2) {
       if (keys.length === 1) ensureNode(keys[0])
       continue
