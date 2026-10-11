@@ -41,6 +41,8 @@ function buildDataset(raw) {
     lat: e.g ? e.g[0] : null,
     lng: e.g ? e.g[1] : null,
     place: e.gl || null,
+    // Page of the printed index this record was read from: [volume index, pdf page, printed page, confidence]
+    source: e.s ? { vol: e.s[0], page: e.s[1], printed: e.s[2], conf: e.s[3] } : null,
   }))
 
   const histogram = new Map()
@@ -55,8 +57,11 @@ function buildDataset(raw) {
 
   const byId = new Map(events.map((ev) => [ev.id, ev]))
 
-  return { events, byId, counts: raw.counts, generated: raw.generated, histogram, minYear, maxYear }
+  return { events, byId, counts: raw.counts, generated: raw.generated, volumes: raw.volumes || [], histogram, minYear, maxYear }
 }
+
+/** The cached dataset (null until loaded). */
+export const getDataset = () => cache.dataset
 
 export function loadDataset() {
   if (cache.dataset) return Promise.resolve(cache.dataset)
@@ -65,6 +70,24 @@ export function loadDataset() {
     cache.dataset = buildDataset(raw)
     return cache.dataset
   })
+}
+
+/**
+ * Links to the original page of a record on the Internet Archive: the page viewer
+ * (leaf numbers are 0-based, pdf pages 1-based) and the PDF opened at that page.
+ */
+export function sourceLinks(dataset, ev) {
+  if (!ev.source) return null
+  const vol = dataset.volumes[ev.source.vol]
+  if (!vol) return null
+  return {
+    tomo: vol.tomo,
+    printed: ev.source.printed,
+    page: ev.source.page,
+    conf: ev.source.conf,
+    viewer: `https://archive.org/details/${vol.id}/page/n${ev.source.page - 1}/mode/1up`,
+    pdf: `https://archive.org/download/${vol.id}/${vol.id}.pdf#page=${ev.source.page}`,
+  }
 }
 
 // ------------------------------------------------------------------------------------

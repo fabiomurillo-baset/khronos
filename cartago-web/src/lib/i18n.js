@@ -188,6 +188,13 @@ const STRINGS = {
     prPending: 'Esperando aprobación en GitHub',
     correctedBadge: 'Corregido por la comunidad',
     noChange: 'El valor propuesto es igual al actual.',
+    // sources
+    source: 'Fuente',
+    sourceRef: (tomo, printed, page) => `Tomo ${tomo}, ${printed != null ? `p. ${printed}` : `pág. ${page} del PDF`}`,
+    sourceTitle: 'Página del Índice de los Protocolos de Cartago (Archivo Nacional) digitalizada en Internet Archive, donde se leyó este registro',
+    sourceApprox: 'ubicación aproximada: la página se asignó automáticamente con poca coincidencia; revise las páginas vecinas',
+    sourceViewer: 'Ver página',
+    sourcePdf: 'PDF',
   },
   en: {
     appTitle: 'Geno',
@@ -372,6 +379,12 @@ const STRINGS = {
     prPending: 'Awaiting approval on GitHub',
     correctedBadge: 'Corrected by the community',
     noChange: 'The proposed value equals the current one.',
+    source: 'Source',
+    sourceRef: (tomo, printed, page) => `Volume ${tomo}, ${printed != null ? `p. ${printed}` : `PDF page ${page}`}`,
+    sourceTitle: 'Page of the Index of the Cartago Protocols (National Archive) digitized at the Internet Archive, where this record was read',
+    sourceApprox: 'approximate: the page was assigned automatically with a weak match; check the neighbouring pages',
+    sourceViewer: 'View page',
+    sourcePdf: 'PDF',
   },
 }
 

@@ -23,5 +23,6 @@ geno-api/.wrangler/
 .env
 .dev.vars
 
-# Keep the pinned Python deps even though *.txt is ignored above
+# Keep the pinned Python deps and the per-page OCR text even though *.txt is ignored above
 !scripts/requirements.txt
+!scripts/data/pages/*.txt

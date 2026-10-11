@@ -2,7 +2,7 @@
 Build the compact JSON views consumed by cartago-web from the Gemini extraction output.
 
 Outputs (all minified) into cartago-web/public/data/:
-  events.json   - {"generated", "counts", "events": [ {i, y, yi, d, p, l, g, gl}, ... ]}
+  events.json   - {"generated", "counts", "volumes", "events": [ {i, y, yi, d, p, l, g, gl, s}, ... ]}
                     i  : event id (source order == chronological order of the index)
                     y  : year (int) or null
                     yi : 1 when the year was inferred from the previous dated entry
@@ -29,6 +29,8 @@ EVENTS_FILE = os.path.join(GEMINI_DIR, "gemini_events.jsonl")
 #   {"id": 7, "record": 24, "field": "year", "to": 1608, "from": 1607, "reason": "...", "evidence": [...], "by": "...", "pr": 12}
 # field is one of: year, date, people, locations, summary_en, summary_es.
 CORRECTIONS_FILE = os.path.join(os.path.dirname(GEMINI_DIR), "corrections.jsonl")
+# Record -> source page in the printed volumes (built by link_sources.py).
+SOURCES_FILE = os.path.join(os.path.dirname(GEMINI_DIR), "sources.json")
 EVENTS_ES_FILE = os.path.join(GEMINI_DIR, "gemini_events_es.jsonl")
 OUTPUT_DIR = os.path.join(HERE, "..", "cartago-web", "public", "data")
 
@@ -356,6 +358,12 @@ def main():
     corrections = load_corrections()
     print(f"  {len(corrections)} records with community corrections")
 
+    sources = None
+    if os.path.exists(SOURCES_FILE):
+        with open(SOURCES_FILE, encoding="utf-8") as f:
+            sources = json.load(f)
+        print(f"  source pages for {len(sources['records'])} records")
+
     print("Loading Spanish translations...")
     es_by_id = {e["id"]: e for e in load_jsonl(EVENTS_ES_FILE)}
     print(f"  {len(es_by_id)} translated")
@@ -399,6 +407,8 @@ def main():
         locations = clean_list(e.get("locations"))
 
         rec = {"i": e["id"], "y": year, "yi": inferred, "d": date, "p": people, "l": locations}
+        if sources and 0 <= e["id"] - 1 < len(sources["records"]):
+            rec["s"] = sources["records"][e["id"] - 1]  # [volume index, pdf page, printed page, confidence]
 
         for loc in locations:
             hit = lookup_location(loc)
@@ -429,6 +439,7 @@ def main():
     payload = {
         "generated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "counts": counts,
+        "volumes": sources["volumes"] if sources else [],
         "events": out_events,
     }
     compact = dict(ensure_ascii=False, separators=(",", ":"))

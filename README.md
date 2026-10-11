@@ -8,6 +8,7 @@ Live: **https://basetlabs.com/costaricahist1500-1800/** · Write-up: https://fab
 
 ```
 scripts/                      data pipeline (Python)
+  link_sources.py             aligns every record with its page in the five scanned volumes → data/sources.json
   extract_data_gemini.py      OCR text → events + people profiles (Gemini 2.5 Flash, structured output, resumable)
   translate_data_gemini.py    English summaries → Spanish, in batches (resumable)
   generate_json_views.py      Gemini output → compact JSON for the web app (gazetteer, year inference)
@@ -41,6 +42,7 @@ set GEMINI_API_KEY=...                             # never commit it
 
 python scripts/extract_data_gemini.py     # reads Cartago.txt, writes scripts/data/gemini_output/*.jsonl
 python scripts/translate_data_gemini.py   # adds gemini_events_es.jsonl
+python scripts/link_sources.py            # record → page of the printed volume (needs pdftotext; page text is cached in scripts/data/pages/)
 python scripts/generate_json_views.py     # rebuilds cartago-web/public/data/*.json
 ```
 
@@ -53,6 +55,10 @@ Every record has an **Aportar** button that opens a side panel: sign in (Discord
 ## People and places
 
 The **Personas** and **Lugares** views list every name in the index; each one has a profile page (`#p/<name>`, `#l/<name>`) with a generated summary, the records it appears in, related people and places, a per-decade histogram and the spelling variants merged into it. Modeled on FamilySearch's person pages: a **Posibles duplicados** section lists similar names (token overlap + Jaro-Winkler, see `cartago-web/src/lib/similar.js`), **Comparar** opens a side-by-side merge dialog, and **Cambios** shows who merged or renamed what, with undo. Decisions are shared through `geno-api` (D1) and applied on top of the raw data at load time, so the pipeline output is never modified.
+
+## Sources
+
+Every record links to the page of the printed index it was read from, on the Internet Archive (page viewer and PDF at that page). The mapping comes from `scripts/link_sources.py`: the five volumes' OCR text is split per page, and records (which are in reading order) are aligned to pages with a banded monotonic dynamic program scored on the record's people and place names. Mean confidence 0.73; records with a weak match carry a `≈` mark in the UI. Volume ids and pages live in `events.json` (`volumes`, `s`), so pointing the links at another host (e.g. copies of the PDFs in R2) is a one-line change in `sourceLinks()`.
 
 ## Corrections through pull requests
 

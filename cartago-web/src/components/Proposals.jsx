@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../lib/community.js'
-import { getSummary } from '../lib/data.js'
+import { getDataset, getSummary, sourceLinks } from '../lib/data.js'
 import { t } from '../lib/i18n.js'
 
 const FIELDS = ['year', 'date', 'people', 'locations', 'summary_es', 'summary_en']
@@ -41,7 +41,7 @@ function ProposalForm({ ev, lang, onDone, onCancel }) {
   const [field, setField] = useState('year')
   const [value, setValue] = useState(() => editorText(currentValue(ev, "year")))
   const [reason, setReason] = useState('')
-  const [evidence, setEvidence] = useState('')
+  const [evidence, setEvidence] = useState(() => sourceLinks(getDataset(), ev)?.viewer || '')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(null)
 

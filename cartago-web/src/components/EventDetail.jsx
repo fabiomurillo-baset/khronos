@@ -1,4 +1,4 @@
-import { getSummary } from '../lib/data.js'
+import { getDataset, getSummary, sourceLinks } from '../lib/data.js'
 import { t } from '../lib/i18n.js'
 import { highlightSegments } from '../lib/text.js'
 
@@ -14,6 +14,7 @@ function Highlight({ text, query }) {
  */
 export default function EventDetail({ ev, lang, query, onPerson, onPlace, actions = {}, compact = false, active = false }) {
   const { text, fallback } = getSummary(ev, lang)
+  const src = sourceLinks(getDataset(), ev)
   const yearLabel = ev.year == null ? t(lang, 'undated') : `${ev.inferred ? '≈ ' : ''}${ev.year}`
 
   return (
@@ -77,6 +78,26 @@ export default function EventDetail({ ev, lang, query, onPerson, onPlace, action
                 <Highlight text={loc} query={query} />
               </button>
             ))}
+          </div>
+        )}
+
+        {src && (
+          <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-slate-500" title={t(lang, 'sourceTitle')}>
+            <span>
+              {t(lang, 'source')}: {t(lang, 'sourceRef', src.tomo, src.printed, src.page)}
+              {src.conf < 0.3 && (
+                <span className="text-amber-300/80" title={t(lang, 'sourceApprox')}>
+                  {' '}
+                  ≈
+                </span>
+              )}
+            </span>
+            <a href={src.viewer} target="_blank" rel="noopener" className="text-sky-300 hover:text-gold">
+              {t(lang, 'sourceViewer')} ↗
+            </a>
+            <a href={src.pdf} target="_blank" rel="noopener" className="text-sky-300 hover:text-gold">
+              {t(lang, 'sourcePdf')} ↗
+            </a>
           </div>
         )}
 
