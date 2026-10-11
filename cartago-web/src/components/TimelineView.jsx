@@ -10,6 +10,7 @@ export default function TimelineView({ lang, dataset, focus, actions }) {
   const [query, setQuery] = useState(() => focus?.query ?? (focus?.eventId ? `#${focus.eventId}` : ''))
   const deferredQuery = useDeferredValue(query)
   const [decade, setDecade] = useState(null)
+  const [collection, setCollection] = useState(null) // null = all
   const listRef = useRef(null)
   const sentinelRef = useRef(null)
   const [appliedFocus, setAppliedFocus] = useState(focus?.nonce ?? null)
@@ -22,7 +23,7 @@ export default function TimelineView({ lang, dataset, focus, actions }) {
   }
 
   // Paging is keyed by the active filter, so a new filter implicitly starts at the first page.
-  const filterKey = `${deferredQuery}|${decade}`
+  const filterKey = `${deferredQuery}|${decade}|${collection}`
   const [paging, setPaging] = useState({ key: filterKey, limit: PAGE })
   const limit = paging.key === filterKey ? paging.limit : PAGE
   const setLimit = useCallback(
@@ -56,10 +57,11 @@ export default function TimelineView({ lang, dataset, focus, actions }) {
     const idMatch = /^#(\d+)$/.exec(q)
     return dataset.events.filter((ev, i) => {
       if (decade != null && (ev.year == null || Math.floor(ev.year / 10) * 10 !== decade)) return false
+      if (collection != null && (ev.collection || 0) !== collection) return false
       if (idMatch) return ev.id === Number(idMatch[1])
       return !q || haystacks[i].includes(q)
     })
-  }, [dataset, haystacks, deferredQuery, decade])
+  }, [dataset, haystacks, deferredQuery, decade, collection])
 
   // Back to the top whenever the filter changes.
   useEffect(() => {
@@ -146,6 +148,18 @@ export default function TimelineView({ lang, dataset, focus, actions }) {
                 </button>
               )}
             </div>
+            {dataset.collections.length > 1 && (
+              <div className="mt-2 flex flex-wrap items-center gap-1 text-xs" role="group" aria-label={t(lang, 'collection')}>
+                <button type="button" className="btn-ghost text-xs" aria-pressed={collection == null} onClick={() => setCollection(null)}>
+                  {t(lang, 'allCollections')}
+                </button>
+                {dataset.collections.map((c, i) => (
+                  <button key={c.id} type="button" className="btn-ghost text-xs" aria-pressed={collection === i} onClick={() => setCollection(collection === i ? null : i)}>
+                    {c.label}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           <ol className="mt-4 space-y-3">

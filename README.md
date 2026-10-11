@@ -8,6 +8,7 @@ Live: **https://basetlabs.com/costaricahist1500-1800/** · Write-up: https://fab
 
 ```
 scripts/                      data pipeline (Python)
+  transcribe_pages.py         new sources: page images (local or Internet Archive) → Gemini transcription + dated entries → data/sources/<id>/pages.jsonl
   link_sources.py             aligns every record with its page in the five scanned volumes → data/sources.json
   extract_data_gemini.py      OCR text → events + people profiles (Gemini 2.5 Flash, structured output, resumable)
   translate_data_gemini.py    English summaries → Spanish, in batches (resumable)
@@ -55,6 +56,23 @@ Every record has an **Aportar** button that opens a side panel: sign in (Discord
 ## People and places
 
 The **Personas** and **Lugares** views list every name in the index; each one has a profile page (`#p/<name>`, `#l/<name>`) with a generated summary, the records it appears in, related people and places, a per-decade histogram and the spelling variants merged into it. Modeled on FamilySearch's person pages: a **Posibles duplicados** section lists similar names (token overlap + Jaro-Winkler, see `cartago-web/src/lib/similar.js`), **Comparar** opens a side-by-side merge dialog, and **Cambios** shows who merged or renamed what, with undo. Decisions are shared through `geno-api` (D1) and applied on top of the raw data at load time, so the pipeline output is never modified.
+
+## Adding a new source (collection)
+
+Any digitized work can join Geno as its own collection, with every record linked to its page on the Internet Archive. Example, the *Libro Once de Cabildo* (Ayuntamiento de Guatemala, 1617–1626, a manuscript in *procesal* script):
+
+1. **Upload the scans to the Internet Archive** (done: `libro-once-de-cabildo`). The Archive's own OCR is useless for manuscripts, so we transcribe ourselves.
+2. **Register the source** in [`scripts/data/collections.json`](scripts/data/collections.json): id, label, Archive identifier, years, a short context paragraph for the model, and an `id_base` for its record ids (the Cabildo starts at 100000).
+3. **Transcribe** with Gemini (vision), page by page, from your local images (leaf = position in the folder) or from the Archive once it has derived the item:
+   ```bash
+   set GEMINI_API_KEY=...
+   python scripts/transcribe_pages.py --source cabildo-guatemala-11 --images cabildo-guatemala-images --limit 5   # trial
+   python scripts/transcribe_pages.py --source cabildo-guatemala-11 --images cabildo-guatemala-images             # all, resumable
+   ```
+   Each page yields a diplomatic transcription, marginalia, a legibility estimate and the dated entries (date, type, summary, people, places). `gemini-2.5-pro` reads *procesal* far better than Flash; expect a provisional reading that the community then corrects through proposals.
+4. **Regenerate and publish**: `python scripts/generate_json_views.py` (the new records get `c` = collection index and `s` = [source, leaf, folio, legibility, side]) and rebuild the web app. The timeline gains a collection filter; records show the collection, the leaf (and folio) and the usual inline viewer; people and places merge across collections.
+
+For scholarly-grade transcription of selected pages, Transkribus (public models for 17th-century Spanish exist) can replace step 3: export its text per page into the same `pages.jsonl` shape.
 
 ## Sources
 

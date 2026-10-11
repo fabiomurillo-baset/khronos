@@ -31,6 +31,10 @@ EVENTS_FILE = os.path.join(GEMINI_DIR, "gemini_events.jsonl")
 CORRECTIONS_FILE = os.path.join(os.path.dirname(GEMINI_DIR), "corrections.jsonl")
 # Record -> source page in the printed volumes (built by link_sources.py).
 SOURCES_FILE = os.path.join(os.path.dirname(GEMINI_DIR), "sources.json")
+# Other ingested works (manuscripts transcribed with transcribe_pages.py); each becomes a collection.
+COLLECTIONS_FILE = os.path.join(os.path.dirname(GEMINI_DIR), "collections.json")
+SOURCES_DIR = os.path.join(os.path.dirname(GEMINI_DIR), "sources")
+MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 EVENTS_ES_FILE = os.path.join(GEMINI_DIR, "gemini_events_es.jsonl")
 OUTPUT_DIR = os.path.join(HERE, "..", "cartago-web", "public", "data")
 
@@ -349,6 +353,77 @@ def load_corrections():
     return out
 
 
+def iso_to_date(iso):
+    """'1620-03-12' -> ('Mar 12', 1620); '1620-03' -> (None, 1620); '1620' -> (None, 1620)."""
+    if not iso:
+        return None, None
+    m = re.match(r"^(\d{4})(?:-(\d{2})(?:-(\d{2}))?)?", str(iso))
+    if not m:
+        return None, None
+    year = int(m.group(1))
+    if m.group(2) and m.group(3):
+        try:
+            return f"{MONTHS[int(m.group(2)) - 1]} {int(m.group(3))}", year
+        except (ValueError, IndexError):
+            return None, year
+    return None, year
+
+
+def collection_events(collection, source_index, counts, out_events, text_en, text_es):
+    """Append the records of one transcribed source (pages.jsonl) to the outputs."""
+    pages_file = os.path.join(SOURCES_DIR, collection["id"], "pages.jsonl")
+    if not os.path.exists(pages_file):
+        print(f"  {collection['id']}: no pages.jsonl yet")
+        return 0
+    n = 0
+    next_id = int(collection["id_base"])
+    prev_year = None
+    with open(pages_file, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            page = json.loads(line)
+            for side in ("left", "right"):
+                reading = page.get(side)
+                if not reading:
+                    continue
+                for e in reading.get("entries") or []:
+                    date, iso_year = iso_to_date(e.get("date"))
+                    year = e.get("year") or iso_year
+                    inferred = 0
+                    if year is None and prev_year is not None:
+                        year, inferred = prev_year, 1
+                    if year is not None and not inferred:
+                        prev_year = year
+                        counts["dated"] += 1
+                    elif inferred:
+                        counts["inferred"] += 1
+                    else:
+                        counts["undated"] += 1
+                    people = clean_list(e.get("people"))
+                    locations = clean_list(e.get("locations"))
+                    rec = {"i": next_id, "y": year, "yi": inferred, "d": date, "p": people, "l": locations, "c": collection["_index"],
+                           "s": [source_index, page["leaf"], reading.get("folio"), round(float(reading.get("legibility") or 0), 2), side[0]]}
+                    for loc in locations:
+                        hit = lookup_location(loc)
+                        if hit:
+                            canon, (lat, lng) = hit
+                            rec["g"] = [round(lat, 4), round(lng, 4)]
+                            rec["gl"] = canon
+                            break
+                    counts["located" if "g" in rec else "unlocated"] += 1
+                    counts["total"] += 1
+                    out_events.append(rec)
+                    summary = (e.get("summary_es") or "").strip()
+                    text_es.append(summary)
+                    text_en.append(summary)  # no English for transcribed sources yet
+                    counts["translated"] += 1
+                    next_id += 1
+                    n += 1
+    return n
+
+
 def main():
     print("Loading Gemini events...")
     events = load_jsonl(EVENTS_FILE)
@@ -435,11 +510,26 @@ def main():
         else:
             text_es.append(None)
 
+    # Sources list: the five Índice volumes first (indices 0-4, as in sources.json), then other works.
+    source_list = [dict(v, kind="index", collection=0) for v in (sources["volumes"] if sources else [])]
+    collections = [{"id": "indice-protocolos-cartago", "label": "Índice de los Protocolos de Cartago", "kind": "index"}]
+    if os.path.exists(COLLECTIONS_FILE):
+        with open(COLLECTIONS_FILE, encoding="utf-8") as f:
+            extra = json.load(f)["sources"]
+        for c in extra:
+            c["_index"] = len(collections)
+            collections.append({"id": c["id"], "label": c["label"], "kind": c.get("kind", "manuscript"), "work": c.get("work")})
+            source_list.append({"id": c["ia"], "tomo": None, "label": c["label"], "kind": c.get("kind", "manuscript"), "collection": c["_index"]})
+            n = collection_events(c, len(source_list) - 1, counts, out_events, text_en, text_es)
+            print(f"  {c['id']}: {n} records")
+
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     payload = {
         "generated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "counts": counts,
         "volumes": sources["volumes"] if sources else [],
+        "sources": source_list,
+        "collections": collections,
         "events": out_events,
     }
     compact = dict(ensure_ascii=False, separators=(",", ":"))

@@ -1,3 +1,5 @@
 google-genai>=1.0
 pydantic>=2
+numpy>=1.26     # link_sources.py
+pillow>=10      # transcribe_pages.py
 spacy>=3  # only for the legacy extract_data.py

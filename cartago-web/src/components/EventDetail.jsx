@@ -34,6 +34,11 @@ export default function EventDetail({ ev, lang, query, onPerson, onPlace, action
         </div>
         {ev.date && <div className="mt-1 text-xs text-slate-400">{ev.date}</div>}
         <div className="mt-1 font-mono text-[10px] text-slate-600">#{ev.id}</div>
+        {ev.collection > 0 && getDataset()?.collections?.[ev.collection] && (
+          <div className="mt-1 text-[10px] leading-tight text-sky-300/90" title={t(lang, 'collection')}>
+            {getDataset().collections[ev.collection].label}
+          </div>
+        )}
         {ev.corrected && (
           <div className="mt-1 text-[10px] leading-tight text-emerald-300" title={t(lang, 'correctedBadge')}>
             ✓ {t(lang, 'correctedBadge')}
@@ -88,11 +93,17 @@ export default function EventDetail({ ev, lang, query, onPerson, onPlace, action
           <div className="mt-2 text-[11px] text-slate-500">
             <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5" title={t(lang, 'sourceTitle')}>
               <span>
-                {t(lang, 'source')}: {t(lang, 'sourceRef', src.tomo, src.printed, src.page)}
-                {src.conf < 0.3 && (
+                {t(lang, 'source')}: {src.kind === 'index' ? t(lang, 'sourceRef', src.tomo, src.printed, src.page) : t(lang, 'sourceLeaf', src.label, src.page, src.printed, src.side)}
+                {src.kind === 'index' && src.conf < 0.3 && (
                   <span className="text-amber-300/80" title={t(lang, 'sourceApprox')}>
                     {' '}
                     ≈
+                  </span>
+                )}
+                {src.kind !== 'index' && (
+                  <span className="text-amber-300/80" title={`${t(lang, 'transcriptionCaveat')} ${Math.round(src.conf * 100)}%`}>
+                    {' '}
+                    ✎ {Math.round(src.conf * 100)}%
                   </span>
                 )}
               </span>
@@ -103,7 +114,7 @@ export default function EventDetail({ ev, lang, query, onPerson, onPlace, action
             {showSource && (
               <div className="mt-2 overflow-hidden rounded-lg border border-white/10 bg-ink-950">
                 <div className="flex items-center justify-between gap-2 border-b border-white/8 px-2.5 py-1.5">
-                  <span className="text-slate-400">Índice de los Protocolos de Cartago · {t(lang, 'sourceRef', src.tomo, src.printed, src.page)}</span>
+                  <span className="text-slate-400">{src.kind === 'index' ? `Índice de los Protocolos de Cartago · ${t(lang, 'sourceRef', src.tomo, src.printed, src.page)}` : t(lang, 'sourceLeaf', src.label, src.page, src.printed, src.side)}</span>
                   <a href={src.viewer} target="_blank" rel="noopener" className="text-sky-300 hover:text-gold">
                     {t(lang, 'sourceOpen')} ↗
                   </a>

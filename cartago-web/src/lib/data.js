@@ -41,8 +41,9 @@ function buildDataset(raw) {
     lat: e.g ? e.g[0] : null,
     lng: e.g ? e.g[1] : null,
     place: e.gl || null,
-    // Page of the printed index this record was read from: [volume index, pdf page, printed page, confidence]
-    source: e.s ? { vol: e.s[0], page: e.s[1], printed: e.s[2], conf: e.s[3] } : null,
+    // Page this record was read from: [source index, page/leaf, printed page or folio, confidence, side?]
+    source: e.s ? { vol: e.s[0], page: e.s[1], printed: e.s[2], conf: e.s[3], side: e.s[4] || null } : null,
+    collection: e.c || 0,
   }))
 
   const histogram = new Map()
@@ -57,7 +58,9 @@ function buildDataset(raw) {
 
   const byId = new Map(events.map((ev) => [ev.id, ev]))
 
-  return { events, byId, counts: raw.counts, generated: raw.generated, volumes: raw.volumes || [], histogram, minYear, maxYear }
+  const sources = raw.sources || (raw.volumes || []).map((v) => ({ ...v, kind: 'index', collection: 0 }))
+  const collections = raw.collections || [{ id: 'indice-protocolos-cartago', label: 'Índice de los Protocolos de Cartago', kind: 'index' }]
+  return { events, byId, counts: raw.counts, generated: raw.generated, volumes: raw.volumes || [], sources, collections, histogram, minYear, maxYear }
 }
 
 /** The cached dataset (null until loaded). */
@@ -78,16 +81,19 @@ export function loadDataset() {
  */
 export function sourceLinks(dataset, ev) {
   if (!ev.source) return null
-  const vol = dataset.volumes[ev.source.vol]
-  if (!vol) return null
+  const src = dataset.sources[ev.source.vol]
+  if (!src) return null
   return {
-    tomo: vol.tomo,
+    kind: src.kind || 'index',
+    tomo: src.tomo,
+    label: src.label || null,
     printed: ev.source.printed,
     page: ev.source.page,
+    side: ev.source.side,
     conf: ev.source.conf,
-    viewer: `https://archive.org/details/${vol.id}/page/n${ev.source.page - 1}/mode/1up`,
-    embed: `https://archive.org/embed/${vol.id}?ui=embed#page/n${ev.source.page - 1}/mode/1up`,
-    pdf: `https://archive.org/download/${vol.id}/${vol.id}.pdf#page=${ev.source.page}`,
+    viewer: `https://archive.org/details/${src.id}/page/n${ev.source.page - 1}/mode/1up`,
+    embed: `https://archive.org/embed/${src.id}?ui=embed#page/n${ev.source.page - 1}/mode/1up`,
+    pdf: `https://archive.org/download/${src.id}/${src.id}.pdf#page=${ev.source.page}`,
   }
 }
 
