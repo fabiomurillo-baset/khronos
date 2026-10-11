@@ -6,6 +6,7 @@ import { findSimilar } from '../lib/similar.js'
 import { fold, formatNumber } from '../lib/text.js'
 import EventDetail from './EventDetail.jsx'
 import MergeDialog from './MergeDialog.jsx'
+import References from './References.jsx'
 import { SignInButtons } from './SignIn.jsx'
 
 const PAGE = 20
@@ -289,6 +290,7 @@ export default function ProfileView({ kind, entityKey, lang, dataset, session, a
 
           {/* sidebar */}
           <div className="space-y-4">
+            <References target={`${isPerson ? 'p' : 'l'}:${entry.key}`} lang={lang} />
             {related.people.length > 0 && (
               <Section title={t(lang, 'relatedPeople')}>
                 <div className="flex flex-wrap gap-1.5">{related.people.map(([e, c]) => chip(e, c, 'person'))}</div>

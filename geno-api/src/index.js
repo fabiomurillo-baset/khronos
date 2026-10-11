@@ -16,12 +16,16 @@
 //   POST /records/:id/proposals          {field, from, to, reason, evidence[]}    (Bearer token)
 //   POST /proposals/:id/vote             {value: 1 | -1 | 0}; opens the GitHub PR at the threshold (Bearer token)
 //   POST /proposals/:id/withdraw         author withdraws an open proposal         (Bearer token)
+//   GET  /works · POST /works            bibliography catalog (Internet Archive items, URLs)
+//   GET  /refs · POST /refs              references: work + page attached to r:<id>, p:<key>, l:<key>
+//   POST /refs/:id/undo
 
 import { enabledProviders, finishLogin, isEnabled, readSession, startLogin } from './auth.js'
 import { addCuration, describe, listCuration, undoCuration, validate } from './curation.js'
 import { createThread, findThread, postAsUser, postLog, readMessages, threadUrl } from './discord.js'
 import { githubEnabled } from './github.js'
 import { createProposal, describeProposal, listProposals, setDiscordMessage, threshold, validateProposal, vote, withdraw } from './proposals.js'
+import { addRef, addWork, listRefs, listWorks, undoRef, validateRef, validateWork } from './references.js'
 
 const MAX_CONTENT = 2000
 const MAX_FILES = 4
@@ -171,6 +175,34 @@ async function route(request, env, ctx, url) {
     const result = await vote(env, user, id, value, { recordUrl: `${env.SITE_URL}#r/${recordOf.record}`, threadUrl: threadId ? threadUrl(env, threadId) : null })
     if (result?.submitted) ctx.waitUntil(postLog(env, `🔀 Propuesta #${id} alcanzó el umbral de votos: PR ${result.submitted.url}`))
     return reply(result)
+  }
+
+  if (path === '/works' || path === '/refs') {
+    if (!env.DB) return reply({ works: [], refs: [], disabled: true })
+    const isWork = path === '/works'
+    if (method === 'GET') return reply(isWork ? { works: await listWorks(env.DB) } : { refs: await listRefs(env.DB) }, 200, { 'cache-control': 'no-store' })
+    if (method === 'POST') {
+      const user = await readSession(env, request)
+      if (!user) return reply({ error: 'unauthorized' }, 401)
+      const body = await request.json().catch(() => null)
+      const bad = isWork ? validateWork(body) : validateRef(body)
+      if (bad) return reply({ error: `invalid ${bad}` }, 400)
+      if (isWork) return reply({ work: await addWork(env.DB, user, body) }, 201)
+      const ref = await addRef(env.DB, user, body)
+      ctx.waitUntil(postLog(env, `📚 ${user.name} añadió una referencia a ${body.target}: obra ${body.work_id}${ref.locator ? ` · ${ref.locator_type} ${ref.locator}` : ''}`))
+      return reply({ ref }, 201)
+    }
+    return reply({ error: 'method not allowed' }, 405)
+  }
+
+  if ((m = path.match(/^\/refs\/(\d+)\/undo$/)) && method === 'POST') {
+    if (!env.DB) return reply({ error: 'disabled' }, 404)
+    const user = await readSession(env, request)
+    if (!user) return reply({ error: 'unauthorized' }, 401)
+    const row = await undoRef(env.DB, user, Number(m[1]))
+    if (!row) return reply({ error: 'not found' }, 404)
+    ctx.waitUntil(postLog(env, `↩️ ${user.name} quitó la referencia #${row.id} de ${row.target}`))
+    return reply({ undone: row.id })
   }
 
   if ((m = path.match(/^\/files\/(.+)$/))) {

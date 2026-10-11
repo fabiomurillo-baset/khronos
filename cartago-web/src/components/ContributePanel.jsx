@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { api, copyText, getSession, loginUrl, recordReference, recordSummary, recordTitle, recordUrl, setSession } from '../lib/community.js'
+import { api, copyText, loginUrl, recordReference, recordSummary, recordTitle, recordUrl } from '../lib/community.js'
 import { t } from '../lib/i18n.js'
+import { useSession } from '../lib/session.js'
 import Proposals from './Proposals.jsx'
+import References from './References.jsx'
 
 const POLL_MS = 5000
 const PROVIDER_ICONS = {
@@ -76,8 +78,7 @@ function formatTime(iso, lang) {
  * truth: messages come from the record's forum post and new ones are posted there.
  */
 export default function ContributePanel({ ev, lang, onClose }) {
-  const [config, setConfig] = useState(null)
-  const [user, setUser] = useState(undefined) // undefined = unknown yet, null = signed out
+  const { config, user, signOut } = useSession()
   const [thread, setThread] = useState(null)
   const [messages, setMessages] = useState([])
   const [loadError, setLoadError] = useState(null)
@@ -90,20 +91,6 @@ export default function ContributePanel({ ev, lang, onClose }) {
   const [needSignIn, setNeedSignIn] = useState(false)
   const listRef = useRef(null)
   const lastId = useRef(null)
-
-  // Config and session, once per open.
-  useEffect(() => {
-    api.config().then(setConfig).catch(() => setConfig({ providers: [], invite: null }))
-    if (!getSession()) setUser(null)
-    else
-      api
-        .me()
-        .then((r) => setUser(r.user))
-        .catch(() => {
-          setSession(null)
-          setUser(null)
-        })
-  }, [])
 
   // Messages: full load, then incremental polling while the panel is open.
   const load = useCallback(
@@ -174,10 +161,7 @@ export default function ContributePanel({ ev, lang, onClose }) {
       setContent('')
       setFiles([])
     } catch (err) {
-      if (err.status === 401) {
-        setSession(null)
-        setUser(null)
-      }
+      if (err.status === 401) signOut()
       setSendError(err)
     } finally {
       setSending(false)
@@ -234,6 +218,7 @@ export default function ContributePanel({ ev, lang, onClose }) {
       {/* proposals + messages */}
       <div ref={listRef} className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-4">
         <Proposals ev={ev} lang={lang} user={user ?? null} config={config} onSignInNeeded={() => setNeedSignIn(true)} />
+        <References target={`r:${ev.id}`} lang={lang} onSignInNeeded={() => setNeedSignIn(true)} />
         {loadError && !messages.length && <p className="text-xs text-rose-300">{t(lang, 'communityOffline')}</p>}
         {!loadError && !visible.length && (
           <div className="rounded-lg border border-dashed border-white/10 p-4 text-sm text-slate-400">
@@ -335,10 +320,7 @@ export default function ContributePanel({ ev, lang, onClose }) {
                 <button
                   type="button"
                   className="text-[11px] text-slate-500 hover:text-gold"
-                  onClick={() => {
-                    setSession(null)
-                    setUser(null)
-                  }}
+                  onClick={signOut}
                 >
                   {t(lang, 'signOut')}
                 </button>

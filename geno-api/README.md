@@ -8,7 +8,7 @@ Geno (browser) ──► geno-api.basetlabs.com (this Worker) ──► Discord 
                        └► R2: copy of every uploaded file, with record/author metadata
 ```
 
-Endpoints: `GET /config`, `GET /auth/:provider/start?return=<hash>`, `GET /auth/:provider/callback`, `GET /me`, `GET|POST /records/:id/messages`, `GET /files/:key`, `GET|POST /curation`, `POST /curation/:id/undo`, `GET|POST /records/:id/proposals`, `POST /proposals/:id/vote`, `POST /proposals/:id/withdraw`.
+Endpoints: `GET /config`, `GET /auth/:provider/start?return=<hash>`, `GET /auth/:provider/callback`, `GET /me`, `GET|POST /records/:id/messages`, `GET /files/:key`, `GET|POST /curation`, `POST /curation/:id/undo`, `GET|POST /records/:id/proposals`, `POST /proposals/:id/vote`, `POST /proposals/:id/withdraw`, `GET|POST /works`, `GET|POST /refs`, `POST /refs/:id/undo`.
 
 It also stores **curation**: the community's decisions about people and places (merging spelling variants of the same person or place, renaming an entry). They live in a D1 database so every visitor sees the same canonical names, each one is attributed to the signed-in user, can be undone from the profile page, and is optionally logged to a Discord channel.
 

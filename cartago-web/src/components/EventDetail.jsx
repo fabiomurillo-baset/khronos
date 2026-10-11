@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { getDataset, getSummary, sourceLinks } from '../lib/data.js'
 import { t } from '../lib/i18n.js'
 import { highlightSegments } from '../lib/text.js'
+import References from './References.jsx'
 
 function Highlight({ text, query }) {
   if (!query) return text
@@ -119,6 +120,8 @@ export default function EventDetail({ ev, lang, query, onPerson, onPlace, action
             )}
           </div>
         )}
+
+        <References target={`r:${ev.id}`} lang={lang} compact onSignInNeeded={() => actions.contribute?.(ev)} />
 
         <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
           {actions.showOnMap && ev.lat != null && (

@@ -4,6 +4,7 @@ import Header from './components/Header.jsx'
 import StatusScreen from './components/StatusScreen.jsx'
 import { api, consumeAuthFromUrl } from './lib/community.js'
 import { setCuration, useDataset } from './lib/data.js'
+import { loadReferences } from './lib/references.js'
 import { useSession } from './lib/session.js'
 import { detectLanguage, persistLanguage, t } from './lib/i18n.js'
 
@@ -74,6 +75,7 @@ export default function App() {
   if (!curationStarted) {
     setCurationStarted(true)
     refreshCuration()
+    loadReferences()
   }
 
   // Shared time window used by the map (and respected by cross-view jumps).

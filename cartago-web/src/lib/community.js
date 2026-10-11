@@ -139,4 +139,10 @@ export const api = {
     }),
   vote: (id, value) => call(`/proposals/${id}/vote`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ value }) }),
   withdraw: (id) => call(`/proposals/${id}/withdraw`, { method: 'POST' }),
+  // bibliography
+  works: () => call('/works', { cache: 'no-store' }),
+  addWork: (body) => call('/works', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) }),
+  refs: () => call('/refs', { cache: 'no-store' }),
+  addRef: (body) => call('/refs', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) }),
+  undoRef: (id) => call(`/refs/${id}/undo`, { method: 'POST' }),
 }
