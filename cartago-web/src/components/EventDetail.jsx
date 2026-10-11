@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { getDataset, getSummary, sourceLinks } from '../lib/data.js'
 import { t } from '../lib/i18n.js'
 import { highlightSegments } from '../lib/text.js'
@@ -15,6 +16,7 @@ function Highlight({ text, query }) {
 export default function EventDetail({ ev, lang, query, onPerson, onPlace, actions = {}, compact = false, active = false }) {
   const { text, fallback } = getSummary(ev, lang)
   const src = sourceLinks(getDataset(), ev)
+  const [showSource, setShowSource] = useState(false)
   const yearLabel = ev.year == null ? t(lang, 'undated') : `${ev.inferred ? '≈ ' : ''}${ev.year}`
 
   return (
@@ -82,22 +84,39 @@ export default function EventDetail({ ev, lang, query, onPerson, onPlace, action
         )}
 
         {src && (
-          <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-slate-500" title={t(lang, 'sourceTitle')}>
-            <span>
-              {t(lang, 'source')}: {t(lang, 'sourceRef', src.tomo, src.printed, src.page)}
-              {src.conf < 0.3 && (
-                <span className="text-amber-300/80" title={t(lang, 'sourceApprox')}>
-                  {' '}
-                  ≈
-                </span>
-              )}
-            </span>
-            <a href={src.viewer} target="_blank" rel="noopener" className="text-sky-300 hover:text-gold">
-              {t(lang, 'sourceViewer')} ↗
-            </a>
-            <a href={src.pdf} target="_blank" rel="noopener" className="text-sky-300 hover:text-gold">
-              {t(lang, 'sourcePdf')} ↗
-            </a>
+          <div className="mt-2 text-[11px] text-slate-500">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5" title={t(lang, 'sourceTitle')}>
+              <span>
+                {t(lang, 'source')}: {t(lang, 'sourceRef', src.tomo, src.printed, src.page)}
+                {src.conf < 0.3 && (
+                  <span className="text-amber-300/80" title={t(lang, 'sourceApprox')}>
+                    {' '}
+                    ≈
+                  </span>
+                )}
+              </span>
+              <button type="button" className="text-sky-300 hover:text-gold" aria-expanded={showSource} onClick={() => setShowSource((v) => !v)}>
+                {t(lang, showSource ? 'sourceHide' : 'sourceViewer')} {showSource ? '▴' : '▾'}
+              </button>
+            </div>
+            {showSource && (
+              <div className="mt-2 overflow-hidden rounded-lg border border-white/10 bg-ink-950">
+                <div className="flex items-center justify-between gap-2 border-b border-white/8 px-2.5 py-1.5">
+                  <span className="text-slate-400">Índice de los Protocolos de Cartago · {t(lang, 'sourceRef', src.tomo, src.printed, src.page)}</span>
+                  <a href={src.viewer} target="_blank" rel="noopener" className="text-sky-300 hover:text-gold">
+                    {t(lang, 'sourceOpen')} ↗
+                  </a>
+                </div>
+                <iframe
+                  src={src.embed}
+                  title={`${t(lang, 'source')} · #${ev.id}`}
+                  className="block h-[440px] w-full bg-ink-950"
+                  loading="lazy"
+                  allowFullScreen
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
+            )}
           </div>
         )}
 

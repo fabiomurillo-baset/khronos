@@ -193,8 +193,10 @@ const STRINGS = {
     sourceRef: (tomo, printed, page) => `Tomo ${tomo}, ${printed != null ? `p. ${printed}` : `pág. ${page} del PDF`}`,
     sourceTitle: 'Página del Índice de los Protocolos de Cartago (Archivo Nacional) digitalizada en Internet Archive, donde se leyó este registro',
     sourceApprox: 'ubicación aproximada: la página se asignó automáticamente con poca coincidencia; revise las páginas vecinas',
-    sourceViewer: 'Ver página',
-    sourcePdf: 'PDF',
+    sourceViewer: 'Ver fuente',
+    sourceHide: 'Ocultar fuente',
+    sourceOpen: 'Abrir en Internet Archive',
+    sourceLoading: 'Cargando la página digitalizada…',
   },
   en: {
     appTitle: 'Geno',
@@ -383,8 +385,10 @@ const STRINGS = {
     sourceRef: (tomo, printed, page) => `Volume ${tomo}, ${printed != null ? `p. ${printed}` : `PDF page ${page}`}`,
     sourceTitle: 'Page of the Index of the Cartago Protocols (National Archive) digitized at the Internet Archive, where this record was read',
     sourceApprox: 'approximate: the page was assigned automatically with a weak match; check the neighbouring pages',
-    sourceViewer: 'View page',
-    sourcePdf: 'PDF',
+    sourceViewer: 'View source',
+    sourceHide: 'Hide source',
+    sourceOpen: 'Open at the Internet Archive',
+    sourceLoading: 'Loading the scanned page…',
   },
 }
 

@@ -86,6 +86,7 @@ export function sourceLinks(dataset, ev) {
     page: ev.source.page,
     conf: ev.source.conf,
     viewer: `https://archive.org/details/${vol.id}/page/n${ev.source.page - 1}/mode/1up`,
+    embed: `https://archive.org/embed/${vol.id}?ui=embed#page/n${ev.source.page - 1}/mode/1up`,
     pdf: `https://archive.org/download/${vol.id}/${vol.id}.pdf#page=${ev.source.page}`,
   }
 }
