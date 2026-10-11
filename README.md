@@ -58,7 +58,7 @@ The **Personas** and **Lugares** views list every name in the index; each one ha
 
 ## Sources
 
-Every record links to the page of the printed index it was read from, on the Internet Archive (page viewer and PDF at that page). The mapping comes from `scripts/link_sources.py`: the five volumes' OCR text is split per page, and records (which are in reading order) are aligned to pages with a banded monotonic dynamic program scored on the record's people and place names. Mean confidence 0.73; records with a weak match carry a `≈` mark in the UI. Volume ids and pages live in `events.json` (`volumes`, `s`), so pointing the links at another host (e.g. copies of the PDFs in R2) is a one-line change in `sourceLinks()`.
+Every record links to the page of the printed index it was read from, on the Internet Archive (page viewer and PDF at that page). The mapping comes from `scripts/link_sources.py`: the five volumes' OCR text is split per page, and records (which are in reading order) are aligned to pages with a banded monotonic dynamic program scored on the record's people and place names. Mean confidence 0.88 (92% of records ≥ 0.5); records with a weak match carry a `≈` mark in the UI. Volume ids and pages live in `events.json` (`volumes`, `s`), so pointing the links at another host (e.g. copies of the PDFs in R2) is a one-line change in `sourceLinks()`.
 
 ## Corrections through pull requests
 

@@ -80,13 +80,27 @@ def ensure_page_texts(pdf_dir):
     return pages
 
 
-def printed_page_number(text):
-    """The printed folio number usually sits alone on one of the first lines."""
-    for line in text.strip().split("\n")[:6]:
-        line = line.strip()
-        if re.fullmatch(r"\d{1,3}", line):
-            return int(line)
-    return None
+def printed_page_numbers(vol_pages):
+    """
+    Printed page numbers for one volume's pages (list of texts), or None where unknown.
+    OCR puts the folio number on its own line near the top, but day numbers look the same,
+    so instead of trusting each page we find the volume's constant offset
+    (pdf page - printed page) as the mode over all candidate numbers, and apply it
+    from the first page that agrees with it onwards.
+    """
+    cands = []
+    for i, text in enumerate(vol_pages):
+        nums = [int(l.strip()) for l in text.strip().split("\n")[:12] if re.fullmatch(r"\d{1,3}", l.strip())]
+        cands.append(nums)
+    offsets = {}
+    for i, nums in enumerate(cands):
+        for n in nums:
+            offsets[i + 1 - n] = offsets.get(i + 1 - n, 0) + 1
+    if not offsets:
+        return [None] * len(vol_pages)
+    k = max(offsets, key=offsets.get)
+    first = next((i for i, nums in enumerate(cands) if (i + 1 - k) in nums), None)
+    return [(i + 1 - k) if first is not None and i >= first and i + 1 - k > 0 else None for i in range(len(vol_pages))]
 
 
 def load_events():
@@ -105,7 +119,7 @@ def load_events():
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--pdf-dir", default=ROOT)
-    ap.add_argument("--band", type=int, default=250, help="pages either side of the expected position")
+    ap.add_argument("--band", type=int, default=700, help="pages either side of the expected position")
     ap.add_argument("--window", type=int, default=8, help="max pages a record may advance past the previous one")
     ap.add_argument("--jump-penalty", type=float, default=0.06)
     args = ap.parse_args()
@@ -199,6 +213,11 @@ def main():
         if i > 0:
             j = j - int(back[i][j - starts[i]])
 
+    printed = {}
+    for vi in range(len(VOLUMES)):
+        texts = [t for v, _, t in pages if v == vi]
+        printed[vi] = printed_page_numbers(texts)
+
     records = []
     confs = []
     for i, e in enumerate(events):
@@ -206,7 +225,7 @@ def main():
         vi, pdf_page, text = pages[j]
         c = round(score(i, j), 2)
         confs.append(c)
-        records.append([vi, pdf_page, printed_page_number(text), c])
+        records.append([vi, pdf_page, printed[vi][pdf_page - 1], c])
 
     out = {
         "volumes": [{"id": v["id"], "tomo": v["tomo"], "pages": sum(1 for p in pages if p[0] == i)} for i, v in enumerate(VOLUMES)],
