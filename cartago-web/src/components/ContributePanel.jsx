@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { api, copyText, getSession, loginUrl, recordReference, recordSummary, recordTitle, recordUrl, setSession } from '../lib/community.js'
 import { t } from '../lib/i18n.js'
+import Proposals from './Proposals.jsx'
 
 const POLL_MS = 5000
 const PROVIDER_ICONS = {
@@ -50,6 +51,21 @@ function Attachment({ a }) {
   )
 }
 
+/** Minimal Discord markdown: **bold**, bare URLs as links. */
+function Rich({ text }) {
+  const parts = text.split(/(\*\*[^*]+\*\*|https?:\/\/[^\s)]+)/g)
+  return parts.map((part, i) => {
+    if (/^\*\*[^*]+\*\*$/.test(part)) return <strong key={i} className="font-semibold text-slate-100">{part.slice(2, -2)}</strong>
+    if (/^https?:\/\//.test(part))
+      return (
+        <a key={i} href={part} target="_blank" rel="noopener" className="text-sky-300 break-all hover:text-gold">
+          {part}
+        </a>
+      )
+    return part
+  })
+}
+
 function formatTime(iso, lang) {
   const d = new Date(iso)
   return d.toLocaleString(lang === 'es' ? 'es-CR' : 'en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
@@ -71,6 +87,7 @@ export default function ContributePanel({ ev, lang, onClose }) {
   const [sendError, setSendError] = useState(null)
   const [dragging, setDragging] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [needSignIn, setNeedSignIn] = useState(false)
   const listRef = useRef(null)
   const lastId = useRef(null)
 
@@ -214,8 +231,9 @@ export default function ContributePanel({ ev, lang, onClose }) {
         </button>
       </div>
 
-      {/* messages */}
+      {/* proposals + messages */}
       <div ref={listRef} className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-4">
+        <Proposals ev={ev} lang={lang} user={user ?? null} config={config} onSignInNeeded={() => setNeedSignIn(true)} />
         {loadError && !messages.length && <p className="text-xs text-rose-300">{t(lang, 'communityOffline')}</p>}
         {!loadError && !visible.length && (
           <div className="rounded-lg border border-dashed border-white/10 p-4 text-sm text-slate-400">
@@ -239,7 +257,11 @@ export default function ContributePanel({ ev, lang, onClose }) {
                   {formatTime(m.at, lang)}
                 </time>
               </div>
-              {m.content && <p className="mt-0.5 text-sm whitespace-pre-wrap text-slate-200">{m.content}</p>}
+              {m.content && (
+                <p className="mt-0.5 text-sm whitespace-pre-wrap text-slate-200">
+                  <Rich text={m.content} />
+                </p>
+              )}
               {m.attachments.length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-2">
                   {m.attachments.map((a) => (
@@ -253,7 +275,7 @@ export default function ContributePanel({ ev, lang, onClose }) {
       </div>
 
       {/* composer */}
-      <div className={`border-t border-white/8 px-4 py-3 ${dragging ? 'bg-gold/10' : ''}`}>
+      <div className={`border-t border-white/8 px-4 py-3 ${dragging ? 'bg-gold/10' : ''} ${needSignIn && user === null ? 'ring-1 ring-gold/60' : ''}`}>
         {user === undefined ? null : user === null ? (
           <div>
             <p className="text-sm text-slate-300">{t(lang, 'signInToContribute')}</p>

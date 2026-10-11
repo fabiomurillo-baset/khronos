@@ -54,6 +54,10 @@ Every record has an **Aportar** button that opens a side panel: sign in (Discord
 
 The **Personas** and **Lugares** views list every name in the index; each one has a profile page (`#p/<name>`, `#l/<name>`) with a generated summary, the records it appears in, related people and places, a per-decade histogram and the spelling variants merged into it. Modeled on FamilySearch's person pages: a **Posibles duplicados** section lists similar names (token overlap + Jaro-Winkler, see `cartago-web/src/lib/similar.js`), **Comparar** opens a side-by-side merge dialog, and **Cambios** shows who merged or renamed what, with undo. Decisions are shared through `geno-api` (D1) and applied on top of the raw data at load time, so the pipeline output is never modified.
 
+## Corrections through pull requests
+
+Discussion in the Aportar panel can turn into a **proposed correction** to a record (one field, before/after, reason, evidence). The community votes; at the threshold `geno-api` opens a pull request that appends the change to [`scripts/data/corrections.jsonl`](scripts/data/README.md). A maintainer reviews and merges it on GitHub, and only then does it become data: the app reads the file from `main` at load (records show "Corregido por la comunidad") and `generate_json_views.py` applies it when the views are regenerated.
+
 ## Numbers (October 2026)
 
 | | |

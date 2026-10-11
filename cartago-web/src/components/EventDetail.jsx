@@ -30,6 +30,11 @@ export default function EventDetail({ ev, lang, query, onPerson, onPlace, action
         </div>
         {ev.date && <div className="mt-1 text-xs text-slate-400">{ev.date}</div>}
         <div className="mt-1 font-mono text-[10px] text-slate-600">#{ev.id}</div>
+        {ev.corrected && (
+          <div className="mt-1 text-[10px] leading-tight text-emerald-300" title={t(lang, 'correctedBadge')}>
+            ✓ {t(lang, 'correctedBadge')}
+          </div>
+        )}
       </div>
 
       <div className="min-w-0 flex-1">

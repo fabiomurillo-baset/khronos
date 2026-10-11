@@ -67,6 +67,81 @@ export function loadDataset() {
   })
 }
 
+// ------------------------------------------------------------------------------------
+// Community corrections accepted through pull requests (scripts/data/corrections.jsonl
+// on GitHub main). Read at load time so a merged PR shows up without a rebuild; the
+// pipeline applies the same file when it regenerates the JSON views.
+// ------------------------------------------------------------------------------------
+export const CORRECTIONS_URL =
+  import.meta.env.VITE_CORRECTIONS_URL || 'https://raw.githubusercontent.com/fabiomurillo-baset/geno/main/scripts/data/corrections.jsonl'
+
+const corrections = { list: [], byRecord: new Map(), appliedEvents: false, appliedText: { en: false, es: false } }
+
+export function loadCorrections() {
+  return once('corrections', async () => {
+    try {
+      const res = await fetch(CORRECTIONS_URL, { cache: 'no-cache' })
+      if (!res.ok) return []
+      const text = await res.text()
+      const list = []
+      for (const line of text.split('\n')) {
+        const l = line.trim()
+        if (!l) continue
+        try {
+          list.push(JSON.parse(l))
+        } catch {
+          /* skip malformed line */
+        }
+      }
+      corrections.list = list
+      for (const c of list) {
+        if (!corrections.byRecord.has(c.record)) corrections.byRecord.set(c.record, new Map())
+        corrections.byRecord.get(c.record).set(c.field, c)
+      }
+      return list
+    } catch {
+      return []
+    }
+  })
+}
+
+/** Accepted corrections for one record: Map field -> correction (empty when none). */
+export function correctionsFor(recordId) {
+  return corrections.byRecord.get(recordId) || new Map()
+}
+
+/** Mutates the cached events / texts with the corrections loaded so far (idempotent per target). */
+function applyCorrections() {
+  if (!cache.dataset || !corrections.list.length) return
+  if (!corrections.appliedEvents) {
+    for (const [id, fields] of corrections.byRecord) {
+      const ev = cache.dataset.byId.get(id)
+      if (!ev) continue
+      if (fields.has('year')) {
+        ev.year = fields.get('year').to == null ? null : Number(fields.get('year').to)
+        ev.inferred = false
+      }
+      if (fields.has('date')) ev.date = fields.get('date').to || null
+      if (fields.has('people')) ev.people = [...fields.get('people').to]
+      if (fields.has('locations')) ev.locations = [...fields.get('locations').to]
+      ev.corrected = true
+    }
+    corrections.appliedEvents = true
+    peopleIndex = null
+    placesIndex = null
+    graphCache = null
+  }
+  for (const lang of ['en', 'es']) {
+    if (corrections.appliedText[lang] || !cache.text[lang]) continue
+    for (const [id, fields] of corrections.byRecord) {
+      const c = fields.get(`summary_${lang}`)
+      const ev = cache.dataset.byId.get(id)
+      if (c && ev) cache.text[lang][ev.idx] = c.to
+    }
+    corrections.appliedText[lang] = true
+  }
+}
+
 export function loadText(lang) {
   if (cache.text[lang]) return Promise.resolve(cache.text[lang])
   return once(`text:${lang}`, async () => {
@@ -97,8 +172,9 @@ export function useDataset(lang) {
 
   useEffect(() => {
     let cancelled = false
-    Promise.all([loadDataset(), loadText(lang), lang !== 'en' ? loadText('en').catch(() => null) : null])
+    Promise.all([loadDataset(), loadText(lang), lang !== 'en' ? loadText('en').catch(() => null) : null, loadCorrections()])
       .then(() => {
+        applyCorrections()
         if (!cancelled) bump()
       })
       .catch((err) => {

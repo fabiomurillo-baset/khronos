@@ -8,7 +8,7 @@ Geno (browser) ──► geno-api.basetlabs.com (this Worker) ──► Discord 
                        └► R2: copy of every uploaded file, with record/author metadata
 ```
 
-Endpoints: `GET /config`, `GET /auth/:provider/start?return=<hash>`, `GET /auth/:provider/callback`, `GET /me`, `GET|POST /records/:id/messages`, `GET /files/:key`, `GET|POST /curation`, `POST /curation/:id/undo`.
+Endpoints: `GET /config`, `GET /auth/:provider/start?return=<hash>`, `GET /auth/:provider/callback`, `GET /me`, `GET|POST /records/:id/messages`, `GET /files/:key`, `GET|POST /curation`, `POST /curation/:id/undo`, `GET|POST /records/:id/proposals`, `POST /proposals/:id/vote`, `POST /proposals/:id/withdraw`.
 
 It also stores **curation**: the community's decisions about people and places (merging spelling variants of the same person or place, renaming an entry). They live in a D1 database so every visitor sees the same canonical names, each one is attributed to the signed-in user, can be undone from the profile page, and is optionally logged to a Discord channel.
 
@@ -45,7 +45,15 @@ Everything below is done once. Values marked **var** go in `wrangler.jsonc`; val
 
 A provider whose two secrets are missing is simply not offered in the panel, so Google and Facebook can be added later.
 
-### 5. Cloudflare
+### 5. GitHub (proposed corrections → pull requests)
+
+From the Aportar panel anyone signed in can **propose a correction** to one field of a record (year, date, people, places, Spanish or English summary) with a reason and evidence; the proposal is announced in the record's Discord thread and the community votes. When a proposal reaches `PROPOSAL_VOTES` net votes (default 3; the author's vote counts), geno-api opens a **pull request** on `GITHUB_REPO` that appends one line to `scripts/data/corrections.jsonl`. Nothing changes until a maintainer approves and merges it; then the app reads the file from `main` and the record shows "Corregido por la comunidad".
+
+1. Create a fine-grained personal access token at https://github.com/settings/personal-access-tokens → *Generate new token*: resource owner `fabiomurillo-baset`, repository access **only `geno`**, permissions **Contents: Read and write** and **Pull requests: Read and write**. → **secret** `GITHUB_TOKEN`.
+2. Recommended: protect `main` (Settings → Branches → Add rule: require a pull request before merging, require 1 approval) so corrections always go through review. Add a `CODEOWNERS` file if you want specific reviewers requested automatically.
+3. Optional: change `PROPOSAL_VOTES` in `wrangler.jsonc`.
+
+### 6. Cloudflare
 
 ```bash
 cd geno-api
@@ -63,6 +71,7 @@ npm run secret GOOGLE_CLIENT_ID
 npm run secret GOOGLE_CLIENT_SECRET
 npm run secret FACEBOOK_APP_ID
 npm run secret FACEBOOK_APP_SECRET
+npm run secret GITHUB_TOKEN
 ```
 
 The custom domain `geno-api.basetlabs.com` is created automatically on the first deploy (the zone is already in Cloudflare).
@@ -94,4 +103,5 @@ Optional extras in `wrangler.jsonc`:
 - Posts are made through a webhook so they carry the contributor's own name and avatar ("Ana Mora (Google)" for non-Discord sign-ins). Replies written in Discord appear in the panel within ~5 s.
 - Files land in Discord **and** in the `geno-uploads` R2 bucket under `records/<id>/…` with metadata (record, thread, message, user), ready for the pipeline to ingest.
 - The bot's starter message in each post is the record reference; the panel hides it.
+- Proposals: votes are one per user and can be changed or withdrawn while the proposal is open; a proposal's PR state is re-read from GitHub at most every two minutes when someone opens the record. PR branches are named `proposal-<id>`.
 - Curation: anyone signed in can merge, rename or undo; nothing is destructive (the raw names stay in the data and a merge is a row that can be reverted). The curation table is created automatically on first use.

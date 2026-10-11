@@ -25,6 +25,10 @@ from datetime import datetime, timezone
 HERE = os.path.dirname(os.path.abspath(__file__))
 GEMINI_DIR = os.path.join(HERE, "data", "gemini_output")
 EVENTS_FILE = os.path.join(GEMINI_DIR, "gemini_events.jsonl")
+# Community corrections accepted through pull requests (one JSON object per line):
+#   {"id": 7, "record": 24, "field": "year", "to": 1608, "from": 1607, "reason": "...", "evidence": [...], "by": "...", "pr": 12}
+# field is one of: year, date, people, locations, summary_en, summary_es.
+CORRECTIONS_FILE = os.path.join(os.path.dirname(GEMINI_DIR), "corrections.jsonl")
 EVENTS_ES_FILE = os.path.join(GEMINI_DIR, "gemini_events_es.jsonl")
 OUTPUT_DIR = os.path.join(HERE, "..", "cartago-web", "public", "data")
 
@@ -328,11 +332,29 @@ def clean_list(values):
     return out
 
 
+def load_corrections():
+    """record id -> {field: value}; later lines win."""
+    out = {}
+    if not os.path.exists(CORRECTIONS_FILE):
+        return out
+    with open(CORRECTIONS_FILE, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            c = json.loads(line)
+            out.setdefault(int(c["record"]), {})[c["field"]] = c["to"]
+    return out
+
+
 def main():
     print("Loading Gemini events...")
     events = load_jsonl(EVENTS_FILE)
     events.sort(key=lambda e: e["id"])
     print(f"  {len(events)} events")
+
+    corrections = load_corrections()
+    print(f"  {len(corrections)} records with community corrections")
 
     print("Loading Spanish translations...")
     es_by_id = {e["id"]: e for e in load_jsonl(EVENTS_ES_FILE)}
@@ -345,6 +367,18 @@ def main():
     prev_year = None
 
     for e in events:
+        fix = corrections.get(e["id"], {})
+        if "year" in fix:
+            e["year"] = fix["year"]
+        if "date" in fix:
+            e["date"] = fix["date"]
+        if "people" in fix:
+            e["people_involved"] = fix["people"]
+        if "locations" in fix:
+            e["locations"] = fix["locations"]
+        if "summary_en" in fix:
+            e["summary"] = fix["summary_en"]
+
         year = parse_year(e.get("year"), prev_year)
         inferred = 0
         if year is None and prev_year is not None:
@@ -384,7 +418,7 @@ def main():
         text_en.append(summary_en)
 
         es = es_by_id.get(e["id"])
-        es_summary = ((es or {}).get("summary_es") or "").strip()
+        es_summary = (fix.get("summary_es") or (es or {}).get("summary_es") or "").strip()
         if es_summary and es_summary != summary_en:
             text_es.append(es_summary)
             counts["translated"] += 1

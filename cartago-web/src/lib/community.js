@@ -129,4 +129,14 @@ export const api = {
   curation: () => call('/curation', { cache: 'no-store' }),
   curate: (body) => call('/curation', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) }),
   undo: (id) => call(`/curation/${id}/undo`, { method: 'POST' }),
+  // proposals (documented corrections → votes → pull request)
+  proposals: (ev) => call(`/records/${ev.id}/proposals`, { cache: 'no-store' }),
+  propose: (ev, lang, body) =>
+    call(`/records/${ev.id}/proposals`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ ...body, title: recordTitle(ev, lang), summary: recordSummary(ev, lang, 400) }),
+    }),
+  vote: (id, value) => call(`/proposals/${id}/vote`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ value }) }),
+  withdraw: (id) => call(`/proposals/${id}/withdraw`, { method: 'POST' }),
 }

@@ -12,10 +12,16 @@
 //   GET  /curation                       shared decisions about people/places (merges, renames)
 //   POST /curation                       {kind, action, subject, target, note}   (Bearer token)
 //   POST /curation/:id/undo              revert a decision                        (Bearer token)
+//   GET  /records/:id/proposals          proposed corrections to a record, with votes
+//   POST /records/:id/proposals          {field, from, to, reason, evidence[]}    (Bearer token)
+//   POST /proposals/:id/vote             {value: 1 | -1 | 0}; opens the GitHub PR at the threshold (Bearer token)
+//   POST /proposals/:id/withdraw         author withdraws an open proposal         (Bearer token)
 
 import { enabledProviders, finishLogin, isEnabled, readSession, startLogin } from './auth.js'
 import { addCuration, describe, listCuration, undoCuration, validate } from './curation.js'
 import { createThread, findThread, postAsUser, postLog, readMessages, threadUrl } from './discord.js'
+import { githubEnabled } from './github.js'
+import { createProposal, describeProposal, listProposals, setDiscordMessage, threshold, validateProposal, vote, withdraw } from './proposals.js'
 
 const MAX_CONTENT = 2000
 const MAX_FILES = 4
@@ -51,7 +57,17 @@ async function route(request, env, ctx, url) {
   if (path === '/health') return reply({ ok: true })
 
   if (path === '/config') {
-    return reply({ providers: enabledProviders(env), invite: env.DISCORD_INVITE || null, maxFileBytes: MAX_FILE_BYTES, maxFiles: MAX_FILES })
+    return reply({
+      providers: enabledProviders(env),
+      invite: env.DISCORD_INVITE || null,
+      maxFileBytes: MAX_FILE_BYTES,
+      maxFiles: MAX_FILES,
+      curation: Boolean(env.DB),
+      proposals: Boolean(env.DB),
+      pullRequests: githubEnabled(env),
+      voteThreshold: threshold(env),
+      repo: env.GITHUB_REPO || null,
+    })
   }
 
   let m
@@ -106,6 +122,55 @@ async function route(request, env, ctx, url) {
     if (!row) return reply({ error: 'not found' }, 404)
     ctx.waitUntil(postLog(env, describe(row, user, true)))
     return reply({ undone: row.id })
+  }
+
+  if ((m = path.match(/^\/records\/(\d+)\/proposals$/))) {
+    if (!env.DB) return reply({ proposals: [], disabled: true })
+    const record = Number(m[1])
+    const user = await readSession(env, request)
+    if (method === 'GET') return reply({ proposals: await listProposals(env, record, user, ctx) })
+    if (method === 'POST') {
+      if (!user) return reply({ error: 'unauthorized' }, 401)
+      const body = await request.json().catch(() => null)
+      const bad = validateProposal(body)
+      if (bad) return reply({ error: `invalid ${bad}` }, 400)
+      const proposal = await createProposal(env, user, record, body)
+      // Announce it in the record's Discord thread so the conversation and the vote stay together.
+      ctx.waitUntil(
+        (async () => {
+          try {
+            let threadId = await findThread(env, record)
+            if (!threadId) {
+              const title = String(body.title || `Geno · registro #${record}`).slice(0, 100)
+              threadId = await createThread(env, record, { title, summary: String(body.summary || '').slice(0, 500), url: `${env.SITE_URL}#r/${record}` })
+            }
+            const msg = await postAsUser(env, threadId, user, describeProposal(proposal, `${env.SITE_URL}#r/${record}`))
+            await setDiscordMessage(env.DB, proposal.id, msg.id)
+          } catch (err) {
+            console.error('proposal announce failed', err)
+          }
+        })(),
+      )
+      return reply({ proposal: { ...proposal, votes: { up: 1, down: 0 }, myVote: 1, threshold: threshold(env) } }, 201)
+    }
+    return reply({ error: 'method not allowed' }, 405)
+  }
+
+  if ((m = path.match(/^\/proposals\/(\d+)\/(vote|withdraw)$/)) && method === 'POST') {
+    if (!env.DB) return reply({ error: 'proposals disabled' }, 404)
+    const user = await readSession(env, request)
+    if (!user) return reply({ error: 'unauthorized' }, 401)
+    const id = Number(m[1])
+    if (m[2] === 'withdraw') return (await withdraw(env, user, id)) ? reply({ withdrawn: id }) : reply({ error: 'not found' }, 404)
+    const body = await request.json().catch(() => ({}))
+    const value = body.value === 1 || body.value === -1 || body.value === 0 ? body.value : null
+    if (value === null) return reply({ error: 'invalid value' }, 400)
+    const recordOf = await env.DB.prepare('SELECT record FROM proposals WHERE id = ?').bind(id).first()
+    if (!recordOf) return reply({ error: 'not found' }, 404)
+    const threadId = await findThread(env, recordOf.record)
+    const result = await vote(env, user, id, value, { recordUrl: `${env.SITE_URL}#r/${recordOf.record}`, threadUrl: threadId ? threadUrl(env, threadId) : null })
+    if (result?.submitted) ctx.waitUntil(postLog(env, `🔀 Propuesta #${id} alcanzó el umbral de votos: PR ${result.submitted.url}`))
+    return reply(result)
   }
 
   if ((m = path.match(/^\/files\/(.+)$/))) {
