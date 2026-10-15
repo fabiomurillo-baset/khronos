@@ -28,6 +28,19 @@
       "lang": "es",
       "first_leaf": 13,
       "skip_kinds": "editor|introducci"
+    },
+    {
+      "id": "contratos-pasaje-indias",
+      "label": "Contratos de pasaje a Indias (Sevilla, 1561–1622)",
+      "title": "Sergio M. Rodríguez Lorenzo, «El contrato de pasaje en la carrera de Indias (1561-1622)», Historia Mexicana LXVI:3 (2017), apéndice 1",
+      "years": "1561–1622",
+      "doctype": "tabla publicada en un artículo académico: 409 contratos de pasaje de los protocolos notariales de Sevilla, con fecha, nao, fletante, fletador, vecindad, precios y puerto de destino",
+      "context": "Pasajeros que contratan en Sevilla su viaje a Indias. Destinos: San Juan de Ulúa y Nueva Veracruz (Nueva España), Nombre de Dios y Portobelo (Tierra Firme, paso hacia el Reino de Guatemala), Cartagena de Indias, Puerto de Caballos (Honduras), Santo Domingo, La Habana. Interesan los vecinos de Guatemala y los destinos centroamericanos.",
+      "ia": "el-contrato-de-pasaje-en-la-carrera-de-indias-1561",
+      "work": "ia:el-contrato-de-pasaje-en-la-carrera-de-indias-1561",
+      "kind": "edition",
+      "id_base": 300000,
+      "lang": "es"
     }
   ]
 }

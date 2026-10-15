@@ -1,23 +1,173 @@
 {
   "_comment": "Seed bibliography. Works added from the app live in khronos-api (D1) and are merged with this list. kind 'ia' = Internet Archive item (viewer embeds inline); kind 'url' = web page or PDF.",
   "works": [
-    { "id": "ia:indicedelosproto01arch", "kind": "ia", "ia": "indicedelosproto01arch", "author": "Archivo Nacional de Costa Rica", "title": "Índice de los Protocolos de Cartago, tomo I (1607–1700)", "year": "1909", "publisher": "Tipografía Nacional, San José" },
-    { "id": "ia:indicedelosproto02cost", "kind": "ia", "ia": "indicedelosproto02cost", "author": "Archivo Nacional de Costa Rica", "title": "Índice de los Protocolos de Cartago, tomo II", "year": "1909", "publisher": "Tipografía Nacional, San José" },
-    { "id": "ia:indicedelosproto03arch", "kind": "ia", "ia": "indicedelosproto03arch", "author": "Archivo Nacional de Costa Rica", "title": "Índice de los Protocolos de Cartago, tomo III", "year": "1909", "publisher": "Tipografía Nacional, San José" },
-    { "id": "ia:indicedelosproto04arch", "kind": "ia", "ia": "indicedelosproto04arch", "author": "Archivo Nacional de Costa Rica", "title": "Índice de los Protocolos de Cartago, tomo IV", "year": "1909", "publisher": "Tipografía Nacional, San José" },
-    { "id": "ia:indicedelosproto05cost", "kind": "ia", "ia": "indicedelosproto05cost", "author": "Archivo Nacional de Costa Rica", "title": "Índice de los Protocolos de Cartago, tomo V", "year": "1909", "publisher": "Tipografía Nacional, San José" },
-    { "id": "ia:coleccindedocum01guargoog", "kind": "ia", "ia": "coleccindedocum01guargoog", "author": "León Fernández (comp.); Ricardo Fernández Guardia (ed.)", "title": "Colección de documentos para la historia de Costa Rica (volumen de 1883)", "year": "1883", "publisher": "Imprenta Nacional, San José" },
-    { "id": "ia:colecciondedocu02unkngoog", "kind": "ia", "ia": "colecciondedocu02unkngoog", "author": "León Fernández (comp.); Ricardo Fernández Guardia (ed.)", "title": "Colección de documentos para la historia de Costa Rica, tomo III", "year": "1883", "publisher": "Imprenta Nacional, San José" },
-    { "id": "ia:coleccindedocum06guargoog", "kind": "ia", "ia": "coleccindedocum06guargoog", "author": "León Fernández (comp.); Ricardo Fernández Guardia (ed.)", "title": "Colección de documentos para la historia de Costa Rica (volumen de 1882, a)", "year": "1882", "publisher": "Imprenta Nacional, San José" },
-    { "id": "ia:coleccindedocum07guargoog", "kind": "ia", "ia": "coleccindedocum07guargoog", "author": "León Fernández (comp.); Ricardo Fernández Guardia (ed.)", "title": "Colección de documentos para la historia de Costa Rica (volumen de 1882, b)", "year": "1882", "publisher": "Imprenta Nacional, San José" },
-    { "id": "ia:colecciondedocu01unkngoog", "kind": "ia", "ia": "colecciondedocu01unkngoog", "author": "León Fernández (comp.); Ricardo Fernández Guardia (ed.)", "title": "Colección de documentos para la historia de Costa Rica (volumen de 1886)", "year": "1886" },
-    { "id": "ia:colecciondedocu02guargoog", "kind": "ia", "ia": "colecciondedocu02guargoog", "author": "León Fernández (comp.); Ricardo Fernández Guardia (ed.)", "title": "Colección de documentos para la historia de Costa Rica (volumen de 1907, a)", "year": "1907", "publisher": "Imprenta Nacional, San José" },
-    { "id": "ia:colecciondedocu03guargoog", "kind": "ia", "ia": "colecciondedocu03guargoog", "author": "León Fernández (comp.); Ricardo Fernández Guardia (ed.)", "title": "Colección de documentos para la historia de Costa Rica (volumen de 1907, b)", "year": "1907", "publisher": "Imprenta Nacional, San José" },
-    { "id": "ia:colecciondedocu04guargoog", "kind": "ia", "ia": "colecciondedocu04guargoog", "author": "León Fernández (comp.); Ricardo Fernández Guardia (ed.)", "title": "Colección de documentos para la historia de Costa Rica, tomo VII", "year": "1907", "publisher": "Imprenta Nacional, San José" },
-    { "id": "ia:historyofdiscove00fern", "kind": "ia", "ia": "historyofdiscove00fern", "author": "Ricardo Fernández Guardia", "title": "History of the Discovery and Conquest of Costa Rica", "year": "1913", "publisher": "Thomas Y. Crowell, New York" },
-    { "id": "ia:bwb_C0-BCX-628", "kind": "ia", "ia": "bwb_C0-BCX-628", "author": "Cleto González Víquez", "title": "Obras históricas", "year": "1958", "publisher": "Universidad de Costa Rica" },
-    { "id": "ia:mortuoriasdeala00ricagoog", "kind": "ia", "ia": "mortuoriasdeala00ricagoog", "author": "Archivo Nacional de Costa Rica", "title": "Mortuorias de Alajuela y Heredia anteriores al año de 1851", "year": "1898" },
-    { "id": "ia:documentosrelat00iglegoog", "kind": "ia", "ia": "documentosrelat00iglegoog", "author": "Francisco María Iglesias (comp.)", "title": "Documentos relativos a la independencia", "year": "1899", "publisher": "Archivo Nacional de Costa Rica" },
-    { "id": "ia:costaricay1933guat", "kind": "ia", "ia": "costaricay1933guat", "author": "Rubén Yglesias Hogan", "title": "Costa Rica y la Federación de Centro América; Las cartas municipales de Cartago", "year": "1933" }
+    {
+      "id": "ia:indicedelosproto01arch",
+      "kind": "ia",
+      "ia": "indicedelosproto01arch",
+      "author": "Archivo Nacional de Costa Rica",
+      "title": "Índice de los Protocolos de Cartago, tomo I (1607–1700)",
+      "year": "1909",
+      "publisher": "Tipografía Nacional, San José"
+    },
+    {
+      "id": "ia:indicedelosproto02cost",
+      "kind": "ia",
+      "ia": "indicedelosproto02cost",
+      "author": "Archivo Nacional de Costa Rica",
+      "title": "Índice de los Protocolos de Cartago, tomo II",
+      "year": "1909",
+      "publisher": "Tipografía Nacional, San José"
+    },
+    {
+      "id": "ia:indicedelosproto03arch",
+      "kind": "ia",
+      "ia": "indicedelosproto03arch",
+      "author": "Archivo Nacional de Costa Rica",
+      "title": "Índice de los Protocolos de Cartago, tomo III",
+      "year": "1909",
+      "publisher": "Tipografía Nacional, San José"
+    },
+    {
+      "id": "ia:indicedelosproto04arch",
+      "kind": "ia",
+      "ia": "indicedelosproto04arch",
+      "author": "Archivo Nacional de Costa Rica",
+      "title": "Índice de los Protocolos de Cartago, tomo IV",
+      "year": "1909",
+      "publisher": "Tipografía Nacional, San José"
+    },
+    {
+      "id": "ia:indicedelosproto05cost",
+      "kind": "ia",
+      "ia": "indicedelosproto05cost",
+      "author": "Archivo Nacional de Costa Rica",
+      "title": "Índice de los Protocolos de Cartago, tomo V",
+      "year": "1909",
+      "publisher": "Tipografía Nacional, San José"
+    },
+    {
+      "id": "ia:coleccindedocum01guargoog",
+      "kind": "ia",
+      "ia": "coleccindedocum01guargoog",
+      "author": "León Fernández (comp.); Ricardo Fernández Guardia (ed.)",
+      "title": "Colección de documentos para la historia de Costa Rica (volumen de 1883)",
+      "year": "1883",
+      "publisher": "Imprenta Nacional, San José"
+    },
+    {
+      "id": "ia:colecciondedocu02unkngoog",
+      "kind": "ia",
+      "ia": "colecciondedocu02unkngoog",
+      "author": "León Fernández (comp.); Ricardo Fernández Guardia (ed.)",
+      "title": "Colección de documentos para la historia de Costa Rica, tomo III",
+      "year": "1883",
+      "publisher": "Imprenta Nacional, San José"
+    },
+    {
+      "id": "ia:coleccindedocum06guargoog",
+      "kind": "ia",
+      "ia": "coleccindedocum06guargoog",
+      "author": "León Fernández (comp.); Ricardo Fernández Guardia (ed.)",
+      "title": "Colección de documentos para la historia de Costa Rica (volumen de 1882, a)",
+      "year": "1882",
+      "publisher": "Imprenta Nacional, San José"
+    },
+    {
+      "id": "ia:coleccindedocum07guargoog",
+      "kind": "ia",
+      "ia": "coleccindedocum07guargoog",
+      "author": "León Fernández (comp.); Ricardo Fernández Guardia (ed.)",
+      "title": "Colección de documentos para la historia de Costa Rica (volumen de 1882, b)",
+      "year": "1882",
+      "publisher": "Imprenta Nacional, San José"
+    },
+    {
+      "id": "ia:colecciondedocu01unkngoog",
+      "kind": "ia",
+      "ia": "colecciondedocu01unkngoog",
+      "author": "León Fernández (comp.); Ricardo Fernández Guardia (ed.)",
+      "title": "Colección de documentos para la historia de Costa Rica (volumen de 1886)",
+      "year": "1886"
+    },
+    {
+      "id": "ia:colecciondedocu02guargoog",
+      "kind": "ia",
+      "ia": "colecciondedocu02guargoog",
+      "author": "León Fernández (comp.); Ricardo Fernández Guardia (ed.)",
+      "title": "Colección de documentos para la historia de Costa Rica (volumen de 1907, a)",
+      "year": "1907",
+      "publisher": "Imprenta Nacional, San José"
+    },
+    {
+      "id": "ia:colecciondedocu03guargoog",
+      "kind": "ia",
+      "ia": "colecciondedocu03guargoog",
+      "author": "León Fernández (comp.); Ricardo Fernández Guardia (ed.)",
+      "title": "Colección de documentos para la historia de Costa Rica (volumen de 1907, b)",
+      "year": "1907",
+      "publisher": "Imprenta Nacional, San José"
+    },
+    {
+      "id": "ia:colecciondedocu04guargoog",
+      "kind": "ia",
+      "ia": "colecciondedocu04guargoog",
+      "author": "León Fernández (comp.); Ricardo Fernández Guardia (ed.)",
+      "title": "Colección de documentos para la historia de Costa Rica, tomo VII",
+      "year": "1907",
+      "publisher": "Imprenta Nacional, San José"
+    },
+    {
+      "id": "ia:historyofdiscove00fern",
+      "kind": "ia",
+      "ia": "historyofdiscove00fern",
+      "author": "Ricardo Fernández Guardia",
+      "title": "History of the Discovery and Conquest of Costa Rica",
+      "year": "1913",
+      "publisher": "Thomas Y. Crowell, New York"
+    },
+    {
+      "id": "ia:bwb_C0-BCX-628",
+      "kind": "ia",
+      "ia": "bwb_C0-BCX-628",
+      "author": "Cleto González Víquez",
+      "title": "Obras históricas",
+      "year": "1958",
+      "publisher": "Universidad de Costa Rica"
+    },
+    {
+      "id": "ia:mortuoriasdeala00ricagoog",
+      "kind": "ia",
+      "ia": "mortuoriasdeala00ricagoog",
+      "author": "Archivo Nacional de Costa Rica",
+      "title": "Mortuorias de Alajuela y Heredia anteriores al año de 1851",
+      "year": "1898"
+    },
+    {
+      "id": "ia:documentosrelat00iglegoog",
+      "kind": "ia",
+      "ia": "documentosrelat00iglegoog",
+      "author": "Francisco María Iglesias (comp.)",
+      "title": "Documentos relativos a la independencia",
+      "year": "1899",
+      "publisher": "Archivo Nacional de Costa Rica"
+    },
+    {
+      "id": "ia:costaricay1933guat",
+      "kind": "ia",
+      "ia": "costaricay1933guat",
+      "author": "Rubén Yglesias Hogan",
+      "title": "Costa Rica y la Federación de Centro América; Las cartas municipales de Cartago",
+      "year": "1933"
+    },
+    {
+      "id": "ia:el-contrato-de-pasaje-en-la-carrera-de-indias-1561",
+      "kind": "ia",
+      "ia": "el-contrato-de-pasaje-en-la-carrera-de-indias-1561",
+      "author": "Sergio M. Rodríguez Lorenzo",
+      "title": "El contrato de pasaje en la carrera de Indias (1561-1622)",
+      "year": "2017",
+      "publisher": "Historia Mexicana, LXVI:3, pp. 1479-1572"
+    }
   ]
 }

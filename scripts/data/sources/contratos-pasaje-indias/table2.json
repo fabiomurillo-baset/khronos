@@ -1,0 +1,1540 @@
+[
+ {
+  "date": "1561-11-14",
+  "ship": "Ntra. Sra. de la Concepción",
+  "shippers": [
+   {
+    "name": "Juan de Vanegas",
+    "role": "Sr.-Cp."
+   }
+  ],
+  "charterers": [
+   "García del Castillo"
+  ],
+  "price": 165,
+  "size": "[9]",
+  "ducats_per_foot": 18.33,
+  "destination": "San Juan de Ulúa",
+  "pdf_page": 89
+ },
+ {
+  "date": "1561-12-10",
+  "ship": "Ntra. Sra. de la Concepción",
+  "shippers": [
+   {
+    "name": "Juan de Vanegas",
+    "role": "Sr.-Cp."
+   }
+  ],
+  "charterers": [
+   "María del Castillo"
+  ],
+  "price": 165,
+  "size": "7",
+  "ducats_per_foot": 23.57,
+  "destination": "San Juan de Ulúa",
+  "pdf_page": 89
+ },
+ {
+  "date": "1562-01-12",
+  "ship": "San Juan",
+  "shippers": [
+   {
+    "name": "Pedro de Durango",
+    "role": "Sr."
+   }
+  ],
+  "charterers": [
+   "Juana Hernández"
+  ],
+  "price": 50,
+  "size": "7x7",
+  "ducats_per_foot": 7.14,
+  "destination": "Nombre de Dios",
+  "pdf_page": 89
+ },
+ {
+  "date": "1562-01-22",
+  "ship": "San Juan",
+  "shippers": [
+   {
+    "name": "Miguel de Aguirre",
+    "role": "Mtre."
+   }
+  ],
+  "charterers": [
+   "Pedro de Valladolid"
+  ],
+  "price": 105,
+  "size": "13x9",
+  "ducats_per_foot": 8.07,
+  "destination": "Nombre de Dios",
+  "pdf_page": 89
+ },
+ {
+  "date": "1562-02-14",
+  "ship": "San Antón",
+  "shippers": [
+   {
+    "name": "Vicencio Bocino",
+    "role": "Cp."
+   }
+  ],
+  "charterers": [
+   "Julián de Umaran"
+  ],
+  "price": 100,
+  "size": "8x7",
+  "ducats_per_foot": 12.5,
+  "destination": "Nombre de Dios",
+  "pdf_page": 89
+ },
+ {
+  "date": "1564-02-10",
+  "ship": "El Santo Crucifijo de Burgos",
+  "shippers": [
+   {
+    "name": "Sebastián de Porras",
+    "role": "Sr.-Pto."
+   }
+  ],
+  "charterers": [
+   "Eugenio Mejía de la Torre"
+  ],
+  "price": 70,
+  "size": "8x7",
+  "ducats_per_foot": 8.75,
+  "destination": "San Juan de Ulúa",
+  "pdf_page": 89
+ },
+ {
+  "date": "1566-04-01",
+  "ship": "Santa. Clara",
+  "shippers": [
+   {
+    "name": "Bartolomé Camacho",
+    "role": "Sr."
+   }
+  ],
+  "charterers": [
+   "Francisco Gómez"
+  ],
+  "price": 100,
+  "size": "10x7",
+  "ducats_per_foot": 10,
+  "destination": "San Juan de Ulúa",
+  "pdf_page": 89
+ },
+ {
+  "date": "1566-04-21",
+  "ship": "La Magdalena",
+  "shippers": [
+   {
+    "name": "Hernando de Guevara",
+    "role": "Sr."
+   }
+  ],
+  "charterers": [
+   "Matías de Palenzuela y otros"
+  ],
+  "price": 70,
+  "size": "10x8",
+  "ducats_per_foot": 7,
+  "destination": "San Juan de Ulúa",
+  "pdf_page": 89
+ },
+ {
+  "date": "1568-11-09",
+  "ship": "El Santo Crucifijo",
+  "shippers": [
+   {
+    "name": "Álvaro Conquero",
+    "role": "Mtre."
+   }
+  ],
+  "charterers": [
+   "Alonso Gómez"
+  ],
+  "price": 100,
+  "size": "12x8",
+  "ducats_per_foot": 8.33,
+  "destination": "Nombre de Dios",
+  "pdf_page": 89
+ },
+ {
+  "date": "1569-01-03",
+  "ship": "El Santo Espíritu",
+  "shippers": [
+   {
+    "name": "Luis Gutiérrez",
+    "role": "Sr.-Mtre."
+   }
+  ],
+  "charterers": [
+   "Juan Jiménez"
+  ],
+  "price": 80,
+  "size": "9x8",
+  "ducats_per_foot": 8.88,
+  "destination": "Cartagena de Indias",
+  "pdf_page": 89
+ },
+ {
+  "date": "1569-01-07",
+  "ship": "Ntra. Sra. de los Remedios",
+  "shippers": [
+   {
+    "name": "Pedro Muñoz",
+    "role": "Sr.-Mtre."
+   }
+  ],
+  "charterers": [
+   "Beatriz de Acevedo"
+  ],
+  "price": 50,
+  "size": "8x6",
+  "ducats_per_foot": 6.25,
+  "destination": "Nombre de Dios",
+  "pdf_page": 89
+ },
+ {
+  "date": "1569-06-14",
+  "ship": "Ntra. Sra. de la Candelaria",
+  "shippers": [
+   {
+    "name": "Antonio de Zumaya",
+    "role": "Mtre."
+   }
+  ],
+  "charterers": [
+   "Juan Pérez Aparicio"
+  ],
+  "price": 126,
+  "size": "9",
+  "ducats_per_foot": 14,
+  "destination": "San Juan de Ulúa",
+  "pdf_page": 89
+ },
+ {
+  "date": "1569-06-14",
+  "ship": "Ntra. Sra. de la Candelaria",
+  "shippers": [
+   {
+    "name": "Antonio de Zumaya",
+    "role": "Mtre."
+   }
+  ],
+  "charterers": [
+   "Cristóbal Díaz del Toral"
+  ],
+  "price": 146,
+  "size": "16x8",
+  "ducats_per_foot": 9.12,
+  "destination": "San Juan de Ulúa",
+  "pdf_page": 89
+ },
+ {
+  "date": "1569-07-18",
+  "ship": "Ntra. Sra. de la Candelaria",
+  "shippers": [
+   {
+    "name": "Antonio de Zumaya",
+    "role": "Mtre."
+   }
+  ],
+  "charterers": [
+   "Ana Ruiz"
+  ],
+  "price": 54,
+  "size": "6",
+  "ducats_per_foot": 9,
+  "destination": "San Juan de Ulúa",
+  "pdf_page": 89
+ },
+ {
+  "date": "1570-07-24",
+  "ship": "Ntra. Sra. de Guadalupe",
+  "shippers": [
+   {
+    "name": "Ortuño de Bilbao la Vieja",
+    "role": "Sr.-Mtre."
+   }
+  ],
+  "charterers": [
+   "García Rodríguez Maldonado"
+  ],
+  "price": 80,
+  "size": "8x7",
+  "ducats_per_foot": 10,
+  "destination": "San Juan de Ulúa",
+  "pdf_page": 89
+ },
+ {
+  "date": "1570-08-14",
+  "ship": "La Magdalena",
+  "shippers": [
+   {
+    "name": "Cristóbal Sánchez",
+    "role": "Sr.-Mtre."
+   }
+  ],
+  "charterers": [
+   "Gil Hernández del Barrero"
+  ],
+  "price": 80,
+  "size": "10x9",
+  "ducats_per_foot": 8,
+  "destination": "San Juan de Ulúa",
+  "pdf_page": 89
+ },
+ {
+  "date": "1570-10-07",
+  "ship": "La Concepción",
+  "shippers": [
+   {
+    "name": "Martín García",
+    "role": "Sr."
+   }
+  ],
+  "charterers": [
+   "Baltasar Díaz"
+  ],
+  "price": 110,
+  "size": "10x8",
+  "ducats_per_foot": 11,
+  "destination": "Nombre de Dios",
+  "pdf_page": 89
+ },
+ {
+  "date": "1570-12-05",
+  "ship": "Ntra. Sra. de la Ayuda",
+  "shippers": [
+   {
+    "name": "Juan Bautista Ortega",
+    "role": "Mtre."
+   }
+  ],
+  "charterers": [
+   "Melchor de los Reyes y otro"
+  ],
+  "price": 50,
+  "size": "9x7",
+  "ducats_per_foot": 5.55,
+  "destination": "San Juan de Ulúa",
+  "pdf_page": 89
+ },
+ {
+  "date": "1572-05-16",
+  "ship": "Santa María de Begoña",
+  "shippers": [
+   {
+    "name": "Antón Sánchez de Armas",
+    "role": "Sr."
+   }
+  ],
+  "charterers": [
+   "Pedro de Oviedo"
+  ],
+  "price": 70,
+  "size": "8x7",
+  "ducats_per_foot": 8.75,
+  "destination": "San Juan de Ulúa",
+  "pdf_page": 89
+ },
+ {
+  "date": "1572-05-30",
+  "ship": "Santa María de Begoña",
+  "shippers": [
+   {
+    "name": "Antón Sánchez de Armas",
+    "role": "Sr."
+   }
+  ],
+  "charterers": [
+   "Antonio Pimentel"
+  ],
+  "price": 100,
+  "size": "8x7",
+  "ducats_per_foot": 12.5,
+  "destination": "San Juan de Ulúa",
+  "pdf_page": 90
+ },
+ {
+  "date": "1572-06-27",
+  "ship": "San Nicolás",
+  "shippers": [
+   {
+    "name": "Alonso de Chaves",
+    "role": "Sr."
+   }
+  ],
+  "charterers": [
+   "Inés Estrada"
+  ],
+  "price": 70,
+  "size": "8x7",
+  "ducats_per_foot": 8.75,
+  "destination": "Nombre de Dios",
+  "pdf_page": 90
+ },
+ {
+  "date": "1572-07-12",
+  "ship": "La Trinidad",
+  "shippers": [
+   {
+    "name": "Rodrigo González",
+    "role": "Sr."
+   }
+  ],
+  "charterers": [
+   "Inés de Pineda",
+   "otra"
+  ],
+  "price": 80,
+  "size": "9x7",
+  "ducats_per_foot": 8.88,
+  "destination": "Nombre de Dios",
+  "pdf_page": 90
+ },
+ {
+  "date": "1573-06-03",
+  "ship": "San Salvador",
+  "shippers": [
+   {
+    "name": "Juan de Uribe Apallá",
+    "role": "Sr."
+   }
+  ],
+  "charterers": [
+   "Bartolomé Tartajo"
+  ],
+  "price": 110,
+  "size": "11x11",
+  "ducats_per_foot": 10,
+  "destination": "San Juan de Ulúa",
+  "pdf_page": 90
+ },
+ {
+  "date": "1576-03-26",
+  "ship": "Santiago",
+  "shippers": [
+   {
+    "name": "Lope Machorro",
+    "role": "Sr.-Mtre."
+   }
+  ],
+  "charterers": [
+   "Alonso de Contreras Guevara"
+  ],
+  "price": 100,
+  "size": "12x8",
+  "ducats_per_foot": 8.33,
+  "destination": "San Juan de Ulúa",
+  "pdf_page": 90
+ },
+ {
+  "date": "1576-03-27",
+  "ship": "Santiago",
+  "shippers": [
+   {
+    "name": "Lope Machorro",
+    "role": "Sr.-Mtre."
+   }
+  ],
+  "charterers": [
+   "Álvaro Díaz de Vargas",
+   "otros"
+  ],
+  "price": 80,
+  "size": "10x8",
+  "ducats_per_foot": 8,
+  "destination": "San Juan de Ulúa",
+  "pdf_page": 90
+ },
+ {
+  "date": "1577-04-20",
+  "ship": "San Cristóbal",
+  "shippers": [
+   {
+    "name": "Pedro Sánchez",
+    "role": "Mtre."
+   }
+  ],
+  "charterers": [
+   "Juan Rodríguez de Rojas"
+  ],
+  "price": 80,
+  "size": "9x10",
+  "ducats_per_foot": 8.88,
+  "destination": "San Juan de Ulúa",
+  "pdf_page": 90
+ },
+ {
+  "date": "1577-04-27",
+  "ship": "Santa María de las Mercedes",
+  "shippers": [
+   {
+    "name": "Pedro Bernal Cermeño",
+    "role": "Mtre."
+   }
+  ],
+  "charterers": [
+   "Hernán Pérez de Luna"
+  ],
+  "price": 45,
+  "size": "4x10",
+  "ducats_per_foot": null,
+  "destination": "San Juan de Ulúa",
+  "pdf_page": 90
+ },
+ {
+  "date": "1578-04-12",
+  "ship": "San Miguel",
+  "shippers": [
+   {
+    "name": "Alonso Rodríguez Noriega",
+    "role": "Sr.-Mtre."
+   }
+  ],
+  "charterers": [
+   "Alonso Pérez Farfán"
+  ],
+  "price": 60,
+  "size": "7",
+  "ducats_per_foot": 8.57,
+  "destination": "San Juan de Ulúa",
+  "pdf_page": 90
+ },
+ {
+  "date": "1578-04-29",
+  "ship": "Santiago",
+  "shippers": [
+   {
+    "name": "Andrés Felipe",
+    "role": "Sr.-Mtre."
+   }
+  ],
+  "charterers": [
+   "Juana de Orgaz",
+   "Ana de la Torre"
+  ],
+  "price": 75,
+  "size": "9x8",
+  "ducats_per_foot": 8.33,
+  "destination": "San Juan de Ulúa",
+  "pdf_page": 90
+ },
+ {
+  "date": "1578-04-29",
+  "ship": "Ntra. Sra. de la Concepción",
+  "shippers": [
+   {
+    "name": "Rafael Boquín Bocanegra",
+    "role": "Sr.-Mtre."
+   }
+  ],
+  "charterers": [
+   "Pedro Núñez",
+   "otro"
+  ],
+  "price": 70,
+  "size": "9x8",
+  "ducats_per_foot": 7.77,
+  "destination": "San Juan de Ulúa",
+  "pdf_page": 90
+ },
+ {
+  "date": "1578-04-29",
+  "ship": "Santiago",
+  "shippers": [
+   {
+    "name": "Andrés Felipe",
+    "role": "Sr.-Mtre."
+   }
+  ],
+  "charterers": [
+   "Pedro Díaz"
+  ],
+  "price": 75,
+  "size": "11x8",
+  "ducats_per_foot": 6.81,
+  "destination": "San Juan de Ulúa",
+  "pdf_page": 90
+ },
+ {
+  "date": "1578-05-22",
+  "ship": "Ntra. Sra. de Guía",
+  "shippers": [
+   {
+    "name": "Andrés del Corro",
+    "role": "Mtre."
+   }
+  ],
+  "charterers": [
+   "Alonso Arias Vaca"
+  ],
+  "price": 60,
+  "size": "12x7",
+  "ducats_per_foot": 5,
+  "destination": "Santo Domingo",
+  "pdf_page": 90
+ },
+ {
+  "date": "1578-05-24",
+  "ship": "Santa María del Valle",
+  "shippers": [
+   {
+    "name": "Cristóbal Galindo",
+    "role": "Mtre."
+   }
+  ],
+  "charterers": [
+   "Juan Luis de Palacio"
+  ],
+  "price": 80,
+  "size": "9x8",
+  "ducats_per_foot": 8.88,
+  "destination": "San Juan de Ulúa",
+  "pdf_page": 90
+ },
+ {
+  "date": "1578-05-30",
+  "ship": "Ntra. Sra. de la Concepción",
+  "shippers": [
+   {
+    "name": "Rafael Boquín Bocanegra",
+    "role": "Sr.-Mtre."
+   }
+  ],
+  "charterers": [
+   "Juan de Arcos",
+   "otro"
+  ],
+  "price": 60,
+  "size": "9x7",
+  "ducats_per_foot": 6.66,
+  "destination": "San Juan de Ulúa",
+  "pdf_page": 90
+ },
+ {
+  "date": "1578-06-12",
+  "ship": "El Santo Crucifijo de Burgos",
+  "shippers": [
+   {
+    "name": "Lázaro Gutiérrez Madrigal",
+    "role": "Mtre."
+   }
+  ],
+  "charterers": [
+   "Francisco Antonio"
+  ],
+  "price": 40,
+  "size": "9",
+  "ducats_per_foot": 4.44,
+  "destination": "San Juan de Ulúa",
+  "pdf_page": 90
+ },
+ {
+  "date": "1578-06-29",
+  "ship": "San Miguel",
+  "shippers": [
+   {
+    "name": "Alonso Rodríguez Noriega",
+    "role": "Sr.-Mtre."
+   }
+  ],
+  "charterers": [
+   "Alonso Gil"
+  ],
+  "price": 50,
+  "size": "8",
+  "ducats_per_foot": 6.25,
+  "destination": "San Juan de Ulúa",
+  "pdf_page": 90
+ },
+ {
+  "date": "1578-12-09",
+  "ship": "La Salvadora",
+  "shippers": [
+   {
+    "name": "Diego Felipe de Andino",
+    "role": "Sr.-Mtre."
+   }
+  ],
+  "charterers": [
+   "Francisco Sánchez"
+  ],
+  "price": 70,
+  "size": "9x8",
+  "ducats_per_foot": 7.77,
+  "destination": "Cartagena de Indias",
+  "pdf_page": 90
+ },
+ {
+  "date": "1584-05-12",
+  "ship": "Ntra. Sra. de la Concepción",
+  "shippers": [
+   {
+    "name": "Pedro de Asco",
+    "role": "Sr."
+   }
+  ],
+  "charterers": [
+   "Diego García Flores"
+  ],
+  "price": 85,
+  "size": "10x8",
+  "ducats_per_foot": 8.5,
+  "destination": "San Juan de Ulúa",
+  "pdf_page": 90
+ },
+ {
+  "date": "1584-06-05",
+  "ship": "La Trinidad",
+  "shippers": [
+   {
+    "name": "Martín Montebernardo",
+    "role": "Sr."
+   }
+  ],
+  "charterers": [
+   "Marcos de Mesa"
+  ],
+  "price": 96,
+  "size": "8",
+  "ducats_per_foot": 12,
+  "destination": "Nombre de Dios",
+  "pdf_page": 90
+ },
+ {
+  "date": "1584-08-03",
+  "ship": "San Juan Bautista",
+  "shippers": [
+   {
+    "name": "Rodrigo González",
+    "role": "Sr.-Mtre."
+   }
+  ],
+  "charterers": [
+   "Diego de Tamayo"
+  ],
+  "price": 121,
+  "size": "11x8",
+  "ducats_per_foot": 11,
+  "destination": "Nombre de Dios",
+  "pdf_page": 91
+ },
+ {
+  "date": "1584-08-03",
+  "ship": "La Concepción",
+  "shippers": [
+   {
+    "name": "Jerónimo de Morales",
+    "role": "Mtre."
+   }
+  ],
+  "charterers": [
+   "Juan de Vivar y otro"
+  ],
+  "price": 100,
+  "size": "9x8",
+  "ducats_per_foot": 11.11,
+  "destination": "Nombre de Dios",
+  "pdf_page": 91
+ },
+ {
+  "date": "1585-05-20",
+  "ship": "Santa María del Juncal",
+  "shippers": [
+   {
+    "name": "Juan de Zubiaurre",
+    "role": "Sr.-Mtre."
+   }
+  ],
+  "charterers": [
+   "Diego García de Herrera"
+  ],
+  "price": 70,
+  "size": "8",
+  "ducats_per_foot": 8.75,
+  "destination": "San Juan de Ulúa",
+  "pdf_page": 91
+ },
+ {
+  "date": "1585-05-22",
+  "ship": "Santa María del Juncal",
+  "shippers": [
+   {
+    "name": "Juan de Zubiaurre",
+    "role": "Sr.-Mtre."
+   }
+  ],
+  "charterers": [
+   "Juan de Robles"
+  ],
+  "price": 80,
+  "size": "10",
+  "ducats_per_foot": 8,
+  "destination": "San Juan de Ulúa",
+  "pdf_page": 91
+ },
+ {
+  "date": "1585-06-02",
+  "ship": "Santa María del Juncal",
+  "shippers": [
+   {
+    "name": "Juan de Zubiaurre",
+    "role": "Sr.-Mtre."
+   }
+  ],
+  "charterers": [
+   "Juan Macías"
+  ],
+  "price": 90,
+  "size": "10",
+  "ducats_per_foot": 9,
+  "destination": "San Juan de Ulúa",
+  "pdf_page": 91
+ },
+ {
+  "date": "1588-05-16",
+  "ship": "San Juan",
+  "shippers": [
+   {
+    "name": "Pedro Sánchez",
+    "role": "Mtre."
+   }
+  ],
+  "charterers": [
+   "Jerónimo Ramírez"
+  ],
+  "price": 90,
+  "size": "9",
+  "ducats_per_foot": 10,
+  "destination": "Nombre de Dios",
+  "pdf_page": 91
+ },
+ {
+  "date": "1588-06-10",
+  "ship": "Ntra. Sra. de Guía",
+  "shippers": [
+   {
+    "name": "Francisco Pérez Granillo",
+    "role": "Sr.-Mtre."
+   }
+  ],
+  "charterers": [
+   "Pedro Martínez"
+  ],
+  "price": 56,
+  "size": "7",
+  "ducats_per_foot": 8,
+  "destination": "Puerto de Caballos",
+  "pdf_page": 91
+ },
+ {
+  "date": "1591-05-08",
+  "ship": "San Juan",
+  "shippers": [
+   {
+    "name": "Francisco Pérez Granillo",
+    "role": "Sr"
+   }
+  ],
+  "charterers": [
+   "Juan de Montezuma"
+  ],
+  "price": 120,
+  "size": "12",
+  "ducats_per_foot": 10,
+  "destination": "San Juan de Ulúa",
+  "pdf_page": 91
+ },
+ {
+  "date": "1591-05-09",
+  "ship": "San Juan",
+  "shippers": [
+   {
+    "name": "Francisco Pérez Granillo",
+    "role": "Sr."
+   }
+  ],
+  "charterers": [
+   "Fernando de Montezuma"
+  ],
+  "price": 120,
+  "size": "12",
+  "ducats_per_foot": 10,
+  "destination": "San Juan de Ulúa",
+  "pdf_page": 91
+ },
+ {
+  "date": "1591-06-05",
+  "ship": "Ntra. Sra. de Arratia",
+  "shippers": [
+   {
+    "name": "Simón Amador",
+    "role": "Sr."
+   }
+  ],
+  "charterers": [
+   "Esteban de Alvarado"
+  ],
+  "price": 88,
+  "size": "8",
+  "ducats_per_foot": 11,
+  "destination": "Puerto de Caballos",
+  "pdf_page": 91
+ },
+ {
+  "date": "1591-12-30",
+  "ship": "Santa Catalina",
+  "shippers": [
+   {
+    "name": "Juan Bautista Mucientes",
+    "role": "Mtre."
+   }
+  ],
+  "charterers": [
+   "Dionisio Ramírez"
+  ],
+  "price": 96,
+  "size": "8",
+  "ducats_per_foot": 12,
+  "destination": "Nombre de Dios",
+  "pdf_page": 91
+ },
+ {
+  "date": "1596-01-18",
+  "ship": "Ntra. Sra. de la Esperanza",
+  "shippers": [
+   {
+    "name": "Juan Alonso",
+    "role": "Sr."
+   }
+  ],
+  "charterers": [
+   "Juan del Castillo"
+  ],
+  "price": 63,
+  "size": "8x6",
+  "ducats_per_foot": 7.87,
+  "destination": "Nombre de Dios",
+  "pdf_page": 91
+ },
+ {
+  "date": "1596-06-19",
+  "ship": "La Fresneda",
+  "shippers": [
+   {
+    "name": "Gaspar de Vera Maldonado",
+    "role": "Sr.-Mtre."
+   }
+  ],
+  "charterers": [
+   "Fernán Rodríguez"
+  ],
+  "price": 58,
+  "size": "8",
+  "ducats_per_foot": 7.25,
+  "destination": "San Juan de Ulúa",
+  "pdf_page": 91
+ },
+ {
+  "date": "1598-08-26",
+  "ship": "San Clemente",
+  "shippers": [
+   {
+    "name": "Juan Gallego del Campo",
+    "role": "Mtre."
+   }
+  ],
+  "charterers": [
+   "Francisco García"
+  ],
+  "price": 81,
+  "size": "9",
+  "ducats_per_foot": 9,
+  "destination": "Cartagena/Portobelo",
+  "pdf_page": 91
+ },
+ {
+  "date": "1600-06-06",
+  "ship": "Santa Ana",
+  "shippers": [
+   {
+    "name": "Agustín de Paz",
+    "role": "Sr."
+   }
+  ],
+  "charterers": [
+   "Alonso Martínez Orozco"
+  ],
+  "price": 120,
+  "size": "12X6",
+  "ducats_per_foot": 10,
+  "destination": "San Juan de Ulúa",
+  "pdf_page": 91
+ },
+ {
+  "date": "1601-01-17",
+  "ship": "San Sebastián",
+  "shippers": [
+   {
+    "name": "Luis Cestón",
+    "role": "Sr."
+   }
+  ],
+  "charterers": [
+   "Juan de Medina"
+  ],
+  "price": 81,
+  "size": "9",
+  "ducats_per_foot": 9,
+  "destination": "Cartagena de Indias",
+  "pdf_page": 91
+ },
+ {
+  "date": "1601-01-26",
+  "ship": "San Francisco",
+  "shippers": [
+   {
+    "name": "Gaspar de Vera Maldonado",
+    "role": "Sr.-Mtre."
+   }
+  ],
+  "charterers": [
+   "Juan de Ribera"
+  ],
+  "price": 80,
+  "size": "8",
+  "ducats_per_foot": 10,
+  "destination": "Portobelo",
+  "pdf_page": 91
+ },
+ {
+  "date": "1601-02-10",
+  "ship": "San Francisco",
+  "shippers": [
+   {
+    "name": "Gaspar de Vera Maldonado",
+    "role": "Sr.-Mtre."
+   }
+  ],
+  "charterers": [
+   "Bartolomé Sánchez y otro"
+  ],
+  "price": 96,
+  "size": "8",
+  "ducats_per_foot": 12,
+  "destination": "Cartagena de Indias",
+  "pdf_page": 91
+ },
+ {
+  "date": "1601-02-12",
+  "ship": "San Francisco",
+  "shippers": [
+   {
+    "name": "Gaspar de Vera Maldonado",
+    "role": "Sr.-Mtre."
+   }
+  ],
+  "charterers": [
+   "Alonso de Puerto"
+  ],
+  "price": 80,
+  "size": "8",
+  "ducats_per_foot": 10,
+  "destination": "Portobelo",
+  "pdf_page": 91
+ },
+ {
+  "date": "1609-04-24",
+  "ship": "San Roque",
+  "shippers": [
+   {
+    "name": "Juan Bautista Suárez",
+    "role": "Mtre."
+   }
+  ],
+  "charterers": [
+   "Felipe de Soria Salmerón"
+  ],
+  "price": 120,
+  "size": "12",
+  "ducats_per_foot": 10,
+  "destination": "Nueva Veracruz",
+  "pdf_page": 92
+ },
+ {
+  "date": "1609-09-05",
+  "ship": "Santa Cruz",
+  "shippers": [
+   {
+    "name": "Constantín Pérez",
+    "role": "Sr.-Mtre."
+   }
+  ],
+  "charterers": [
+   "Mateo de Arroyo"
+  ],
+  "price": 132,
+  "size": "12",
+  "ducats_per_foot": 11,
+  "destination": "Portobelo",
+  "pdf_page": 92
+ },
+ {
+  "date": "1609-12-05",
+  "ship": "Ntra. Sra. del Valle",
+  "shippers": [
+   {
+    "name": "Juan Rodríguez Reinoso",
+    "role": "Sr.-Mtre."
+   }
+  ],
+  "charterers": [
+   "Pedro Lorriaga"
+  ],
+  "price": 120,
+  "size": "12x7",
+  "ducats_per_foot": 10,
+  "destination": "Portobelo",
+  "pdf_page": 92
+ },
+ {
+  "date": "1609-12-15",
+  "ship": "Ntra. Sra. del Rosario",
+  "shippers": [
+   {
+    "name": "Gaspar de Vera Maldonado",
+    "role": "Mtre."
+   }
+  ],
+  "charterers": [
+   "Hernando de Armijo"
+  ],
+  "price": 120,
+  "size": "12",
+  "ducats_per_foot": 10,
+  "destination": "Portobelo",
+  "pdf_page": 92
+ },
+ {
+  "date": "1610-01-20",
+  "ship": "Santa Cruz",
+  "shippers": [
+   {
+    "name": "Constantín Pérez",
+    "role": "Sr."
+   }
+  ],
+  "charterers": [
+   "Andrés de Valdeiglesias",
+   "otro"
+  ],
+  "price": 110,
+  "size": "11x8",
+  "ducats_per_foot": 10,
+  "destination": "Portobelo",
+  "pdf_page": 92
+ },
+ {
+  "date": "1611-04-16",
+  "ship": "Santa María Magdalena",
+  "shippers": [
+   {
+    "name": "Domingo de Insaurraga",
+    "role": "Sr."
+   }
+  ],
+  "charterers": [
+   "Juan Felipe Rodríguez"
+  ],
+  "price": 130,
+  "size": "11x9",
+  "ducats_per_foot": 11.81,
+  "destination": "Nueva Veracruz",
+  "pdf_page": 92
+ },
+ {
+  "date": "1612-01-26",
+  "ship": "Cristo de Salamanca",
+  "shippers": [
+   {
+    "name": "Esteban Iguinez",
+    "role": "Sr."
+   }
+  ],
+  "charterers": [
+   "Francisco Romero"
+  ],
+  "price": 110,
+  "size": "10x7",
+  "ducats_per_foot": 11,
+  "destination": "Portobelo",
+  "pdf_page": 92
+ },
+ {
+  "date": "1612-06-05",
+  "ship": "San Nicolás",
+  "shippers": [
+   {
+    "name": "Andrés Felipe",
+    "role": "Mtre."
+   }
+  ],
+  "charterers": [
+   "Francisco de Parra y Rojas",
+   "otro"
+  ],
+  "price": 90,
+  "size": "10x7",
+  "ducats_per_foot": 9,
+  "destination": "Nueva Veracruz",
+  "pdf_page": 92
+ },
+ {
+  "date": "1614-01-22",
+  "ship": "Ntra. Sra. de Begoña",
+  "shippers": [
+   {
+    "name": "Francisco Ageli de Gandía",
+    "role": "Sr."
+   }
+  ],
+  "charterers": [
+   "Fernán González Lobo"
+  ],
+  "price": 120,
+  "size": "10",
+  "ducats_per_foot": 12,
+  "destination": "Portobelo",
+  "pdf_page": 92
+ },
+ {
+  "date": "1614-01-22",
+  "ship": "Ntra. Sra. de Begoña",
+  "shippers": [
+   {
+    "name": "Francisco Ageli de Gandía",
+    "role": "Sr."
+   }
+  ],
+  "charterers": [
+   "Lucas de Hervás"
+  ],
+  "price": 120,
+  "size": "10",
+  "ducats_per_foot": 12,
+  "destination": "Portobelo",
+  "pdf_page": 92
+ },
+ {
+  "date": "1614-04-24",
+  "ship": "Santiago",
+  "shippers": [
+   {
+    "name": "Juan Bautista Zarco",
+    "role": "Sr."
+   }
+  ],
+  "charterers": [
+   "Martín Fernández Portillo"
+  ],
+  "price": 100,
+  "size": "10",
+  "ducats_per_foot": 10,
+  "destination": "Nueva Veracruz",
+  "pdf_page": 92
+ },
+ {
+  "date": "1614-05-24",
+  "ship": "San Antonio de Padua",
+  "shippers": [
+   {
+    "name": "Juan de Morales",
+    "role": "Sr."
+   }
+  ],
+  "charterers": [
+   "Juan de Hernán García"
+  ],
+  "price": 100,
+  "size": "10x7",
+  "ducats_per_foot": 10,
+  "destination": "Nueva Veracruz",
+  "pdf_page": 92
+ },
+ {
+  "date": "1617-04-18",
+  "ship": "La Trinidad y la Encarnación",
+  "shippers": [
+   {
+    "name": "Juan de Monesterio Vide",
+    "role": "Sr."
+   }
+  ],
+  "charterers": [
+   "Juan Ramos"
+  ],
+  "price": 100,
+  "size": "10x7",
+  "ducats_per_foot": 10,
+  "destination": "Nueva Veracruz",
+  "pdf_page": 92
+ },
+ {
+  "date": "1617-06-05",
+  "ship": "S. Francisco y N. S. del Rosario",
+  "shippers": [
+   {
+    "name": "Antonio de Maya Salcedo",
+    "role": "Sr.-Mtre."
+   }
+  ],
+  "charterers": [
+   "Cristóbal Maldonado"
+  ],
+  "price": 64,
+  "size": "8x7",
+  "ducats_per_foot": 8,
+  "destination": "Nueva Veracruz",
+  "pdf_page": 92
+ },
+ {
+  "date": "1618-05-25",
+  "ship": "Ntra. Sra. de Aranzazu",
+  "shippers": [
+   {
+    "name": "Diego Garcés",
+    "role": "Sr.-Mtre."
+   }
+  ],
+  "charterers": [
+   "Bartolomé García Roldán"
+  ],
+  "price": 80,
+  "size": "8",
+  "ducats_per_foot": 10,
+  "destination": "San Juan de Ulúa",
+  "pdf_page": 92
+ },
+ {
+  "date": "1618-06-16",
+  "ship": "Ntra. Sra. de Aranzazu",
+  "shippers": [
+   {
+    "name": "Diego Garcés",
+    "role": "Sr.-Mtre."
+   }
+  ],
+  "charterers": [
+   "Miguel de Carmona"
+  ],
+  "price": 100,
+  "size": "10",
+  "ducats_per_foot": 10,
+  "destination": "Nueva Veracruz",
+  "pdf_page": 92
+ },
+ {
+  "date": "1619-02-18",
+  "ship": "Ntra. Sra. de la Encarnación",
+  "shippers": [
+   {
+    "name": "Juan del Castillo",
+    "role": "Sr."
+   }
+  ],
+  "charterers": [
+   "Alonso Herrero",
+   "Francisco Vélez"
+  ],
+  "price": 132,
+  "size": "12x6",
+  "ducats_per_foot": 11,
+  "destination": "Portobelo",
+  "pdf_page": 92
+ },
+ {
+  "date": "1619-02-20",
+  "ship": "Ntra. Sra. de la Encarnación",
+  "shippers": [
+   {
+    "name": "Juan del Castillo",
+    "role": "Sr."
+   }
+  ],
+  "charterers": [
+   "Diego de Figueroa"
+  ],
+  "price": 84,
+  "size": "7x6",
+  "ducats_per_foot": 12,
+  "destination": "Portobelo",
+  "pdf_page": 92
+ },
+ {
+  "date": "1619-02-23",
+  "ship": "Ntra. Sra. de la Encarnación",
+  "shippers": [
+   {
+    "name": "Juan del Castillo",
+    "role": "Sr."
+   }
+  ],
+  "charterers": [
+   "Inés Gómez"
+  ],
+  "price": 72,
+  "size": "6x4",
+  "ducats_per_foot": 12,
+  "destination": "Portobelo",
+  "pdf_page": 92
+ },
+ {
+  "date": "1619-03-09",
+  "ship": "Ntra. Sra. de la Encarnación",
+  "shippers": [
+   {
+    "name": "Juan del Castillo",
+    "role": "Sr."
+   }
+  ],
+  "charterers": [
+   "Alonso Ruiz y otro"
+  ],
+  "price": 108,
+  "size": "9x7",
+  "ducats_per_foot": 12,
+  "destination": "Portobelo",
+  "pdf_page": 93
+ },
+ {
+  "date": "1619-03-13",
+  "ship": "Ntra. Sra. de la Encarnación",
+  "shippers": [
+   {
+    "name": "Juan del Castillo",
+    "role": "Sr."
+   }
+  ],
+  "charterers": [
+   "Juan Bautista de Vargas"
+  ],
+  "price": 120,
+  "size": "12x6",
+  "ducats_per_foot": 10,
+  "destination": "Portobelo",
+  "pdf_page": 93
+ },
+ {
+  "date": "1619-03-13",
+  "ship": "Ntra. Sra. de la Encarnación",
+  "shippers": [
+   {
+    "name": "Juan del Castillo",
+    "role": "Sr."
+   }
+  ],
+  "charterers": [
+   "Baltasar de la Cruz"
+  ],
+  "price": 121,
+  "size": "11x6",
+  "ducats_per_foot": 11,
+  "destination": "Cartagena de Indias",
+  "pdf_page": 93
+ },
+ {
+  "date": "1619-04-06",
+  "ship": "Ntra. Sra. de los Remedios",
+  "shippers": [
+   {
+    "name": "Fernando Delgado",
+    "role": "Sr.-Mtre."
+   }
+  ],
+  "charterers": [
+   "Ana Pérez"
+  ],
+  "price": 150,
+  "size": "10x8",
+  "ducats_per_foot": 15,
+  "destination": "Nueva Veracruz",
+  "pdf_page": 93
+ },
+ {
+  "date": "1621-02-01",
+  "ship": "Ntra. Sra. de la Candelaria",
+  "shippers": [
+   {
+    "name": "Juan del Castillo",
+    "role": "Sr."
+   }
+  ],
+  "charterers": [
+   "Lázaro del Corral"
+  ],
+  "price": 180,
+  "size": "15x7",
+  "ducats_per_foot": 12,
+  "destination": "Portobelo",
+  "pdf_page": 93
+ },
+ {
+  "date": "1621-02-05",
+  "ship": "Ntra. Sra. de la Candelaria",
+  "shippers": [
+   {
+    "name": "Juan del Castillo",
+    "role": "Sr."
+   }
+  ],
+  "charterers": [
+   "Sebastián Navarro"
+  ],
+  "price": 180,
+  "size": "15x7",
+  "ducats_per_foot": 12,
+  "destination": "Cartagena de Indias",
+  "pdf_page": 93
+ },
+ {
+  "date": "1621-02-12",
+  "ship": "Ntra. Sra. de la Candelaria",
+  "shippers": [
+   {
+    "name": "Juan del Castillo",
+    "role": "Sr."
+   }
+  ],
+  "charterers": [
+   "Juan de Astorga"
+  ],
+  "price": 100,
+  "size": "10x7",
+  "ducats_per_foot": 10,
+  "destination": "Portobelo",
+  "pdf_page": 93
+ },
+ {
+  "date": "1621-03-16",
+  "ship": "El Sto. Cristo de Salamanca",
+  "shippers": [
+   {
+    "name": "Juan Álvarez",
+    "role": "Sr."
+   }
+  ],
+  "charterers": [
+   "Nicolás González y otro"
+  ],
+  "price": 120,
+  "size": "10",
+  "ducats_per_foot": 12,
+  "destination": "Portobelo",
+  "pdf_page": 93
+ }
+]
