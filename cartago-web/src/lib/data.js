@@ -233,7 +233,7 @@ const curation = {
   version: 0,
 }
 
-/** Install the active curation entries (from geno-api) and drop every derived index. */
+/** Install the active curation entries (from khronos-api) and drop every derived index. */
 export function setCuration(entries) {
   curation.entries = entries || []
   curation.canon = { person: new Map(), place: new Map() }

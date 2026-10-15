@@ -463,7 +463,7 @@ export function t(lang, key, ...args) {
 /** Spanish is the default for every basetlabs.com app; an explicit choice (the toggle) is remembered. */
 export function detectLanguage() {
   try {
-    const saved = localStorage.getItem('geno.lang')
+    const saved = localStorage.getItem('khronos.lang')
     if (saved === 'es' || saved === 'en') return saved
   } catch {
     /* storage unavailable */
@@ -473,7 +473,7 @@ export function detectLanguage() {
 
 export function persistLanguage(lang) {
   try {
-    localStorage.setItem('geno.lang', lang)
+    localStorage.setItem('khronos.lang', lang)
   } catch {
     /* storage unavailable */
   }

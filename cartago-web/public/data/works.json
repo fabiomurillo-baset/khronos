@@ -1,5 +1,5 @@
 {
-  "_comment": "Seed bibliography. Works added from the app live in geno-api (D1) and are merged with this list. kind 'ia' = Internet Archive item (viewer embeds inline); kind 'url' = web page or PDF.",
+  "_comment": "Seed bibliography. Works added from the app live in khronos-api (D1) and are merged with this list. kind 'ia' = Internet Archive item (viewer embeds inline); kind 'url' = web page or PDF.",
   "works": [
     { "id": "ia:indicedelosproto01arch", "kind": "ia", "ia": "indicedelosproto01arch", "author": "Archivo Nacional de Costa Rica", "title": "Índice de los Protocolos de Cartago, tomo I (1607–1700)", "year": "1909", "publisher": "Tipografía Nacional, San José" },
     { "id": "ia:indicedelosproto02cost", "kind": "ia", "ia": "indicedelosproto02cost", "author": "Archivo Nacional de Costa Rica", "title": "Índice de los Protocolos de Cartago, tomo II", "year": "1909", "publisher": "Tipografía Nacional, San José" },

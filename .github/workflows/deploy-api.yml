@@ -1,9 +1,9 @@
-name: Deploy geno-api
+name: Deploy khronos-api
 
 on:
   push:
     branches: [main]
-    paths: ['geno-api/**', '.github/workflows/deploy-api.yml']
+    paths: ['khronos-api/**', '.github/workflows/deploy-api.yml']
   workflow_dispatch:
 
 concurrency:
@@ -18,13 +18,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npm ci --prefix geno-api || npm install --prefix geno-api
+      - run: npm ci --prefix khronos-api || npm install --prefix khronos-api
       - name: Check for unfilled placeholders in wrangler.jsonc
         id: placeholders
         run: |
-          if grep -v '^\s*//' geno-api/wrangler.jsonc | grep -q '"PASTE_'; then
+          if grep -v '^\s*//' khronos-api/wrangler.jsonc | grep -q '"PASTE_'; then
             echo "skip=true" >> "$GITHUB_OUTPUT"
-            echo "::warning::geno-api/wrangler.jsonc still has PASTE_ placeholders; not deploying (see geno-api/README.md)"
+            echo "::warning::khronos-api/wrangler.jsonc still has PASTE_ placeholders; not deploying (see khronos-api/README.md)"
           fi
       - name: Deploy to Cloudflare
         if: steps.placeholders.outputs.skip != 'true'
@@ -32,5 +32,5 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: geno-api
+          workingDirectory: khronos-api
           command: deploy

@@ -2,12 +2,13 @@ import { t } from './i18n.js'
 import { getSummary } from './data.js'
 
 /**
- * Community layer: the contribution panel talks to the geno-api Worker
- * (murillo-sites/sites/geno-api), which bridges to the Discord server
+ * Community layer: the contribution panel talks to the khronos-api Worker
+ * (khronos-api/ in this repository), which bridges to the Discord server
  * "Historia Documental Costa Rica". Discord holds the conversation; the
  * panel is a window into the forum post of each record.
  */
-export const API_URL = import.meta.env.VITE_GENO_API || 'https://geno-api.basetlabs.com'
+// Cutover pending: switch to https://khronos-api.basetlabs.com once that Worker has its secrets and OAuth callbacks.
+export const API_URL = import.meta.env.VITE_KHRONOS_API || 'https://geno-api.basetlabs.com'
 export const SITE_URL = 'https://basetlabs.com/khronos/'
 
 /** Permalink to one record: opens the timeline focused on it (see App.jsx). */
@@ -57,7 +58,7 @@ export async function copyText(text) {
 
 // ---- session ----------------------------------------------------------------
 
-const SESSION_KEY = 'geno.session'
+const SESSION_KEY = 'khronos.session'
 
 export function getSession() {
   try {

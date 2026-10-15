@@ -1,4 +1,4 @@
-// geno-api — bridge between the Khronos explorer (basetlabs.com/khronos)
+// khronos-api — bridge between the Khronos explorer (basetlabs.com/khronos)
 // and the Discord server "Historia Documental Costa Rica".
 //
 //   GET  /health

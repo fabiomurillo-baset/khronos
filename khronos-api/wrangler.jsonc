@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "geno-api",
+  "name": "khronos-api",
   "main": "./src/index.js",
   "compatibility_date": "2026-01-01",
   "observability": { "enabled": true },
@@ -25,13 +25,13 @@
   },
 
   // Create once:  npx wrangler kv namespace create KV
-  //               npx wrangler r2 bucket create geno-uploads
+  //               npx wrangler r2 bucket create khronos-uploads
 	"kv_namespaces": [{ "binding": "KV", "id": "2fc5c578ecb84f8b815d01205b1f6dcb", "remote": true }],
   // Optional: copies of uploaded files. Remove the line to keep files only in Discord.
-  "r2_buckets": [{ "binding": "UPLOADS", "bucket_name": "geno-uploads" }],
-  // Curation (merges/renames of people and places). Create once:  npx wrangler d1 create geno
+  "r2_buckets": [{ "binding": "UPLOADS", "bucket_name": "khronos-uploads" }],
+  // Curation (merges/renames of people and places). Create once:  npx wrangler d1 create khronos
   // then paste the database_id below. Tables are created automatically on first use.
-  "d1_databases": [{ "binding": "DB", "database_name": "geno", "database_id": "PASTE_D1_ID" }],
+  "d1_databases": [{ "binding": "DB", "database_name": "khronos", "database_id": "460cd49e-65b5-4c1d-9b6f-b3bd471e548f" }],
 
-  "routes": [{ "pattern": "geno-api.basetlabs.com", "custom_domain": true }]
+  "routes": [{ "pattern": "khronos-api.basetlabs.com", "custom_domain": true }]
 }

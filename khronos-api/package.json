@@ -1,5 +1,5 @@
 {
-  "name": "geno-api",
+  "name": "khronos-api",
   "private": true,
   "type": "module",
   "scripts": {

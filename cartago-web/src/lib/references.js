@@ -2,7 +2,7 @@ import { useSyncExternalStore } from 'react'
 import { api } from './community.js'
 
 /**
- * Bibliography store: works (seed file + works added through geno-api) and
+ * Bibliography store: works (seed file + works added through khronos-api) and
  * references attached to targets `r:<record id>`, `p:<person key>`, `l:<place key>`.
  * Loaded once; components subscribe with useReferences().
  */

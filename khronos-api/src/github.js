@@ -1,7 +1,7 @@
 // GitHub: open one pull request per accepted proposal, appending a line to
 // scripts/data/corrections.jsonl on a branch, and read a PR's state back.
 // Needs GITHUB_TOKEN (fine-grained PAT: Contents + Pull requests, read/write,
-// on the geno repository) and GITHUB_REPO ("owner/name").
+// on the khronos repository) and GITHUB_REPO ("owner/name").
 
 const CORRECTIONS_PATH = 'scripts/data/corrections.jsonl'
 
@@ -14,7 +14,7 @@ async function gh(env, path, init = {}) {
       authorization: `Bearer ${env.GITHUB_TOKEN}`,
       accept: 'application/vnd.github+json',
       'x-github-api-version': '2022-11-28',
-      'user-agent': 'geno-api',
+      'user-agent': 'khronos-api',
       ...(init.body ? { 'content-type': 'application/json' } : {}),
       ...(init.headers || {}),
     },
@@ -108,7 +108,7 @@ export async function openProposalPr(env, proposal, votes, context) {
     '---',
     `Al aprobar y fusionar este PR, la línea añadida a \`${CORRECTIONS_PATH}\` pasa a ser parte de los datos: la aplicación la lee desde \`${base}\` y el pipeline la aplica al regenerar las vistas.`,
     '',
-    '🤖 PR abierto automáticamente por geno-api al alcanzarse el umbral de votos.',
+    '🤖 PR abierto automáticamente por khronos-api al alcanzarse el umbral de votos.',
   ].join('\n')
 
   const pr = await gh(env, `/repos/${repo}/pulls`, json({ title, head: branch, base, body, maintainer_can_modify: true }))

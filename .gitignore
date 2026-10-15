@@ -16,8 +16,8 @@ scripts/data/legacy_views/
 # Web app and API
 cartago-web/node_modules/
 cartago-web/dist/
-geno-api/node_modules/
-geno-api/.wrangler/
+khronos-api/node_modules/
+khronos-api/.wrangler/
 
 # Secrets
 .env

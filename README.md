@@ -17,7 +17,7 @@ scripts/                      data pipeline (Python)
   data/gemini_output/         extraction and translation output (*.jsonl) and progress files
 cartago-web/                  React 19 + Vite + Tailwind app: map (MapLibre), timeline, people network
   public/data/                events.json, text_en.json, text_es.json consumed by the app
-geno-api/                     Cloudflare Worker behind the contribution panel: sign-in + bridge to Discord (see its README)
+khronos-api/                     Cloudflare Worker behind the contribution panel: sign-in + bridge to Discord (see its README)
 ```
 
 The source scans (`*.pdf`), the OCR text (`Cartago.txt`) and the Cabildo de Guatemala page images are not in the repository (hundreds of MB); see `.gitignore`. The pipeline output under `scripts/data/gemini_output/` **is** committed, so the web app can be built without re-running the extraction.
@@ -51,11 +51,11 @@ python scripts/generate_json_views.py     # rebuilds cartago-web/public/data/*.j
 
 ## Community
 
-Every record has an **Aportar** button that opens a side panel: sign in (Discord, Google, Facebook), read the conversation about the record, post messages and attach images or PDFs. The panel talks to the `geno-api` Worker ([`geno-api/`](geno-api/README.md), deployed at geno-api.basetlabs.com), which bridges to the `#aportes` forum of the Discord server *Historia Documental Costa Rica*; Discord holds the conversation and every upload is also copied to R2. Permalinks: `#r/<id>` opens the timeline on a record. Point the app at a local API with `VITE_GENO_API=http://localhost:8788 npm run dev`.
+Every record has an **Aportar** button that opens a side panel: sign in (Discord, Google, Facebook), read the conversation about the record, post messages and attach images or PDFs. The panel talks to the `khronos-api` Worker ([`khronos-api/`](khronos-api/README.md), deployed at khronos-api.basetlabs.com), which bridges to the `#aportes` forum of the Discord server *Historia Documental Costa Rica*; Discord holds the conversation and every upload is also copied to R2. Permalinks: `#r/<id>` opens the timeline on a record. Point the app at a local API with `VITE_KHRONOS_API=http://localhost:8788 npm run dev`.
 
 ## People and places
 
-The **Personas** and **Lugares** views list every name in the index; each one has a profile page (`#p/<name>`, `#l/<name>`) with a generated summary, the records it appears in, related people and places, a per-decade histogram and the spelling variants merged into it. Modeled on FamilySearch's person pages: a **Posibles duplicados** section lists similar names (token overlap + Jaro-Winkler, see `cartago-web/src/lib/similar.js`), **Comparar** opens a side-by-side merge dialog, and **Cambios** shows who merged or renamed what, with undo. Decisions are shared through `geno-api` (D1) and applied on top of the raw data at load time, so the pipeline output is never modified.
+The **Personas** and **Lugares** views list every name in the index; each one has a profile page (`#p/<name>`, `#l/<name>`) with a generated summary, the records it appears in, related people and places, a per-decade histogram and the spelling variants merged into it. Modeled on FamilySearch's person pages: a **Posibles duplicados** section lists similar names (token overlap + Jaro-Winkler, see `cartago-web/src/lib/similar.js`), **Comparar** opens a side-by-side merge dialog, and **Cambios** shows who merged or renamed what, with undo. Decisions are shared through `khronos-api` (D1) and applied on top of the raw data at load time, so the pipeline output is never modified.
 
 ## Adding a new source (collection)
 
@@ -80,11 +80,11 @@ Every record links to the page of the printed index it was read from, on the Int
 
 ## References (bibliography)
 
-Records, people and places can carry **references** to other works: published histories (Fernández Guardia, González Víquez…), document collections, genealogies, digitized books, PDFs or web pages. A reference is a work + a page (printed page or scan leaf for Internet Archive items, PDF page or exact link otherwise) with an optional quote and note; it opens inline with the same viewer as the source page. The catalog of works starts from [`cartago-web/public/data/works.json`](cartago-web/public/data/works.json) (seeded with the Archive's copies of the *Colección de documentos para la historia de Costa Rica*, *History of the Discovery and Conquest of Costa Rica*, *Obras históricas*, *Mortuorias de Alajuela y Heredia*…) and grows from the app: paste an archive.org identifier and the metadata is filled in, or give a URL. To cite something not yet online, upload it to the Internet Archive first and add it by identifier. References and works added from the app are stored by `geno-api` (D1), attributed, and removable.
+Records, people and places can carry **references** to other works: published histories (Fernández Guardia, González Víquez…), document collections, genealogies, digitized books, PDFs or web pages. A reference is a work + a page (printed page or scan leaf for Internet Archive items, PDF page or exact link otherwise) with an optional quote and note; it opens inline with the same viewer as the source page. The catalog of works starts from [`cartago-web/public/data/works.json`](cartago-web/public/data/works.json) (seeded with the Archive's copies of the *Colección de documentos para la historia de Costa Rica*, *History of the Discovery and Conquest of Costa Rica*, *Obras históricas*, *Mortuorias de Alajuela y Heredia*…) and grows from the app: paste an archive.org identifier and the metadata is filled in, or give a URL. To cite something not yet online, upload it to the Internet Archive first and add it by identifier. References and works added from the app are stored by `khronos-api` (D1), attributed, and removable.
 
 ## Corrections through pull requests
 
-Discussion in the Aportar panel can turn into a **proposed correction** to a record (one field, before/after, reason, evidence). The community votes; at the threshold `geno-api` opens a pull request that appends the change to [`scripts/data/corrections.jsonl`](scripts/data/README.md). A maintainer reviews and merges it on GitHub, and only then does it become data: the app reads the file from `main` at load (records show "Corregido por la comunidad") and `generate_json_views.py` applies it when the views are regenerated.
+Discussion in the Aportar panel can turn into a **proposed correction** to a record (one field, before/after, reason, evidence). The community votes; at the threshold `khronos-api` opens a pull request that appends the change to [`scripts/data/corrections.jsonl`](scripts/data/README.md). A maintainer reviews and merges it on GitHub, and only then does it become data: the app reads the file from `main` at load (records show "Corregido por la comunidad") and `generate_json_views.py` applies it when the views are regenerated.
 
 ## Numbers (October 2026)
 

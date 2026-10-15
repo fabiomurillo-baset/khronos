@@ -49,7 +49,7 @@ export async function createThread(env, recordId, ref) {
 async function webhook(env) {
   const saved = await env.KV.get('webhook', 'json')
   if (saved) return saved
-  const created = await bot(env, `/channels/${env.DISCORD_FORUM_CHANNEL_ID}/webhooks`, json({ name: 'Geno (web)' }))
+  const created = await bot(env, `/channels/${env.DISCORD_FORUM_CHANNEL_ID}/webhooks`, json({ name: 'Khronos (web)' }))
   const hook = { id: created.id, token: created.token }
   await env.KV.put('webhook', JSON.stringify(hook))
   return hook
