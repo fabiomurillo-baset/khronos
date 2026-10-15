@@ -13,6 +13,21 @@
       "kind": "manuscript",
       "id_base": 100000,
       "lang": "es"
+    },
+    {
+      "id": "libro-viejo-guatemala",
+      "label": "Cabildo de Guatemala, libro viejo (1524–1530)",
+      "title": "Libro Viejo de la Fundación de Guatemala — Biblioteca Goathemala, vol. XII (Sociedad de Geografía e Historia de Guatemala, 1934)",
+      "years": "1524–1530",
+      "doctype": "edición impresa de 1934 del primer libro de actas del cabildo de Santiago de Guatemala (1524–1530); texto OCR de la edición, con introducción y notas del editor",
+      "context": "Primeras actas del cabildo de Santiago de Guatemala tras la conquista: fundación de la ciudad en Iximché (1524) y su traslado al valle de Almolonga (1527); Pedro de Alvarado, Jorge de Alvarado y Gonzalo de Alvarado; nombramientos de alcaldes y regidores, repartos de solares y caballerías, ordenanzas de abastos, pregones, licencias, encomiendas y pleitos. Las páginas iniciales son la introducción y notas del editor de 1934, no actas. Interesan menciones de Nicaragua, Costa Rica y el Pacífico.",
+      "ia": "BibliotecaGoathemalaAGHGVolXIILibroViejoDeLaFundacionDeGuatemala",
+      "work": "ia:BibliotecaGoathemalaAGHGVolXIILibroViejoDeLaFundacionDeGuatemala",
+      "kind": "edition",
+      "id_base": 200000,
+      "lang": "es",
+      "first_leaf": 13,
+      "skip_kinds": "editor|introducci"
     }
   ]
 }

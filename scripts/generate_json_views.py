@@ -384,11 +384,20 @@ def collection_events(collection, source_index, counts, out_events, text_en, tex
             if not line:
                 continue
             page = json.loads(line)
+            # Optional registry limits: first_leaf/last_leaf drop front and back matter of an edition,
+            # skip_kinds is a regex over the entry kind (e.g. the editor's own notes and introduction).
+            if page["leaf"] < int(collection.get("first_leaf") or 1):
+                continue
+            if collection.get("last_leaf") and page["leaf"] > int(collection["last_leaf"]):
+                continue
+            skip = re.compile(collection["skip_kinds"], re.I) if collection.get("skip_kinds") else None
             for side in ("left", "right"):
                 reading = page.get(side)
                 if not reading:
                     continue
                 for e in reading.get("entries") or []:
+                    if skip and skip.search(e.get("kind") or ""):
+                        continue
                     date, iso_year = iso_to_date(e.get("date"))
                     year = e.get("year") or iso_year
                     inferred = 0

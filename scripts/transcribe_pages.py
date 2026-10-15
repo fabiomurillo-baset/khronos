@@ -18,6 +18,10 @@ Backends, chosen by the model name:
   gemini-*    GEMINI_API_KEY   (google-genai)
   deepseek-*  DEEPSEEK_API_KEY (OpenAI-compatible endpoint; only deepseek-flash takes images)
   claude-*    ANTHROPIC_API_KEY (anthropic SDK; --effort low|medium|high|xhigh|max, default high)
+`--ocr FILE` reads a printed edition instead of images: FILE is a JSON list of per-page OCR strings in the
+order of the Archive's page viewer (page index n -> leaf n+1), as produced from the item's _djvu.xml. Each
+page is cleaned and its dated entries extracted by a text-only model (deepseek-v4-pro, deepseek-flash, or
+any Gemini/Claude model); no image is sent.
 `--out NAME` writes to scripts/data/sources/<source>/NAME instead of pages.jsonl, so several models can be
 run on the same leaves for a pilot and scored with scripts/score_transcription.py.
 Few-shot: corrected pages in scripts/data/sources/<source>/ground_truth/<leaf>.txt are quoted in the prompt
@@ -57,7 +61,8 @@ PRICES = {
     "gemini-3-flash-preview": (0.50, 3.00),
     "claude-opus-5-5": (4.00, 20.00),
     "claude-sonnet-5-5": (2.00, 10.00),
-    "deepseek-flash": (0.14, 0.28),
+    "deepseek-flash": (0.30, 1.20),
+    "deepseek-v4-pro": (1.32, 3.96),
 }
 
 
@@ -114,6 +119,29 @@ Contexto útil: {context}
 Si la imagen es una sola página, devuelve solo "right" y deja "left" en null.
 """
 
+PROMPT_PRINTED = """Eres un historiador y editor de textos coloniales. Recibes el texto OCR de una página de una
+edición impresa: {title} ({years}). Tipo de documento: {doctype}.
+
+Tareas para esta página:
+1. "transcription": el texto de la página corregido de errores de OCR (letras cambiadas, palabras partidas por guion
+   al final de línea, encabezados de página mezclados), conservando la ortografía de la edición. Marca saltos de
+   línea con " / " donde la edición empieza un párrafo nuevo. Si una zona está ilegible, déjala como [...].
+   Si la página es un grabado, una lámina o está en blanco, devuelve una transcripción breve que lo diga.
+2. "marginalia": títulos corrientes, notas al pie o notas del editor que no sean parte del acta.
+3. "entries": lista de asuntos o actos fechados de la página: fecha (ISO si se lee; la fecha de la sesión suele
+   venir en la fórmula "En la ciudad de ... a tantos días del mes de ..."), tipo, resumen en español moderno,
+   personas (nombre completo con cargo entre paréntesis), lugares. Divide una sesión larga en sus asuntos.
+   Si la página sigue una sesión empezada en la página anterior y no da fecha, deja "date" en null y pon el
+   año si se deduce del contexto de la página.
+4. "folio": número de página impreso, si aparece, como texto.
+5. "legibility": 0-1, calidad del OCR de la página (1 = texto limpio).
+
+Contexto útil: {context}
+Devuelve solo "right" y deja "left" en null.
+
+Texto OCR de la página:
+"""
+
 GROUND_TRUTH_INTRO = """
 Muestras de transcripción correcta de este mismo escribano, tomadas de otros folios del mismo libro
 (te sirven para reconocer la mano, las abreviaturas y las fórmulas; no copies su contenido):
@@ -153,6 +181,10 @@ def load_registry():
 
 
 def list_images(args, source):
+    if args.ocr:
+        with open(args.ocr, encoding="utf-8") as f:
+            texts = json.load(f)
+        return [(i + 1, t) for i, t in enumerate(texts)]
     if args.images:
         d = os.path.join(ROOT, args.images) if not os.path.isabs(args.images) else args.images
         files = sorted(f for f in os.listdir(d) if re.search(r"\.(jpe?g|png|tiff?)$", f, re.I))
@@ -166,7 +198,7 @@ def list_images(args, source):
             if not count:
                 sys.exit("The Archive has not derived this item yet (no imagecount); use --images meanwhile.")
         return [(n + 1, f"https://archive.org/download/{args.ia}/page/n{n}_w2000.jpg") for n in range(count)]
-    sys.exit("give --images DIR or --ia IDENTIFIER")
+    sys.exit("give --images DIR, --ia IDENTIFIER or --ocr FILE")
 
 
 def load_image(path_or_url, max_side):
@@ -184,18 +216,23 @@ def load_image(path_or_url, max_side):
     return buf.getvalue()
 
 
-def deepseek_read(api_key, model, jpeg, prompt, max_output=8192):
-    """One page through DeepSeek's chat endpoint, JSON mode, validated against Spread."""
+def deepseek_read(api_key, model, jpeg, prompt, max_output=8192, text=None):
+    """One page through DeepSeek's chat endpoint, JSON mode, validated against Spread. `text` replaces the image."""
     schema = json.dumps(Spread.model_json_schema(), ensure_ascii=False)
+    instruction = "\nResponde únicamente con un objeto JSON que cumpla este esquema (sin texto fuera del JSON):\n" + schema
+    if text is not None:
+        content = prompt + text + "\n" + instruction
+    else:
+        content = [
+            {"type": "image_url", "image_url": {"url": "data:image/jpeg;base64," + base64.b64encode(jpeg).decode()}},
+            {"type": "text", "text": prompt + instruction},
+        ]
     body = {
         "model": model,
         "temperature": 0.1,
         "max_tokens": max_output,
         "response_format": {"type": "json_object"},
-        "messages": [{"role": "user", "content": [
-            {"type": "image_url", "image_url": {"url": "data:image/jpeg;base64," + base64.b64encode(jpeg).decode()}},
-            {"type": "text", "text": prompt + "\nResponde únicamente con un objeto JSON que cumpla este esquema (sin texto fuera del JSON):\n" + schema},
-        ]}],
+        "messages": [{"role": "user", "content": content}],
     }
     req = urllib.request.Request(
         DEEPSEEK_URL, data=json.dumps(body).encode("utf-8"),
@@ -215,17 +252,21 @@ def deepseek_read(api_key, model, jpeg, prompt, max_output=8192):
     return Spread.model_validate_json(text).model_dump(), usage
 
 
-def claude_read(client, model, effort, jpeg, prompt, max_output=8192):
-    """One page through the Messages API with structured output validated against Spread."""
+def claude_read(client, model, effort, jpeg, prompt, max_output=8192, text=None):
+    """One page through the Messages API with structured output validated against Spread. `text` replaces the image."""
+    if text is not None:
+        content = prompt + text
+    else:
+        content = [
+            {"type": "image", "source": {"type": "base64", "media_type": "image/jpeg",
+                                         "data": base64.b64encode(jpeg).decode()}},
+            {"type": "text", "text": prompt},
+        ]
     resp = client.messages.parse(
         model=model,
         max_tokens=max_output,
         output_config={"effort": effort},
-        messages=[{"role": "user", "content": [
-            {"type": "image", "source": {"type": "base64", "media_type": "image/jpeg",
-                                         "data": base64.b64encode(jpeg).decode()}},
-            {"type": "text", "text": prompt},
-        ]}],
+        messages=[{"role": "user", "content": content}],
         output_format=Spread,
     )
     if resp.stop_reason == "refusal":
@@ -242,6 +283,7 @@ def main():
     ap.add_argument("--source", required=True, help="id in scripts/data/sources.json")
     ap.add_argument("--images", help="folder of page images (sorted by name = leaf order)")
     ap.add_argument("--ia", help="Internet Archive identifier (page images are fetched from the Archive)")
+    ap.add_argument("--ocr", help="JSON list of per-page OCR text of a printed edition (text mode, no images)")
     ap.add_argument("--model", default="gemini-2.5-pro", help="gemini-* id, deepseek-flash, or claude-opus-5-5 (best for procesal; see --effort)")
     ap.add_argument("--max-side", type=int, default=2600)
     ap.add_argument("--limit", type=int, default=0, help="stop after N pages (for a trial run)")
@@ -298,7 +340,7 @@ def main():
         images = images[: args.limit]
     print(f"{len(images)} pages to transcribe with {args.model} ({len(done)} already done)")
 
-    base_prompt = PROMPT.format(
+    base_prompt = (PROMPT_PRINTED if args.ocr else PROMPT).format(
         title=source.get("title", args.source),
         years=source.get("years", ""),
         doctype=source.get("doctype", "manuscrito"),
@@ -312,21 +354,39 @@ def main():
     with open(out_file, "a", encoding="utf-8") as out:
         for i, (leaf, path) in enumerate(images, 1):
             t0 = time.time()
-            try:
-                jpeg = load_image(path, args.max_side)
-            except Exception as e:  # noqa: BLE001
-                print(f"  leaf {leaf}: cannot load image ({e})")
-                continue
-            prompt = with_examples(base_prompt, load_ground_truth(out_dir, skip_leaf=leaf))
+            page_text = None
+            if args.ocr:
+                page_text, jpeg = path, None
+                if len(page_text.strip()) < 40:
+                    print(f"  leaf {leaf}: blank page, skipped")
+                    continue
+            else:
+                try:
+                    jpeg = load_image(path, args.max_side)
+                except Exception as e:  # noqa: BLE001
+                    print(f"  leaf {leaf}: cannot load image ({e})")
+                    continue
+            prompt = base_prompt if args.ocr else with_examples(base_prompt, load_ground_truth(out_dir, skip_leaf=leaf))
             backoff = 10
             spread = None
             usage = None
             for attempt in range(6):
                 try:
                     if use_deepseek:
-                        spread, usage = deepseek_read(api_key, args.model, jpeg, prompt, args.max_output)
+                        spread, usage = deepseek_read(api_key, args.model, jpeg, prompt, args.max_output, text=page_text)
                     elif use_claude:
-                        spread, usage = claude_read(client, args.model, args.effort, jpeg, prompt, args.max_output)
+                        spread, usage = claude_read(client, args.model, args.effort, jpeg, prompt, args.max_output, text=page_text)
+                    elif page_text is not None:
+                        cfg = dict(response_mime_type="application/json", response_schema=Spread,
+                                   temperature=args.temperature, max_output_tokens=args.max_output)
+                        if args.thinking:
+                            cfg["thinking_config"] = types.ThinkingConfig(thinking_level=args.thinking)
+                        resp = client.models.generate_content(model=args.model, contents=[prompt + page_text],
+                                                              config=types.GenerateContentConfig(**cfg))
+                        spread = json.loads(resp.text)
+                        um = resp.usage_metadata
+                        usage = {"input": um.prompt_token_count, "output": um.candidates_token_count,
+                                 "thoughts": um.thoughts_token_count, "total": um.total_token_count} if um else None
                     else:
                         cfg = dict(response_mime_type="application/json", response_schema=Spread,
                                    temperature=args.temperature, max_output_tokens=args.max_output)
@@ -371,7 +431,7 @@ def main():
                 time.sleep(args.pause)
             row = {
                 "leaf": leaf,
-                "file": os.path.basename(path) if not path.startswith("http") else None,
+                "file": None if args.ocr else (os.path.basename(path) if not path.startswith("http") else None),
                 "left": spread.get("left"),
                 "right": spread.get("right"),
                 "model": args.model,
