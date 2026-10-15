@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useReducer, useState } from 'react'
-import { fold } from './text.js'
+import { fold, foldPerson } from './text.js'
 
 /**
  * Data access layer. Fetches /data/events.json once and the summary texts per language
@@ -264,7 +264,7 @@ export function canonicalKey(kind, key) {
   return k
 }
 
-export const personKey = (name) => canonicalKey('person', fold(name))
+export const personKey = (name) => canonicalKey('person', foldPerson(name))
 export const placeKey = (name) => canonicalKey('place', fold(name))
 
 /** Active decisions that touch a key (as subject or target). */
@@ -285,10 +285,11 @@ let placesIndex = null
  */
 function buildIndex(dataset, kind, pick) {
   const index = new Map()
+  const foldKind = kind === 'person' ? foldPerson : fold
   for (const ev of dataset.events) {
     let lastKey = null
     for (const raw of pick(ev)) {
-      const key = canonicalKey(kind, fold(raw))
+      const key = canonicalKey(kind, foldKind(raw))
       let entry = index.get(key)
       if (!entry) {
         entry = { key, kind, name: raw, events: [], aliases: new Map() }
@@ -307,7 +308,7 @@ function buildIndex(dataset, kind, pick) {
       let bestCount = -1
       for (const [raw, count] of entry.aliases) {
         // Prefer the spelling that is itself the canonical key, then the most frequent one.
-        const own = fold(raw) === entry.key ? 1e9 : 0
+        const own = foldKind(raw) === entry.key ? 1e9 : 0
         if (own + count > bestCount) {
           bestCount = own + count
           best = raw

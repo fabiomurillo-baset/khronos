@@ -12,7 +12,7 @@
   // A sign-in provider is offered only when both of its secrets exist.
   "vars": {
     "SITE_URL": "https://basetlabs.com/khronos/",
-    "ALLOWED_ORIGINS": "https://basetlabs.com,https://www.basetlabs.com,http://localhost:5173,http://localhost:4173",
+    "ALLOWED_ORIGINS": "https://basetlabs.com,https://www.basetlabs.com,http://localhost:5173,http://localhost:5174,http://127.0.0.1:5174,http://localhost:4173",
 	"DISCORD_GUILD_ID": "1558152364857364590",
 	"DISCORD_FORUM_CHANNEL_ID": "1558283564490039307",
 	"DISCORD_INVITE": "https://discord.gg/3DzeqSEBDN",

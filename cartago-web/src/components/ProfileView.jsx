@@ -3,7 +3,7 @@ import { api } from '../lib/community.js'
 import { curationFor, getPeopleIndex, getPlacesIndex, personKey, placeKey, yearSpan } from '../lib/data.js'
 import { t } from '../lib/i18n.js'
 import { findSimilar } from '../lib/similar.js'
-import { fold, formatNumber } from '../lib/text.js'
+import { fold, formatNumber, foldPerson } from '../lib/text.js'
 import EventDetail from './EventDetail.jsx'
 import MergeDialog from './MergeDialog.jsx'
 import References from './References.jsx'
@@ -154,7 +154,7 @@ export default function ProfileView({ kind, entityKey, lang, dataset, session, a
 
   // Readable label for a folded key in the change log: the raw spelling it came from, or the current entry name.
   const label = (key) => {
-    for (const raw of entry.aliases.keys()) if (fold(raw) === key) return raw
+    for (const raw of entry.aliases.keys()) if ((entry.kind === 'person' ? foldPerson : fold)(raw) === key) return raw
     return index.get(key)?.name ?? key
   }
 
