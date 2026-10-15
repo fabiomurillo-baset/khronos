@@ -395,6 +395,31 @@ export function getPlacesIndex(dataset) {
 }
 
 /** [first, last] year of an entry's dated records, or null. */
+// Month names as the extraction wrote them: English abbreviations mostly, some Spanish ("En.", "Dic").
+const MONTHS = { jan: 1, ene: 1, en: 1, feb: 2, mar: 3, apr: 4, abr: 4, may: 5, jun: 6, jul: 7, aug: 8, ago: 8, sep: 9, set: 9, oct: 10, nov: 11, dec: 12, dic: 12 }
+
+/** Sort key of a record: year (undated last), then month and day when the date string gives them, then id. */
+export function recordDateKey(ev) {
+  const y = ev.year == null ? 9999 : ev.year
+  let m = 13
+  let d = 0
+  const s = String(ev.date || '').trim().toLowerCase()
+  const mm = /^([a-záéíóú]+)\.?\s*(\d{1,2})?/.exec(s)
+  if (mm) {
+    m = MONTHS[mm[1].slice(0, 3)] ?? MONTHS[mm[1]] ?? 13
+    if (mm[2]) d = Number(mm[2])
+  } else {
+    const dd = /^(\d{1,2})$/.exec(s)
+    if (dd) d = Number(dd[1])
+  }
+  return y * 100000 + m * 100 + d
+}
+
+/** Chronological order: by date, then by record id so the order is stable. */
+export function compareByDate(a, b) {
+  return recordDateKey(a) - recordDateKey(b) || a.id - b.id
+}
+
 export function yearSpan(entry) {
   let a = Infinity
   let b = -Infinity

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { api } from '../lib/community.js'
-import { curationFor, getPeopleIndex, getPlacesIndex, personKey, placeKey, yearSpan, loadPeopleFacts, derivedFacts, communityFacts, curationVersion } from '../lib/data.js'
+import { compareByDate, curationFor, getPeopleIndex, getPlacesIndex, personKey, placeKey, yearSpan, loadPeopleFacts, derivedFacts, communityFacts, curationVersion } from '../lib/data.js'
 import { t } from '../lib/i18n.js'
 import { findSimilar } from '../lib/similar.js'
 import { fold, formatNumber, foldPerson } from '../lib/text.js'
@@ -84,6 +84,7 @@ export default function ProfileView({ kind, entityKey, lang, dataset, session, a
   const [error, setError] = useState(null)
 
   const similar = useMemo(() => (entry ? findSimilar(entry, index.values(), { limit: 8 }) : []), [entry, index])
+  const records = useMemo(() => (entry ? [...entry.events].sort(compareByDate) : []), [entry])
   const [peopleFacts, setPeopleFacts] = useState(null)
   useEffect(() => {
     if (!isPerson) return
@@ -288,7 +289,7 @@ export default function ProfileView({ kind, entityKey, lang, dataset, session, a
             <Section title={t(lang, 'profileRecords')} aside={<span className="text-xs text-slate-500">{formatNumber(entry.events.length, lang)}</span>}>
               <Decades entry={entry} lang={lang} />
               <ol className="mt-3 divide-y divide-white/6">
-                {entry.events.slice(0, limit).map((ev) => (
+                {records.slice(0, limit).map((ev) => (
                   <li key={ev.id}>
                     <EventDetail
                       ev={ev}

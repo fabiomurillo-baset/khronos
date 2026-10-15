@@ -1,6 +1,6 @@
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
 import EventDetail from './EventDetail.jsx'
-import { getSummary, personKey, placeKey } from '../lib/data.js'
+import { getSummary, personKey, placeKey, compareByDate } from '../lib/data.js'
 import { t } from '../lib/i18n.js'
 import { fold, formatNumber } from '../lib/text.js'
 
@@ -55,12 +55,14 @@ export default function TimelineView({ lang, dataset, focus, actions }) {
   const results = useMemo(() => {
     const q = fold(deferredQuery.trim())
     const idMatch = /^#(\d+)$/.exec(q)
-    return dataset.events.filter((ev, i) => {
-      if (decade != null && (ev.year == null || Math.floor(ev.year / 10) * 10 !== decade)) return false
-      if (collection != null && (ev.collection || 0) !== collection) return false
-      if (idMatch) return ev.id === Number(idMatch[1])
-      return !q || haystacks[i].includes(q)
-    })
+    return dataset.events
+      .filter((ev, i) => {
+        if (decade != null && (ev.year == null || Math.floor(ev.year / 10) * 10 !== decade)) return false
+        if (collection != null && (ev.collection || 0) !== collection) return false
+        if (idMatch) return ev.id === Number(idMatch[1])
+        return !q || haystacks[i].includes(q)
+      })
+      .sort(compareByDate)
   }, [dataset, haystacks, deferredQuery, decade, collection])
 
   // Back to the top whenever the filter changes.
