@@ -113,7 +113,7 @@ const STRINGS = {
     relatedPeople: 'Personas relacionadas',
     relatedPlaces: 'Lugares relacionados',
     variants: 'Variantes del nombre',
-    variantsHelp: 'Grafías que la comunidad unió en esta entrada',
+    variantsHelp: 'Grafías reunidas en esta entrada: con o sin título, cargo o vecindad, y las que la comunidad unió',
     summary: 'Resumen',
     summaryPerson: (name, n, a, b, place, people) =>
       `${name} aparece en ${n} ${n === 1 ? 'registro' : 'registros'} del índice${a ? ` entre ${a} y ${b}` : ''}${place ? `, sobre todo en ${place}` : ''}.${people ? ` Se relaciona con ${people}.` : ''}`,
@@ -339,7 +339,7 @@ const STRINGS = {
     relatedPeople: 'Related people',
     relatedPlaces: 'Related places',
     variants: 'Name variants',
-    variantsHelp: 'Spellings the community merged into this entry',
+    variantsHelp: 'Spellings gathered in this entry: with or without title, office or residence, plus any the community merged',
     summary: 'Summary',
     summaryPerson: (name, n, a, b, place, people) =>
       `${name} appears in ${n} ${n === 1 ? 'record' : 'records'} of the index${a ? ` between ${a} and ${b}` : ''}${place ? `, mostly in ${place}` : ''}.${people ? ` Associated with ${people}.` : ''}`,
