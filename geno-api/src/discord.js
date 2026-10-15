@@ -1,4 +1,4 @@
-// Discord REST helpers. Discord is the source of truth: each Geno record that
+// Discord REST helpers. Discord is the source of truth: each Khronos record that
 // receives a contribution becomes one post (thread) in the #aportes forum, and
 // the panel on the site reads and writes that thread.
 

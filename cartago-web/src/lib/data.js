@@ -103,7 +103,7 @@ export function sourceLinks(dataset, ev) {
 // pipeline applies the same file when it regenerates the JSON views.
 // ------------------------------------------------------------------------------------
 export const CORRECTIONS_URL =
-  import.meta.env.VITE_CORRECTIONS_URL || 'https://raw.githubusercontent.com/fabiomurillo-baset/geno/main/scripts/data/corrections.jsonl'
+  import.meta.env.VITE_CORRECTIONS_URL || 'https://raw.githubusercontent.com/fabiomurillo-baset/khronos/main/scripts/data/corrections.jsonl'
 
 const corrections = { list: [], byRecord: new Map(), appliedEvents: false, appliedText: { en: false, es: false } }
 

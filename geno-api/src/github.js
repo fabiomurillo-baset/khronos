@@ -103,7 +103,7 @@ export async function openProposalPr(env, proposal, votes, context) {
     '',
     `**Propuesto por:** ${proposal.user_name} · **Votos:** 👍 ${votes.up} · 👎 ${votes.down}`,
     '',
-    `Registro en Geno: ${context.recordUrl}${context.threadUrl ? `\nConversación en Discord: ${context.threadUrl}` : ''}`,
+    `Registro en Khronos: ${context.recordUrl}${context.threadUrl ? `\nConversación en Discord: ${context.threadUrl}` : ''}`,
     '',
     '---',
     `Al aprobar y fusionar este PR, la línea añadida a \`${CORRECTIONS_PATH}\` pasa a ser parte de los datos: la aplicación la lee desde \`${base}\` y el pipeline la aplica al regenerar las vistas.`,

@@ -1,8 +1,8 @@
-# Geno · Protocolos de Cartago (1540–1839)
+# Khronos · Protocolos de Cartago (1540–1839)
 
 Interactive explorer of the *Índice de los Protocolos de Cartago*, the early-twentieth-century index of the notarial records of Cartago, Costa Rica, published by the Archivos Nacionales. The OCR text of the printed volumes was turned into 11,053 structured events (people, places, dates, summaries) with Gemini, geolocated against a hand-built gazetteer of colonial places, and published as a map, a timeline and a people network.
 
-Live: **https://basetlabs.com/costaricahist1500-1800/** · Write-up: https://fabiomurillo.com/blog/geno-protocolos-de-cartago/
+Live: **https://basetlabs.com/khronos/** · Write-up: https://fabiomurillo.com/blog/khronos-protocolos-de-cartago/
 
 ## Layout
 
@@ -29,7 +29,7 @@ cd cartago-web
 npm install
 npm run dev              # http://localhost:5173
 npm run build            # production bundle in dist/
-npm run build:basetlabs  # bundle for basetlabs.com/costaricahist1500-1800 (writes into ../../murillo-sites)
+npm run build:basetlabs  # bundle for basetlabs.com/khronos (writes into ../../murillo-sites)
 ```
 
 See [cartago-web/README.md](cartago-web/README.md) for the data format and the component structure.
@@ -59,7 +59,7 @@ The **Personas** and **Lugares** views list every name in the index; each one ha
 
 ## Adding a new source (collection)
 
-Any digitized work can join Geno as its own collection, with every record linked to its page on the Internet Archive. Example, the *Libro Once de Cabildo* (Ayuntamiento de Guatemala, 1617–1626, a manuscript in *procesal* script):
+Any digitized work can join Khronos as its own collection, with every record linked to its page on the Internet Archive. Example, the *Libro Once de Cabildo* (Ayuntamiento de Guatemala, 1617–1626, a manuscript in *procesal* script):
 
 1. **Upload the scans to the Internet Archive** (done: `libro-once-de-cabildo`). The Archive's own OCR is useless for manuscripts, so we transcribe ourselves.
 2. **Register the source** in [`scripts/data/collections.json`](scripts/data/collections.json): id, label, Archive identifier, years, a short context paragraph for the model, and an `id_base` for its record ids (the Cabildo starts at 100000).

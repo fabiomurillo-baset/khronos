@@ -1,4 +1,4 @@
-# Geno · cartago-web
+# Khronos · cartago-web
 
 Interactive explorer for the *Índice de los Protocolos de Cartago* (Costa Rica, 1540–1839):
 a map, a timeline and a people network built from 11,053 notarial records extracted with Gemini.

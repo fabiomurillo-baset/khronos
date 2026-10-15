@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:basetlabs": "vite build --base=/costaricahist1500-1800/ --outDir ../../murillo-sites/sites/basetlabs/public/costaricahist1500-1800 --emptyOutDir",
+    "build:basetlabs": "vite build --base=/khronos/ --outDir ../../murillo-sites/sites/basetlabs/public/khronos --emptyOutDir",
     "lint": "eslint .",
     "preview": "vite preview"
   },

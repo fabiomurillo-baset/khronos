@@ -1,4 +1,4 @@
-// geno-api — bridge between the Geno explorer (basetlabs.com/costaricahist1500-1800)
+// geno-api — bridge between the Khronos explorer (basetlabs.com/khronos)
 // and the Discord server "Historia Documental Costa Rica".
 //
 //   GET  /health
@@ -145,7 +145,7 @@ async function route(request, env, ctx, url) {
           try {
             let threadId = await findThread(env, record)
             if (!threadId) {
-              const title = String(body.title || `Geno · registro #${record}`).slice(0, 100)
+              const title = String(body.title || `Khronos · registro #${record}`).slice(0, 100)
               threadId = await createThread(env, record, { title, summary: String(body.summary || '').slice(0, 500), url: `${env.SITE_URL}#r/${record}` })
             }
             const msg = await postAsUser(env, threadId, user, describeProposal(proposal, `${env.SITE_URL}#r/${record}`))
@@ -247,7 +247,7 @@ async function postMessage(request, env, ctx, recordId) {
 
   let threadId = await findThread(env, recordId)
   if (!threadId) {
-    const title = String(form.get('title') || `Geno · registro #${recordId}`).slice(0, 100)
+    const title = String(form.get('title') || `Khronos · registro #${recordId}`).slice(0, 100)
     const summary = String(form.get('summary') || '').slice(0, 500)
     threadId = await createThread(env, recordId, { title, summary, url: `${env.SITE_URL}#r/${recordId}` })
   }

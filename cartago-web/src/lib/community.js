@@ -8,7 +8,7 @@ import { getSummary } from './data.js'
  * panel is a window into the forum post of each record.
  */
 export const API_URL = import.meta.env.VITE_GENO_API || 'https://geno-api.basetlabs.com'
-export const SITE_URL = 'https://basetlabs.com/costaricahist1500-1800/'
+export const SITE_URL = 'https://basetlabs.com/khronos/'
 
 /** Permalink to one record: opens the timeline focused on it (see App.jsx). */
 export function recordUrl(ev) {

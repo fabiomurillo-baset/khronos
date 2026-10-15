@@ -1,9 +1,9 @@
 # geno-api
 
-Bridge between the Geno explorer ([basetlabs.com/costaricahist1500-1800](https://basetlabs.com/costaricahist1500-1800/)) and the Discord server **Historia Documental Costa Rica**. The "Aportar" panel in the explorer signs people in (Discord, Google or Facebook), shows the conversation about a record and lets them post messages, images and PDFs. Discord is the source of truth: every record that receives a contribution becomes one post in the `#aportes` forum, and the panel reads and writes that post.
+Bridge between the Khronos explorer ([basetlabs.com/khronos](https://basetlabs.com/khronos/)) and the Discord server **Historia Documental Costa Rica**. The "Aportar" panel in the explorer signs people in (Discord, Google or Facebook), shows the conversation about a record and lets them post messages, images and PDFs. Discord is the source of truth: every record that receives a contribution becomes one post in the `#aportes` forum, and the panel reads and writes that post.
 
 ```
-Geno (browser) ──► geno-api.basetlabs.com (this Worker) ──► Discord REST API
+Khronos (browser) ──► geno-api.basetlabs.com (this Worker) ──► Discord REST API
                        │  KV: record → thread, OAuth state, rate limit
                        └► R2: copy of every uploaded file, with record/author metadata
 ```
@@ -25,7 +25,7 @@ Everything below is done once. Values marked **var** go in `wrangler.jsonc`; val
 
 ### 2. Discord application (bot + sign-in)
 
-1. https://discord.com/developers/applications → **New Application** → name "Geno".
+1. https://discord.com/developers/applications → **New Application** → name "Khronos".
 2. **OAuth2** page: copy *Client ID* and *Client Secret* → **secrets** `DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET`. Add the redirect `https://geno-api.basetlabs.com/auth/discord/callback`.
 3. **Bot** page: *Reset Token* → **secret** `DISCORD_BOT_TOKEN`. Under *Privileged Gateway Intents* enable **Message Content Intent**.
 4. Invite the bot to the server: **OAuth2 → URL Generator**, scope `bot`, permissions *View Channels, Send Messages, Send Messages in Threads, Create Public Threads, Manage Webhooks, Attach Files, Read Message History*. Open the generated URL and pick the server.
@@ -33,7 +33,7 @@ Everything below is done once. Values marked **var** go in `wrangler.jsonc`; val
 
 ### 3. Google sign-in
 
-1. https://console.cloud.google.com → a project (any) → **APIs & Services → OAuth consent screen**: External, app name "Geno · Historia Documental Costa Rica", support e-mail, then publish the app (otherwise only test users can sign in).
+1. https://console.cloud.google.com → a project (any) → **APIs & Services → OAuth consent screen**: External, app name "Khronos · Historia Documental Costa Rica", support e-mail, then publish the app (otherwise only test users can sign in).
 2. **Credentials → Create credentials → OAuth client ID** → Web application. Authorized redirect URI: `https://geno-api.basetlabs.com/auth/google/callback`.
 3. Client ID / secret → **secrets** `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`.
 
@@ -76,7 +76,7 @@ npm run secret GITHUB_TOKEN
 
 The custom domain `geno-api.basetlabs.com` is created automatically on the first deploy (the zone is already in Cloudflare).
 
-After that, every push to `main` that touches `geno-api/` redeploys it through GitHub Actions (`.github/workflows/deploy-api.yml`). For that to work, add two repository secrets to **github.com/fabiomurillo-baset/geno → Settings → Secrets and variables → Actions**: `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`, the same values the murillo-sites repository uses. Until the placeholders in `wrangler.jsonc` are filled in, the workflow skips the deploy with a warning. Deploying by hand with `npm run deploy` always works too.
+After that, every push to `main` that touches `geno-api/` redeploys it through GitHub Actions (`.github/workflows/deploy-api.yml`). For that to work, add two repository secrets to **github.com/fabiomurillo-baset/khronos → Settings → Secrets and variables → Actions**: `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`, the same values the murillo-sites repository uses. Until the placeholders in `wrangler.jsonc` are filled in, the workflow skips the deploy with a warning. Deploying by hand with `npm run deploy` always works too.
 
 Check: `https://geno-api.basetlabs.com/config` should list the providers and the invite.
 

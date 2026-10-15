@@ -5,28 +5,28 @@
   "compatibility_date": "2026-01-01",
   "observability": { "enabled": true },
 
-  // Bridge between the Geno explorer and the Discord server "Historia Documental Costa Rica".
+  // Bridge between the Khronos explorer and the Discord server "Historia Documental Costa Rica".
   // Secrets (set once with `npm run secret NAME`, see README.md):
   //   SESSION_SECRET, DISCORD_BOT_TOKEN, DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET,
-  //   GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, FACEBOOK_APP_ID, FACEBOOK_APP_SECRET, GITHUB_TOKEN
+	//   GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, FACEBOOK_APP_ID, FACEBOOK_APP_SECRET, GITHUB_TOKEN
   // A sign-in provider is offered only when both of its secrets exist.
   "vars": {
-    "SITE_URL": "https://basetlabs.com/costaricahist1500-1800/",
+    "SITE_URL": "https://basetlabs.com/khronos/",
     "ALLOWED_ORIGINS": "https://basetlabs.com,https://www.basetlabs.com,http://localhost:5173,http://localhost:4173",
-    "DISCORD_GUILD_ID": "PASTE_SERVER_ID",
-    "DISCORD_FORUM_CHANNEL_ID": "PASTE_APORTES_FORUM_ID",
-    "DISCORD_INVITE": "https://discord.gg/PASTE_INVITE",
+	"DISCORD_GUILD_ID": "1558152364857364590",
+	"DISCORD_FORUM_CHANNEL_ID": "1558283564490039307",
+	"DISCORD_INVITE": "https://discord.gg/3DzeqSEBDN",
     // Optional: text channel where merges/renames are logged ("" to disable).
     "DISCORD_CURATION_CHANNEL_ID": "",
     // Proposed corrections become pull requests on this repository once they reach
     // PROPOSAL_VOTES net votes. Needs the GITHUB_TOKEN secret (see README).
-    "GITHUB_REPO": "fabiomurillo-baset/geno",
+    "GITHUB_REPO": "fabiomurillo-baset/khronos",
     "PROPOSAL_VOTES": "3"
   },
 
   // Create once:  npx wrangler kv namespace create KV
   //               npx wrangler r2 bucket create geno-uploads
-  "kv_namespaces": [{ "binding": "KV", "id": "PASTE_KV_ID" }],
+	"kv_namespaces": [{ "binding": "KV", "id": "2fc5c578ecb84f8b815d01205b1f6dcb", "remote": true }],
   // Optional: copies of uploaded files. Remove the line to keep files only in Discord.
   "r2_buckets": [{ "binding": "UPLOADS", "bucket_name": "geno-uploads" }],
   // Curation (merges/renames of people and places). Create once:  npx wrangler d1 create geno

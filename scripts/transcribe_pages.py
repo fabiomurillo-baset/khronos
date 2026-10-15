@@ -1,6 +1,6 @@
 """
 Transcribe the pages of a digitized manuscript (or any scanned work) with Gemini and
-extract dated entries from them, so a new source can join Geno as its own collection.
+extract dated entries from them, so a new source can join Khronos as its own collection.
 
     python scripts/transcribe_pages.py --source cabildo-guatemala-11 --images cabildo-guatemala-images
     python scripts/transcribe_pages.py --source cabildo-guatemala-11 --ia libro-once-de-cabildo   # once the Archive has derived the item
