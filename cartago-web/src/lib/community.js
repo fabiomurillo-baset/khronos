@@ -7,8 +7,7 @@ import { getSummary } from './data.js'
  * "Historia Documental Costa Rica". Discord holds the conversation; the
  * panel is a window into the forum post of each record.
  */
-// Cutover pending: switch to https://khronos-api.basetlabs.com once that Worker has its secrets and OAuth callbacks.
-export const API_URL = import.meta.env.VITE_KHRONOS_API || 'https://geno-api.basetlabs.com'
+export const API_URL = import.meta.env.VITE_KHRONOS_API || 'https://khronos-api.basetlabs.com'
 export const SITE_URL = 'https://basetlabs.com/khronos/'
 
 /** Permalink to one record: opens the timeline focused on it (see App.jsx). */
