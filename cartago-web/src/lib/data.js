@@ -238,10 +238,23 @@ export function setCuration(entries) {
   curation.entries = entries || []
   curation.canon = { person: new Map(), place: new Map() }
   curation.names = { person: new Map(), place: new Map() }
+  curation.facts = { person: new Map(), place: new Map() }
   for (const e of curation.entries) {
     if (!curation.canon[e.kind]) continue
     if (e.action === 'merge') curation.canon[e.kind].set(e.subject, e.target)
     else if (e.action === 'rename') curation.names[e.kind].set(e.subject, e.target)
+    else if (e.action === 'fact') {
+      // target is {"field": ..., "value": ...}; the latest entry per field wins
+      let f = null
+      try {
+        f = JSON.parse(e.target)
+      } catch {
+        continue
+      }
+      if (!f || !f.field) continue
+      if (!curation.facts[e.kind].has(e.subject)) curation.facts[e.kind].set(e.subject, {})
+      curation.facts[e.kind].get(e.subject)[f.field] = { value: String(f.value || ''), user: e.user_name, note: e.note, id: e.id, at: e.at }
+    }
   }
   peopleIndex = null
   placesIndex = null
@@ -250,6 +263,45 @@ export function setCuration(entries) {
 }
 
 export const getCuration = () => curation.entries
+
+/** Community facts (action 'fact') for a canonical key, merged over the keys folded into it. */
+export function communityFacts(kind, key, aliasKeys = []) {
+  const out = {}
+  for (const k of [...aliasKeys, key]) {
+    const f = curation.facts?.[kind]?.get(k)
+    if (f) Object.assign(out, f)
+  }
+  return Object.keys(out).length ? out : null
+}
+
+/** people.json: biographical facts derived from the records, keyed like foldPerson(). Loaded on demand. */
+export function loadPeopleFacts() {
+  if (cache.peopleFacts) return Promise.resolve(cache.peopleFacts)
+  return once('people', async () => {
+    cache.peopleFacts = await fetchJson('/data/people.json')
+    return cache.peopleFacts
+  })
+}
+
+/** Derived facts of a profile entry: the union over every spelling gathered in it. */
+export function derivedFacts(entry, peopleFacts) {
+  if (!entry || !peopleFacts) return null
+  const keys = new Set([entry.key])
+  for (const raw of entry.aliases.keys()) keys.add(foldPerson(raw))
+  const out = {}
+  for (const k of keys) {
+    const f = peopleFacts[k]
+    if (!f) continue
+    for (const [field, value] of Object.entries(f)) {
+      if (!out[field]) out[field] = []
+      for (const item of value) {
+        const label = Array.isArray(item) ? String(item[0]) : String(item)
+        if (!out[field].some((x) => String(x[0]) === label)) out[field].push(item)
+      }
+    }
+  }
+  return Object.keys(out).length ? out : null
+}
 export const curationVersion = () => curation.version
 
 /** Follow merges to the canonical key (with a guard against accidental cycles). */

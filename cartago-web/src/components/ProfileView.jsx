@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { api } from '../lib/community.js'
-import { curationFor, getPeopleIndex, getPlacesIndex, personKey, placeKey, yearSpan } from '../lib/data.js'
+import { curationFor, getPeopleIndex, getPlacesIndex, personKey, placeKey, yearSpan, loadPeopleFacts, derivedFacts, communityFacts, curationVersion } from '../lib/data.js'
 import { t } from '../lib/i18n.js'
 import { findSimilar } from '../lib/similar.js'
 import { fold, formatNumber, foldPerson } from '../lib/text.js'
+import PersonFacts from './PersonFacts.jsx'
 import EventDetail from './EventDetail.jsx'
 import MergeDialog from './MergeDialog.jsx'
 import References from './References.jsx'
@@ -83,6 +84,22 @@ export default function ProfileView({ kind, entityKey, lang, dataset, session, a
   const [error, setError] = useState(null)
 
   const similar = useMemo(() => (entry ? findSimilar(entry, index.values(), { limit: 8 }) : []), [entry, index])
+  const [peopleFacts, setPeopleFacts] = useState(null)
+  useEffect(() => {
+    if (!isPerson) return
+    let alive = true
+    loadPeopleFacts()
+      .then((f) => alive && setPeopleFacts(f))
+      .catch(() => {})
+    return () => {
+      alive = false
+    }
+  }, [isPerson])
+  const derived = useMemo(() => (isPerson && entry ? derivedFacts(entry, peopleFacts) : null), [isPerson, entry, peopleFacts])
+  const community = useMemo(
+    () => (isPerson && entry ? communityFacts('person', entry.key, [...entry.aliases.keys()].map(foldPerson)) : null),
+    [isPerson, entry, curationVersion()],
+  )
   const changes = useMemo(() => (entry ? curationFor(kind, entry.key).slice().reverse() : []), [kind, entry])
 
   const related = useMemo(() => {
@@ -258,6 +275,12 @@ export default function ProfileView({ kind, entityKey, lang, dataset, session, a
           <p className="mt-1 text-[11px] text-slate-500">{t(lang, 'aiCaveat')}</p>
           {error && <p className="mt-2 text-xs text-rose-300">{error.status === 401 ? t(lang, 'sessionExpired') : error.message}</p>}
         </div>
+
+        {isPerson && (
+          <div className="mt-4">
+            <PersonFacts entry={entry} lang={lang} derived={derived} community={community} session={session} actions={actions} onOpen={onOpen} onChanged={onCurationChanged} />
+          </div>
+        )}
 
         <div className="mt-4 grid gap-4 lg:grid-cols-3">
           {/* records */}

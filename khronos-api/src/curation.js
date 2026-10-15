@@ -21,6 +21,7 @@ async function ensureSchema(db) {
 }
 
 const KINDS = new Set(['person', 'place'])
+const FACT_FIELDS = new Set(['born', 'bapt', 'origin', 'parents', 'spouse', 'marr', 'children', 'siblings', 'roles', 'residence', 'will', 'dead', 'deathPlace'])
 const KEY = /^[^\s][^\n]{0,199}$/
 
 /** All active (not undone) decisions, oldest first. */
@@ -36,9 +37,18 @@ export async function listCuration(db) {
 export function validate(body) {
   const { kind, action, subject, target, note } = body || {}
   if (!KINDS.has(kind)) return 'kind'
-  if (action !== 'merge' && action !== 'rename') return 'action'
+  if (action !== 'merge' && action !== 'rename' && action !== 'fact') return 'action'
   if (typeof subject !== 'string' || !KEY.test(subject)) return 'subject'
-  if (typeof target !== 'string' || !KEY.test(target)) return 'target'
+  if (action === 'fact') {
+    // target = {"field": one of FACT_FIELDS, "value": short text}
+    let f = null
+    try {
+      f = JSON.parse(target)
+    } catch {
+      return 'target'
+    }
+    if (!f || !FACT_FIELDS.has(f.field) || typeof f.value !== 'string' || !f.value.trim() || f.value.length > 160) return 'target'
+  } else if (typeof target !== 'string' || !KEY.test(target)) return 'target'
   if (action === 'merge' && subject === target) return 'target'
   if (note != null && (typeof note !== 'string' || note.length > 500)) return 'note'
   return null
@@ -75,7 +85,9 @@ export function describe(row, user, undone = false) {
       ? `unió **${row.subject}** → **${row.target}**`
       : row.action === 'rename'
         ? `renombró **${row.subject}** como **${row.target}**`
-        : `cambió **${row.subject}**`
+        : row.action === 'fact'
+          ? `anotó en **${row.subject}**: ${row.target}`
+          : `cambió **${row.subject}**`
   const kind = row.kind === 'person' ? 'persona' : 'lugar'
   const note = row.note ? ` — _${row.note}_` : ''
   return undone ? `↩️ ${user.name} deshizo #${row.id} (${kind}: ${what})` : `✏️ ${user.name} (${kind}) ${what}${note} · #${row.id}`
