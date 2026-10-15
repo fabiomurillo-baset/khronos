@@ -49,7 +49,7 @@ A provider whose two secrets are missing is simply not offered in the panel, so 
 
 From the Aportar panel anyone signed in can **propose a correction** to one field of a record (year, date, people, places, Spanish or English summary) with a reason and evidence; the proposal is announced in the record's Discord thread and the community votes. When a proposal reaches `PROPOSAL_VOTES` net votes (default 3; the author's vote counts), khronos-api opens a **pull request** on `GITHUB_REPO` that appends one line to `scripts/data/corrections.jsonl`. Nothing changes until a maintainer approves and merges it; then the app reads the file from `main` and the record shows "Corregido por la comunidad".
 
-1. Create a fine-grained personal access token at https://github.com/settings/personal-access-tokens → *Generate new token*: resource owner `fabiomurillo-baset`, repository access **only `geno`**, permissions **Contents: Read and write** and **Pull requests: Read and write**. → **secret** `GITHUB_TOKEN`.
+1. Create a fine-grained personal access token at https://github.com/settings/personal-access-tokens → *Generate new token*: resource owner `fabiomurillo-baset`, repository access **only `khronos`**, permissions **Contents: Read and write** and **Pull requests: Read and write**. → **secret** `GITHUB_TOKEN`.
 2. Recommended: protect `main` (Settings → Branches → Add rule: require a pull request before merging, require 1 approval) so corrections always go through review. Add a `CODEOWNERS` file if you want specific reviewers requested automatically.
 3. Optional: change `PROPOSAL_VOTES` in `wrangler.jsonc`.
 
