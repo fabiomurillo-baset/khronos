@@ -6,8 +6,8 @@ export default function StatusScreen({ lang, message, error, onRetry }) {
       <div className="glass-panel flex max-w-sm flex-col items-center gap-4 px-8 py-7 text-center">
         {error ? (
           <>
-            <p className="text-sm text-slate-200">{t(lang, 'loadError')}</p>
-            <p className="font-mono text-xs break-all text-slate-500">{String(error.message || error)}</p>
+            <p className="text-sm text-ink">{t(lang, 'loadError')}</p>
+            <p className="font-mono text-xs break-all text-label">{String(error.message || error)}</p>
             <button className="btn-ghost" onClick={onRetry}>
               {t(lang, 'retry')}
             </button>
@@ -15,7 +15,7 @@ export default function StatusScreen({ lang, message, error, onRetry }) {
         ) : (
           <>
             <div className="spinner" aria-hidden="true" />
-            <p className="text-sm text-slate-300">{message}</p>
+            <p className="text-sm text-ink-light">{message}</p>
           </>
         )}
       </div>

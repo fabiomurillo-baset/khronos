@@ -10,17 +10,17 @@ function Viewer({ work, reference, lang }) {
   const links = referenceLinks(work, reference)
   if (!links) return null
   return (
-    <div className="mt-2 overflow-hidden rounded-lg border border-white/10 bg-ink-950">
-      <div className="flex items-center justify-between gap-2 border-b border-white/8 px-2.5 py-1.5 text-[11px]">
-        <span className="truncate text-slate-400">{citation(work, reference, lang)}</span>
-        <a href={links.open} target="_blank" rel="noopener" className="shrink-0 text-sky-300 hover:text-gold">
+    <div className="mt-2 overflow-hidden rounded-lg border border-rule bg-paper-2">
+      <div className="flex items-center justify-between gap-2 border-b border-rule px-2.5 py-1.5 text-[11px]">
+        <span className="truncate text-label">{citation(work, reference, lang)}</span>
+        <a href={links.open} target="_blank" rel="noopener" className="shrink-0 text-place hover:text-rubric">
           {t(lang, work.kind === 'ia' ? 'sourceOpen' : 'openLink')} ↗
         </a>
       </div>
       {links.embed ? (
-        <iframe src={links.embed} title={citation(work, reference, lang)} className="block h-[440px] w-full bg-ink-950" loading="lazy" allowFullScreen referrerPolicy="no-referrer-when-downgrade" />
+        <iframe src={links.embed} title={citation(work, reference, lang)} className="block h-[440px] w-full bg-paper-2" loading="lazy" allowFullScreen referrerPolicy="no-referrer-when-downgrade" />
       ) : (
-        <p className="px-3 py-3 text-xs text-slate-400">{t(lang, 'noEmbed')}</p>
+        <p className="px-3 py-3 text-xs text-label">{t(lang, 'noEmbed')}</p>
       )}
     </div>
   )
@@ -69,7 +69,7 @@ function WorkPicker({ lang, works, value, onChange, onCreate }) {
 
   if (creating) {
     return (
-      <div className="rounded-md border border-white/10 p-2.5">
+      <div className="rounded-md border border-rule p-2.5">
         <div className="flex gap-1">
           {['ia', 'url'].map((k) => (
             <button key={k} type="button" className="btn-ghost text-xs" aria-pressed={draft.kind === k} onClick={() => setDraft((d) => ({ ...d, kind: k }))}>
@@ -93,11 +93,11 @@ function WorkPicker({ lang, works, value, onChange, onCreate }) {
           <input value={draft.year} onChange={(e) => setDraft((d) => ({ ...d, year: e.target.value }))} placeholder={t(lang, 'workYear')} className="field text-xs" maxLength={12} />
         </div>
         <div className="mt-2 flex items-center justify-end gap-2">
-          {error && <span className="mr-auto text-xs text-rose-300">{error.message}</span>}
+          {error && <span className="mr-auto text-xs text-rubric">{error.message}</span>}
           <button type="button" className="btn-ghost text-xs" onClick={() => setCreating(false)}>
             {t(lang, 'cancel')}
           </button>
-          <button type="button" className="btn-ghost border border-gold/50 text-xs text-gold-soft" disabled={busy || !draft.title.trim() || (draft.kind === 'ia' ? !draft.ia.trim() : !/^https?:\/\//.test(draft.url))} onClick={create}>
+          <button type="button" className="btn-ghost border border-rubric/50 text-xs text-rubric" disabled={busy || !draft.title.trim() || (draft.kind === 'ia' ? !draft.ia.trim() : !/^https?:\/\//.test(draft.url))} onClick={create}>
             {t(lang, 'saveWork')}
           </button>
         </div>
@@ -108,19 +108,19 @@ function WorkPicker({ lang, works, value, onChange, onCreate }) {
   return (
     <div>
       <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t(lang, 'searchWork')} className="field text-xs" />
-      <ul className="mt-1 max-h-40 overflow-y-auto rounded-md border border-white/8">
+      <ul className="mt-1 max-h-40 overflow-y-auto rounded-md border border-rule">
         {shown.map((w) => (
           <li key={w.id}>
-            <button type="button" className={`block w-full px-2 py-1 text-left text-xs hover:bg-white/5 ${value === w.id ? 'bg-gold/10 text-gold-soft' : 'text-slate-300'}`} onClick={() => onChange(w.id)}>
+            <button type="button" className={`block w-full px-2 py-1 text-left text-xs hover:bg-ink/5 ${value === w.id ? 'bg-rubric/10 text-rubric' : 'text-ink-light'}`} onClick={() => onChange(w.id)}>
               {w.author ? `${w.author}, ` : ''}
               {w.title}
               {w.year ? ` (${w.year})` : ''}
             </button>
           </li>
         ))}
-        {shown.length === 0 && <li className="px-2 py-1 text-xs text-slate-500">{t(lang, 'noResults')}</li>}
+        {shown.length === 0 && <li className="px-2 py-1 text-xs text-label">{t(lang, 'noResults')}</li>}
       </ul>
-      <button type="button" className="mt-1.5 text-xs text-sky-300 hover:text-gold" onClick={() => setCreating(true)}>
+      <button type="button" className="mt-1.5 text-xs text-place hover:text-rubric" onClick={() => setCreating(true)}>
         + {t(lang, 'newWork')}
       </button>
     </div>
@@ -155,8 +155,8 @@ function AddReference({ target, lang, onDone, onCancel }) {
   }
 
   return (
-    <form onSubmit={submit} className="mt-2 rounded-lg border border-gold/30 bg-gold/5 p-3 text-sm">
-      <label className="block text-[11px] tracking-wide text-slate-400 uppercase">{t(lang, 'work')}</label>
+    <form onSubmit={submit} className="mt-2 rounded-lg border border-rubric/30 bg-rubric/5 p-3 text-sm">
+      <label className="block text-[11px] tracking-wide text-label uppercase">{t(lang, 'work')}</label>
       <div className="mt-1">
         <WorkPicker
           lang={lang}
@@ -176,7 +176,7 @@ function AddReference({ target, lang, onDone, onCancel }) {
       </div>
       {work && (
         <>
-          <label className="mt-3 block text-[11px] tracking-wide text-slate-400 uppercase">{t(lang, 'locator')}</label>
+          <label className="mt-3 block text-[11px] tracking-wide text-label uppercase">{t(lang, 'locator')}</label>
           <div className="mt-1 flex flex-wrap gap-2">
             <div className="flex gap-1">
               {types.map((k) => (
@@ -194,11 +194,11 @@ function AddReference({ target, lang, onDone, onCancel }) {
         </>
       )}
       <div className="mt-3 flex items-center justify-end gap-2">
-        {error && <span className="mr-auto text-xs text-rose-300">{error.status === 401 ? t(lang, 'sessionExpired') : error.message}</span>}
+        {error && <span className="mr-auto text-xs text-rubric">{error.status === 401 ? t(lang, 'sessionExpired') : error.message}</span>}
         <button type="button" className="btn-ghost" onClick={onCancel}>
           {t(lang, 'cancel')}
         </button>
-        <button type="submit" className="btn-ghost border border-gold/50 text-gold-soft hover:bg-gold/10 disabled:opacity-40" disabled={busy || !workId || (locatorType !== 'none' && !locator.trim())}>
+        <button type="submit" className="btn-ghost border border-rubric/50 text-rubric hover:bg-rubric/10 disabled:opacity-40" disabled={busy || !workId || (locatorType !== 'none' && !locator.trim())}>
           {t(lang, 'addReference')}
         </button>
       </div>
@@ -237,7 +237,7 @@ export default function References({ target, lang, compact = false, onSignInNeed
   const addButton = (
     <button
       type="button"
-      className="text-xs text-sky-300 hover:text-gold"
+      className="text-xs text-place hover:text-rubric"
       onClick={() => {
         if (!user) return onSignInNeeded?.()
         setOpen(true)
@@ -249,16 +249,16 @@ export default function References({ target, lang, compact = false, onSignInNeed
   )
 
   return (
-    <section className={compact ? 'mt-2 text-[11px]' : 'rounded-lg border border-white/8 bg-ink-950/40 p-3'}>
+    <section className={compact ? 'mt-2 text-[11px]' : 'rounded-lg border border-rule bg-paper-2 p-3'}>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
         {compact ? (
-          <button type="button" className="text-slate-500 hover:text-gold" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
+          <button type="button" className="text-label hover:text-rubric" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
             {t(lang, 'references')} ({list.length}) {open ? '▴' : '▾'}
           </button>
         ) : (
           <div>
-            <h4 className="text-sm font-semibold text-slate-100">{t(lang, 'references')}</h4>
-            <p className="mt-0.5 text-[11px] text-slate-500">{t(lang, 'referencesHelp')}</p>
+            <h4 className="text-sm font-semibold text-ink">{t(lang, 'references')}</h4>
+            <p className="mt-0.5 text-[11px] text-label">{t(lang, 'referencesHelp')}</p>
           </div>
         )}
         {!adding && <span className={compact ? '' : 'ml-auto'}>{addButton}</span>}
@@ -266,30 +266,30 @@ export default function References({ target, lang, compact = false, onSignInNeed
 
       {open && (
         <div className={compact ? 'mt-1' : 'mt-2'}>
-          {list.length === 0 && !adding && <p className="text-xs text-slate-500">{t(lang, 'noReferences')}</p>}
+          {list.length === 0 && !adding && <p className="text-xs text-label">{t(lang, 'noReferences')}</p>}
           <ul className="space-y-1.5">
             {list.map((r) => {
               const work = refs.work(r.work_id)
               return (
                 <li key={r.id} className="text-xs">
                   <div className="flex flex-wrap items-baseline gap-x-2">
-                    <span className="text-slate-200">{citation(work, r, lang)}</span>
+                    <span className="text-ink">{citation(work, r, lang)}</span>
                     {work && referenceLinks(work, r) && (
-                      <button type="button" className="text-sky-300 hover:text-gold" onClick={() => setViewing(viewing === r.id ? null : r.id)}>
+                      <button type="button" className="text-place hover:text-rubric" onClick={() => setViewing(viewing === r.id ? null : r.id)}>
                         {t(lang, viewing === r.id ? 'sourceHide' : 'sourceViewer')} {viewing === r.id ? '▴' : '▾'}
                       </button>
                     )}
-                    <span className="text-slate-500">
+                    <span className="text-label">
                       {r.user_name} · {new Date(r.at).toLocaleDateString(lang === 'es' ? 'es-CR' : 'en-GB')}
                     </span>
                     {user && (
-                      <button type="button" className="text-slate-500 hover:text-rose-300" disabled={busy} onClick={() => remove(r.id)}>
+                      <button type="button" className="text-label hover:text-rubric" disabled={busy} onClick={() => remove(r.id)}>
                         {t(lang, 'remove')}
                       </button>
                     )}
                   </div>
-                  {r.quote && <blockquote className="mt-0.5 border-l-2 border-gold/40 pl-2 text-slate-300 italic">“{r.quote}”</blockquote>}
-                  {r.note && <p className="mt-0.5 text-slate-400">{r.note}</p>}
+                  {r.quote && <blockquote className="mt-0.5 border-l-2 border-rubric/40 pl-2 text-ink-light italic">“{r.quote}”</blockquote>}
+                  {r.note && <p className="mt-0.5 text-label">{r.note}</p>}
                   {viewing === r.id && work && <Viewer work={work} reference={r} lang={lang} />}
                 </li>
               )

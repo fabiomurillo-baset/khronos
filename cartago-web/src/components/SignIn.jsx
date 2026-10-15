@@ -27,15 +27,15 @@ export function SignInButtons({ lang, config, returnHash, prompt }) {
   const providers = config?.providers ?? []
   return (
     <div>
-      {prompt && <p className="text-sm text-slate-300">{prompt}</p>}
+      {prompt && <p className="text-sm text-ink-light">{prompt}</p>}
       <div className="mt-2 flex flex-wrap gap-2">
         {providers.map((p) => (
-          <a key={p.id} href={loginUrl(p.id, returnHash)} className="btn-ghost flex items-center gap-2 border border-white/10 bg-ink-950/60">
+          <a key={p.id} href={loginUrl(p.id, returnHash)} className="btn-ghost flex items-center gap-2 border border-rule bg-paper-2">
             {PROVIDER_ICONS[p.id]}
             {p.label}
           </a>
         ))}
-        {config && providers.length === 0 && <span className="text-xs text-slate-500">{t(lang, 'signInUnavailable')}</span>}
+        {config && providers.length === 0 && <span className="text-xs text-label">{t(lang, 'signInUnavailable')}</span>}
       </div>
     </div>
   )

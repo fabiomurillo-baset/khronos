@@ -40,9 +40,9 @@ export default function TimeControls({ dataset, lang, time, onChange, stats }) {
 
   return (
     <div className="glass-panel flex flex-col gap-3 px-4 py-3 sm:px-6">
-      <div className="flex items-end justify-between font-mono text-xs text-slate-400">
+      <div className="flex items-end justify-between font-mono text-xs text-label">
         <span>{minYear}</span>
-        <span className="font-display text-3xl leading-none font-semibold text-gold tabular-nums" aria-live="polite">
+        <span className="font-display text-3xl leading-none font-semibold text-rubric tabular-nums" aria-live="polite">
           {time.year}
         </span>
         <span>{maxYear}</span>
@@ -68,7 +68,7 @@ export default function TimeControls({ dataset, lang, time, onChange, stats }) {
               y={HIST_HEIGHT - h}
               width={0.8}
               height={h}
-              fill={y === time.year ? '#fff3c4' : inWindow(y) ? '#d4af37' : '#475569'}
+              fill={y === time.year ? '#c45a52' : inWindow(y) ? '#8a2f2b' : '#d9d6cd'}
               opacity={inWindow(y) ? 1 : 0.7}
             />
           ) : null,
@@ -85,7 +85,7 @@ export default function TimeControls({ dataset, lang, time, onChange, stats }) {
         onChange={(e) => onChange((prev) => ({ ...prev, year: Number(e.target.value) }))}
       />
 
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-300">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-ink-light">
         <button
           type="button"
           className="btn-ghost"
@@ -96,7 +96,7 @@ export default function TimeControls({ dataset, lang, time, onChange, stats }) {
         </button>
 
         <label className="flex items-center gap-2">
-          <span className="text-slate-400">{t(lang, 'windowLabel')}</span>
+          <span className="text-label">{t(lang, 'windowLabel')}</span>
           <select
             className="field w-auto py-1"
             value={String(time.window)}
@@ -119,12 +119,12 @@ export default function TimeControls({ dataset, lang, time, onChange, stats }) {
             checked={time.includeInferred}
             onChange={(e) => onChange((prev) => ({ ...prev, includeInferred: e.target.checked }))}
           />
-          <span className="text-slate-400">{t(lang, 'includeInferred')}</span>
+          <span className="text-label">{t(lang, 'includeInferred')}</span>
         </label>
 
         {stats && (
-          <span className="ml-auto text-slate-400">
-            <span className="text-gold-soft">{formatNumber(stats.located, lang)}</span> {t(lang, 'located')}
+          <span className="ml-auto text-label">
+            <span className="text-rubric">{formatNumber(stats.located, lang)}</span> {t(lang, 'located')}
             {stats.unlocated > 0 && (
               <>
                 {' · '}
@@ -134,7 +134,7 @@ export default function TimeControls({ dataset, lang, time, onChange, stats }) {
           </span>
         )}
       </div>
-      <p className="hidden text-[11px] text-slate-500 sm:block">{t(lang, 'sliderHelp')}</p>
+      <p className="hidden text-[11px] text-label sm:block">{t(lang, 'sliderHelp')}</p>
     </div>
   )
 }

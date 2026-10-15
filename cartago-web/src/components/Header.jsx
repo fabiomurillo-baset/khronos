@@ -54,12 +54,12 @@ export default function Header({ lang, onLangChange, view, onViewChange, dataset
     api.config().then((c) => c.invite && setInvite(c.invite)).catch(() => {})
   }, [])
   return (
-    <header className="z-20 flex shrink-0 flex-wrap items-center gap-x-6 gap-y-2 border-b border-white/8 bg-ink-950/80 px-4 py-2.5 backdrop-blur sm:px-6">
+    <header className="z-20 flex shrink-0 flex-wrap items-center gap-x-6 gap-y-2 border-b border-rule bg-paper-2 px-4 py-2.5  sm:px-6">
       <div className="flex min-w-0 items-baseline gap-3">
-        <h1 className="font-display text-2xl font-semibold tracking-[0.25em] text-gold uppercase">
+        <h1 className="font-display text-2xl font-semibold tracking-[0.25em] text-rubric uppercase">
           {t(lang, 'appTitle')}
         </h1>
-        <span className="hidden truncate text-xs tracking-wide text-slate-400 uppercase md:inline">
+        <span className="hidden truncate text-xs tracking-wide text-label uppercase md:inline">
           {t(lang, 'appSubtitle')}
         </span>
       </div>
@@ -81,7 +81,7 @@ export default function Header({ lang, onLangChange, view, onViewChange, dataset
 
       <div className="ml-auto flex items-center gap-3">
         {dataset && (
-          <span className="hidden text-xs text-slate-400 sm:inline" title={dataset.generated}>
+          <span className="hidden text-xs text-label sm:inline" title={dataset.generated}>
             {formatNumber(dataset.events.length, lang)} {t(lang, 'events')}
           </span>
         )}
@@ -89,7 +89,7 @@ export default function Header({ lang, onLangChange, view, onViewChange, dataset
           href={invite || `${t(lang, 'aboutUrl')}#participa`}
           target="_blank"
           rel="noopener"
-          className="btn-ghost flex items-center gap-1.5 text-gold-soft"
+          className="btn-ghost flex items-center gap-1.5 text-rubric"
           title={t(lang, 'communityTitle')}
         >
           {CHAT_ICON}
@@ -99,7 +99,7 @@ export default function Header({ lang, onLangChange, view, onViewChange, dataset
           href={t(lang, 'aboutUrl')}
           target="_blank"
           rel="noopener"
-          className="btn-ghost text-slate-300"
+          className="btn-ghost text-ink-light"
           title={t(lang, 'about')}
         >
           {t(lang, 'about')}

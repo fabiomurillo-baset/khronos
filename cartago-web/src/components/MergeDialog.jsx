@@ -24,41 +24,41 @@ function Column({ entry, kind, lang, keep, onKeep, otherIds }) {
   const shared = entry.events.filter((ev) => otherIds.has(ev.id)).length
   const samples = entry.events.slice(0, 3)
   return (
-    <div className={`flex-1 rounded-lg border p-4 ${keep ? 'border-gold/60 bg-gold/5' : 'border-white/10'}`}>
+    <div className={`flex-1 rounded-lg border p-4 ${keep ? 'border-rubric/60 bg-rubric/5' : 'border-rule'}`}>
       <label className="flex cursor-pointer items-start gap-2">
         <input type="radio" name="keep" checked={keep} onChange={onKeep} className="mt-1.5 accent-gold" />
         <span>
-          <span className="block font-display text-lg leading-tight font-semibold text-gold">{entry.name}</span>
-          <span className="block text-[11px] text-slate-500">{t(lang, 'keepName')}</span>
+          <span className="block font-display text-lg leading-tight font-semibold text-rubric">{entry.name}</span>
+          <span className="block text-[11px] text-label">{t(lang, 'keepName')}</span>
         </span>
       </label>
       <dl className="mt-3 space-y-1.5 text-sm">
         <div className="flex justify-between gap-2">
-          <dt className="text-slate-400">{t(lang, 'profileRecords')}</dt>
-          <dd className="text-slate-100">{formatNumber(entry.events.length, lang)}</dd>
+          <dt className="text-label">{t(lang, 'profileRecords')}</dt>
+          <dd className="text-ink">{formatNumber(entry.events.length, lang)}</dd>
         </div>
         <div className="flex justify-between gap-2">
-          <dt className="text-slate-400">{t(lang, 'year')}</dt>
-          <dd className="text-slate-100">{span ? t(lang, 'span', span[0], span[1]) : '—'}</dd>
+          <dt className="text-label">{t(lang, 'year')}</dt>
+          <dd className="text-ink">{span ? t(lang, 'span', span[0], span[1]) : '—'}</dd>
         </div>
         {entry.aliases.size > 1 && (
           <div>
-            <dt className="text-slate-400">{t(lang, 'variants')}</dt>
-            <dd className="text-xs text-slate-300">{[...entry.aliases.keys()].join(' · ')}</dd>
+            <dt className="text-label">{t(lang, 'variants')}</dt>
+            <dd className="text-xs text-ink-light">{[...entry.aliases.keys()].join(' · ')}</dd>
           </div>
         )}
         <div>
-          <dt className="text-slate-400">{t(lang, kind === 'person' ? 'relatedPlaces' : 'relatedPeople')}</dt>
-          <dd className="text-xs text-slate-300">{related.map(([n, c]) => `${n} (${c})`).join(' · ') || '—'}</dd>
+          <dt className="text-label">{t(lang, kind === 'person' ? 'relatedPlaces' : 'relatedPeople')}</dt>
+          <dd className="text-xs text-ink-light">{related.map(([n, c]) => `${n} (${c})`).join(' · ') || '—'}</dd>
         </div>
-        {shared > 0 && <div className="text-xs text-sky-300">{t(lang, 'sharedRecords', shared)}</div>}
+        {shared > 0 && <div className="text-xs text-place">{t(lang, 'sharedRecords', shared)}</div>}
       </dl>
       <div className="mt-3">
-        <div className="text-[11px] tracking-wide text-slate-500 uppercase">{t(lang, 'sampleRecords')}</div>
+        <div className="text-[11px] tracking-wide text-label uppercase">{t(lang, 'sampleRecords')}</div>
         <ul className="mt-1 space-y-1.5">
           {samples.map((ev) => (
-            <li key={ev.id} className="text-xs leading-snug text-slate-300">
-              <span className="font-mono text-slate-500">#{ev.id}</span> <span className="text-gold-soft">{ev.year ?? '—'}</span> ·{' '}
+            <li key={ev.id} className="text-xs leading-snug text-ink-light">
+              <span className="font-mono text-label">#{ev.id}</span> <span className="text-rubric">{ev.year ?? '—'}</span> ·{' '}
               {getSummary(ev, lang).text.slice(0, 140)}
               {getSummary(ev, lang).text.length > 140 ? '…' : ''}
             </li>
@@ -113,12 +113,12 @@ export default function MergeDialog({ kind, a, b, lang, session, returnHash, onC
   }
 
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60 p-3 backdrop-blur-sm" onClick={onClose}>
-      <div className="max-h-full w-full max-w-4xl overflow-y-auto rounded-xl border border-white/10 bg-ink-950 p-5 shadow-2xl" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60 p-3 -sm" onClick={onClose}>
+      <div className="max-h-full w-full max-w-4xl overflow-y-auto rounded-xl border border-rule bg-paper-2 p-5 shadow-2xl" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h3 className="font-display text-xl font-semibold text-slate-100">{t(lang, 'mergeTitle')}</h3>
-            <p className="mt-1 text-sm text-slate-400">{t(lang, 'mergeHelp')}</p>
+            <h3 className="font-display text-xl font-semibold text-ink">{t(lang, 'mergeTitle')}</h3>
+            <p className="mt-1 text-sm text-label">{t(lang, 'mergeHelp')}</p>
           </div>
           <button type="button" className="btn-ghost" onClick={onClose} aria-label={t(lang, 'close')}>
             ✕
@@ -131,19 +131,19 @@ export default function MergeDialog({ kind, a, b, lang, session, returnHash, onC
         </div>
 
         {implausible && (
-          <p className="mt-3 rounded-md border border-amber-400/30 bg-amber-400/10 px-3 py-2 text-xs text-amber-200">⚠ {t(lang, 'spanWarning', combined[0], combined[1])}</p>
+          <p className="mt-3 rounded-md border border-amber-400/30 bg-amber-400/10 px-3 py-2 text-xs text-amber-800">⚠ {t(lang, 'spanWarning', combined[0], combined[1])}</p>
         )}
 
         {session.user ? (
           <div className="mt-4">
             <input value={note} onChange={(e) => setNote(e.target.value)} maxLength={500} placeholder={t(lang, 'noteOptional')} className="field" />
             <div className="mt-3 flex items-center justify-end gap-2">
-              {error && <span className="mr-auto text-xs text-rose-300">{error.status === 401 ? t(lang, 'sessionExpired') : error.message}</span>}
-              <span className="text-[11px] text-slate-500">{session.user.name}</span>
+              {error && <span className="mr-auto text-xs text-rubric">{error.status === 401 ? t(lang, 'sessionExpired') : error.message}</span>}
+              <span className="text-[11px] text-label">{session.user.name}</span>
               <button type="button" className="btn-ghost" onClick={onClose}>
                 {t(lang, 'cancel')}
               </button>
-              <button type="button" className="btn-ghost border border-gold/50 text-gold-soft hover:bg-gold/10 disabled:opacity-40" disabled={busy} onClick={submit}>
+              <button type="button" className="btn-ghost border border-rubric/50 text-rubric hover:bg-rubric/10 disabled:opacity-40" disabled={busy} onClick={submit}>
                 {busy ? t(lang, 'merging') : t(lang, 'merge')} → {(keepA ? a : b).name}
               </button>
             </div>

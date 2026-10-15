@@ -89,7 +89,7 @@ export default function TimelineView({ lang, dataset, focus, actions }) {
   return (
     <div className="absolute inset-0 flex flex-col lg:flex-row">
       {/* Decade navigator */}
-      <aside className="shrink-0 border-b border-white/8 bg-ink-950/60 lg:w-44 lg:overflow-y-auto lg:border-r lg:border-b-0">
+      <aside className="shrink-0 border-b border-rule bg-paper-2 lg:w-44 lg:overflow-y-auto lg:border-r lg:border-b-0">
         <div className="flex gap-1 overflow-x-auto px-3 py-2 lg:flex-col lg:px-3 lg:py-4">
           <button
             type="button"
@@ -109,12 +109,12 @@ export default function TimelineView({ lang, dataset, focus, actions }) {
               title={`${formatNumber(n, lang)} ${t(lang, 'events')}`}
             >
               <span
-                className="absolute inset-y-0 left-0 bg-gold/15"
+                className="absolute inset-y-0 left-0 bg-rubric/15"
                 style={{ width: `${Math.round((n / maxDecade) * 100)}%` }}
                 aria-hidden="true"
               />
               <span className="relative">{d}s</span>
-              <span className="relative float-right hidden text-[10px] text-slate-500 lg:inline">{n}</span>
+              <span className="relative float-right hidden text-[10px] text-label lg:inline">{n}</span>
             </button>
           ))}
         </div>
@@ -123,13 +123,13 @@ export default function TimelineView({ lang, dataset, focus, actions }) {
       {/* List */}
       <div ref={listRef} className="min-h-0 flex-1 overflow-y-auto">
         <div className="mx-auto max-w-3xl px-4 pb-16 sm:px-6">
-          <div className="sticky top-0 z-10 -mx-4 bg-ink-900/90 px-4 pt-4 pb-3 backdrop-blur sm:-mx-6 sm:px-6">
+          <div className="sticky top-0 z-10 -mx-4 bg-paper px-4 pt-4 pb-3  sm:-mx-6 sm:px-6">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
-                <h2 className="font-display text-xl font-semibold text-white">{t(lang, 'timelineTitle')}</h2>
-                <p className="text-xs text-slate-400">{t(lang, 'timelineSubtitle')}</p>
+                <h2 className="font-display text-xl font-semibold text-ink">{t(lang, 'timelineTitle')}</h2>
+                <p className="text-xs text-label">{t(lang, 'timelineSubtitle')}</p>
               </div>
-              <span className="text-xs text-slate-400 tabular-nums">{t(lang, 'results', formatNumber(results.length, lang))}</span>
+              <span className="text-xs text-label tabular-nums">{t(lang, 'results', formatNumber(results.length, lang))}</span>
             </div>
             <div className="relative mt-3">
               <input
@@ -143,7 +143,7 @@ export default function TimelineView({ lang, dataset, focus, actions }) {
               {query && (
                 <button
                   type="button"
-                  className="absolute top-1/2 right-2 -translate-y-1/2 text-xs text-slate-400 hover:text-white"
+                  className="absolute top-1/2 right-2 -translate-y-1/2 text-xs text-label hover:text-ink"
                   onClick={() => setQuery('')}
                 >
                   {t(lang, 'clear')}
@@ -180,7 +180,7 @@ export default function TimelineView({ lang, dataset, focus, actions }) {
             ))}
           </ol>
 
-          {results.length === 0 && <p className="py-20 text-center text-slate-500">{t(lang, 'noResults')}</p>}
+          {results.length === 0 && <p className="py-20 text-center text-label">{t(lang, 'noResults')}</p>}
 
           <div ref={sentinelRef} className="h-px" />
           {limit < results.length && (
@@ -190,7 +190,7 @@ export default function TimelineView({ lang, dataset, focus, actions }) {
               </button>
             </div>
           )}
-          <p className="mt-10 text-center text-[11px] text-slate-600">{t(lang, 'footer')}</p>
+          <p className="mt-10 text-center text-[11px] text-label/80">{t(lang, 'footer')}</p>
         </div>
       </div>
     </div>

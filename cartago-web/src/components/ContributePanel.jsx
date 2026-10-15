@@ -32,7 +32,7 @@ function Avatar({ author }) {
   return author.avatar ? (
     <img src={author.avatar} alt="" className="h-7 w-7 shrink-0 rounded-full bg-slate-800 object-cover" loading="lazy" />
   ) : (
-    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-700 text-xs font-semibold text-slate-200">
+    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-700 text-xs font-semibold text-ink">
       {initial}
     </span>
   )
@@ -42,13 +42,13 @@ function Attachment({ a }) {
   if (a.type.startsWith('image/')) {
     return (
       <a href={a.url} target="_blank" rel="noopener" className="block">
-        <img src={a.url} alt={a.name} className="max-h-56 rounded-md border border-white/10 object-contain" loading="lazy" />
+        <img src={a.url} alt={a.name} className="max-h-56 rounded-md border border-rule object-contain" loading="lazy" />
       </a>
     )
   }
   return (
-    <a href={a.url} target="_blank" rel="noopener" className="chip text-sky-300">
-      📄 {a.name} <span className="text-slate-500">{(a.size / 1024).toFixed(0)} KB</span>
+    <a href={a.url} target="_blank" rel="noopener" className="chip text-place">
+      📄 {a.name} <span className="text-label">{(a.size / 1024).toFixed(0)} KB</span>
     </a>
   )
 }
@@ -57,10 +57,10 @@ function Attachment({ a }) {
 function Rich({ text }) {
   const parts = text.split(/(\*\*[^*]+\*\*|https?:\/\/[^\s)]+)/g)
   return parts.map((part, i) => {
-    if (/^\*\*[^*]+\*\*$/.test(part)) return <strong key={i} className="font-semibold text-slate-100">{part.slice(2, -2)}</strong>
+    if (/^\*\*[^*]+\*\*$/.test(part)) return <strong key={i} className="font-semibold text-ink">{part.slice(2, -2)}</strong>
     if (/^https?:\/\//.test(part))
       return (
-        <a key={i} href={part} target="_blank" rel="noopener" className="text-sky-300 break-all hover:text-gold">
+        <a key={i} href={part} target="_blank" rel="noopener" className="text-place break-all hover:text-rubric">
           {part}
         </a>
       )
@@ -176,7 +176,7 @@ export default function ContributePanel({ ev, lang, onClose }) {
 
   return (
     <aside
-      className="fixed inset-y-0 right-0 z-30 flex w-full max-w-md flex-col border-l border-white/10 bg-ink-950 shadow-[0_8px_40px_rgba(0,0,0,0.6)] sm:inset-y-3 sm:right-3 sm:rounded-xl sm:border"
+      className="fixed inset-y-0 right-0 z-30 flex w-full max-w-md flex-col border-l border-rule bg-paper-2 shadow-[0_8px_40px_rgba(0,0,0,0.6)] sm:inset-y-3 sm:right-3 sm:rounded-xl sm:border"
       role="dialog"
       aria-label={t(lang, 'contributeTitle')}
       onDragOver={(e) => {
@@ -191,26 +191,26 @@ export default function ContributePanel({ ev, lang, onClose }) {
       }}
     >
       {/* header */}
-      <div className="flex items-start gap-3 border-b border-white/8 px-4 py-3">
+      <div className="flex items-start gap-3 border-b border-rule px-4 py-3">
         <div className="min-w-0 flex-1">
-          <div className="text-[11px] tracking-wide text-slate-400 uppercase">{t(lang, 'contributeHeading')}</div>
-          <div className="font-display text-lg leading-tight font-semibold text-gold">{recordTitle(ev, lang)}</div>
-          <p className="mt-1 line-clamp-2 text-xs text-slate-400">{recordSummary(ev, lang, 160)}</p>
+          <div className="text-[11px] tracking-wide text-label uppercase">{t(lang, 'contributeHeading')}</div>
+          <div className="font-display text-lg leading-tight font-semibold text-rubric">{recordTitle(ev, lang)}</div>
+          <p className="mt-1 line-clamp-2 text-xs text-label">{recordSummary(ev, lang, 160)}</p>
           <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-[11px]">
-            <button type="button" className="text-slate-500 hover:text-gold" onClick={copyRef}>
+            <button type="button" className="text-label hover:text-rubric" onClick={copyRef}>
               {copied ? t(lang, 'copied') : t(lang, 'copyReference')}
             </button>
-            <a href={recordUrl(ev)} className="text-slate-500 hover:text-gold" onClick={(e) => (e.preventDefault(), copyText(recordUrl(ev)))}>
+            <a href={recordUrl(ev)} className="text-label hover:text-rubric" onClick={(e) => (e.preventDefault(), copyText(recordUrl(ev)))}>
               {t(lang, 'copyLink')}
             </a>
             {thread && (
-              <a href={thread.url} target="_blank" rel="noopener" className="text-sky-300 hover:text-gold">
+              <a href={thread.url} target="_blank" rel="noopener" className="text-place hover:text-rubric">
                 {t(lang, 'openInDiscord')} ↗
               </a>
             )}
           </div>
         </div>
-        <button type="button" className="btn-ghost -mr-2 text-slate-400" onClick={onClose} aria-label={t(lang, 'close')}>
+        <button type="button" className="btn-ghost -mr-2 text-label" onClick={onClose} aria-label={t(lang, 'close')}>
           ✕
         </button>
       </div>
@@ -219,9 +219,9 @@ export default function ContributePanel({ ev, lang, onClose }) {
       <div ref={listRef} className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-4">
         <Proposals ev={ev} lang={lang} user={user ?? null} config={config} onSignInNeeded={() => setNeedSignIn(true)} />
         <References target={`r:${ev.id}`} lang={lang} onSignInNeeded={() => setNeedSignIn(true)} />
-        {loadError && !messages.length && <p className="text-xs text-rose-300">{t(lang, 'communityOffline')}</p>}
+        {loadError && !messages.length && <p className="text-xs text-rubric">{t(lang, 'communityOffline')}</p>}
         {!loadError && !visible.length && (
-          <div className="rounded-lg border border-dashed border-white/10 p-4 text-sm text-slate-400">
+          <div className="rounded-lg border border-dashed border-rule p-4 text-sm text-label">
             <p>{t(lang, 'noMessagesYet')}</p>
             <ul className="mt-2 list-disc space-y-1 pl-4 text-xs">
               <li>{t(lang, 'ideaCorrect')}</li>
@@ -235,15 +235,15 @@ export default function ContributePanel({ ev, lang, onClose }) {
             <Avatar author={m.author} />
             <div className="min-w-0 flex-1">
               <div className="flex items-baseline gap-2 text-xs">
-                <span className="font-medium text-slate-200">{m.author.name}</span>
-                {m.author.bot && <span className="text-[10px] text-slate-500 uppercase">bot</span>}
-                {!m.author.viaWeb && !m.author.bot && <span className="text-[10px] text-slate-500">Discord</span>}
-                <time className="text-slate-500" dateTime={m.at}>
+                <span className="font-medium text-ink">{m.author.name}</span>
+                {m.author.bot && <span className="text-[10px] text-label uppercase">bot</span>}
+                {!m.author.viaWeb && !m.author.bot && <span className="text-[10px] text-label">Discord</span>}
+                <time className="text-label" dateTime={m.at}>
                   {formatTime(m.at, lang)}
                 </time>
               </div>
               {m.content && (
-                <p className="mt-0.5 text-sm whitespace-pre-wrap text-slate-200">
+                <p className="mt-0.5 text-sm whitespace-pre-wrap text-ink">
                   <Rich text={m.content} />
                 </p>
               )}
@@ -260,20 +260,20 @@ export default function ContributePanel({ ev, lang, onClose }) {
       </div>
 
       {/* composer */}
-      <div className={`border-t border-white/8 px-4 py-3 ${dragging ? 'bg-gold/10' : ''} ${needSignIn && user === null ? 'ring-1 ring-gold/60' : ''}`}>
+      <div className={`border-t border-rule px-4 py-3 ${dragging ? 'bg-rubric/10' : ''} ${needSignIn && user === null ? 'ring-1 ring-rubric/60' : ''}`}>
         {user === undefined ? null : user === null ? (
           <div>
-            <p className="text-sm text-slate-300">{t(lang, 'signInToContribute')}</p>
+            <p className="text-sm text-ink-light">{t(lang, 'signInToContribute')}</p>
             <div className="mt-2 flex flex-wrap gap-2">
               {providers.map((p) => (
-                <a key={p.id} href={loginUrl(p.id, `r/${ev.id}`)} className="btn-ghost flex items-center gap-2 border border-white/10 bg-ink-950/60">
+                <a key={p.id} href={loginUrl(p.id, `r/${ev.id}`)} className="btn-ghost flex items-center gap-2 border border-rule bg-paper-2">
                   {PROVIDER_ICONS[p.id]}
                   {p.label}
                 </a>
               ))}
-              {config && providers.length === 0 && <span className="text-xs text-slate-500">{t(lang, 'signInUnavailable')}</span>}
+              {config && providers.length === 0 && <span className="text-xs text-label">{t(lang, 'signInUnavailable')}</span>}
             </div>
-            <p className="mt-2 text-[11px] text-slate-500">{t(lang, 'signInNote')}</p>
+            <p className="mt-2 text-[11px] text-label">{t(lang, 'signInNote')}</p>
           </div>
         ) : (
           <form onSubmit={send}>
@@ -284,14 +284,14 @@ export default function ContributePanel({ ev, lang, onClose }) {
               rows={3}
               maxLength={2000}
               placeholder={t(lang, 'composerPlaceholder')}
-              className="w-full resize-none rounded-md border border-white/10 bg-ink-950/60 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-gold/60 focus:outline-none"
+              className="w-full resize-none rounded-md border border-rule bg-paper-2 px-3 py-2 text-sm text-ink placeholder:text-label focus:border-rubric/60 focus:outline-none"
             />
             {files.length > 0 && (
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {files.map((f, i) => (
-                  <span key={`${f.name}-${i}`} className="chip text-slate-200">
+                  <span key={`${f.name}-${i}`} className="chip text-ink">
                     {f.type.startsWith('image/') ? '🖼' : '📄'} {f.name}
-                    <button type="button" className="ml-1 text-slate-500 hover:text-rose-300" onClick={() => setFiles(files.filter((_, j) => j !== i))} aria-label={t(lang, 'remove')}>
+                    <button type="button" className="ml-1 text-label hover:text-rubric" onClick={() => setFiles(files.filter((_, j) => j !== i))} aria-label={t(lang, 'remove')}>
                       ✕
                     </button>
                   </span>
@@ -299,7 +299,7 @@ export default function ContributePanel({ ev, lang, onClose }) {
               </div>
             )}
             <div className="mt-2 flex items-center gap-2">
-              <label className="btn-ghost inline-flex cursor-pointer items-center gap-1 whitespace-nowrap text-slate-300">
+              <label className="btn-ghost inline-flex cursor-pointer items-center gap-1 whitespace-nowrap text-ink-light">
                 📎 {t(lang, 'attach')}
                 <input
                   type="file"
@@ -312,14 +312,14 @@ export default function ContributePanel({ ev, lang, onClose }) {
                   }}
                 />
               </label>
-              <span className="hidden text-[11px] text-slate-500 sm:inline">{t(lang, 'dropHint')}</span>
+              <span className="hidden text-[11px] text-label sm:inline">{t(lang, 'dropHint')}</span>
               <span className="ml-auto flex items-center gap-2">
-                <span className="max-w-[9rem] truncate text-[11px] text-slate-500" title={user.name}>
+                <span className="max-w-[9rem] truncate text-[11px] text-label" title={user.name}>
                   {user.name}
                 </span>
                 <button
                   type="button"
-                  className="text-[11px] text-slate-500 hover:text-gold"
+                  className="text-[11px] text-label hover:text-rubric"
                   onClick={signOut}
                 >
                   {t(lang, 'signOut')}
@@ -327,14 +327,14 @@ export default function ContributePanel({ ev, lang, onClose }) {
                 <button
                   type="submit"
                   disabled={sending || (!content.trim() && files.length === 0)}
-                  className="btn-ghost border border-gold/50 text-gold-soft hover:bg-gold/10 disabled:opacity-40"
+                  className="btn-ghost border border-rubric/50 text-rubric hover:bg-rubric/10 disabled:opacity-40"
                 >
                   {sending ? t(lang, 'sending') : t(lang, 'send')}
                 </button>
               </span>
             </div>
             {sendError && (
-              <p className="mt-2 text-xs text-rose-300">
+              <p className="mt-2 text-xs text-rubric">
                 {sendError.message === 'too fast'
                   ? t(lang, 'tooFast')
                   : sendError.status === 401

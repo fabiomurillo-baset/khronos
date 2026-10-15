@@ -26,11 +26,11 @@ const clusterLayer = {
   type: 'circle',
   filter: ['has', 'point_count'],
   paint: {
-    'circle-color': '#d4af37',
+    'circle-color': '#d4574f',
     'circle-opacity': 0.55,
     'circle-radius': radiusExpr('sum'),
     'circle-stroke-width': 1.5,
-    'circle-stroke-color': '#fff3c4',
+    'circle-stroke-color': '#ffd9d6',
   },
 }
 
@@ -39,7 +39,7 @@ const placeLayer = {
   type: 'circle',
   filter: ['!', ['has', 'point_count']],
   paint: {
-    'circle-color': ['case', ['boolean', ['get', 'selected'], false], '#fff3c4', '#d4af37'],
+    'circle-color': ['case', ['boolean', ['get', 'selected'], false], '#ffd9d6', '#d4574f'],
     'circle-opacity': 0.8,
     'circle-radius': radiusExpr('count'),
     'circle-stroke-width': ['case', ['boolean', ['get', 'selected'], false], 3, 1.5],
@@ -220,7 +220,7 @@ export default function MapView({ lang, dataset, time, onTimeChange, focus, acti
     : []
 
   return (
-    <div className="absolute inset-0 overflow-hidden bg-ink-900">
+    <div className="absolute inset-0 overflow-hidden bg-paper">
       <Map
         ref={mapRef}
         initialViewState={initialView}
@@ -269,14 +269,14 @@ export default function MapView({ lang, dataset, time, onTimeChange, focus, acti
             }}
           >
             <div className="w-[min(400px,calc(100vw-3rem))]">
-              <header className="border-b border-white/8 px-4 py-3 pr-10">
-                <h3 className="font-display text-lg leading-tight font-semibold text-white">{selected.name}</h3>
-                <p className="mt-0.5 text-xs text-slate-400">
+              <header className="border-b border-rule px-4 py-3 pr-10">
+                <h3 className="font-display text-lg leading-tight font-semibold text-ink">{selected.name}</h3>
+                <p className="mt-0.5 text-xs text-label">
                   {t(lang, 'eventsHere', formatNumber(selected.events.length, lang))} ·{' '}
                   {time.window === 'all' ? t(lang, 'windowAll') : `${time.year} ${time.window ? `± ${time.window}` : ''}`}
                 </p>
               </header>
-              <div className="max-h-[38vh] divide-y divide-white/6 overflow-y-auto px-4">
+              <div className="max-h-[38vh] divide-y divide-rule overflow-y-auto px-4">
                 {selected.events.map((ev) => (
                   <EventDetail
                     key={ev.id}
@@ -290,7 +290,7 @@ export default function MapView({ lang, dataset, time, onTimeChange, focus, acti
                   />
                 ))}
               </div>
-              <footer className="px-4 py-2 text-[10px] text-slate-500">{t(lang, 'approxLocation')}</footer>
+              <footer className="px-4 py-2 text-[10px] text-label">{t(lang, 'approxLocation')}</footer>
             </div>
           </Popup>
         )}
@@ -299,15 +299,15 @@ export default function MapView({ lang, dataset, time, onTimeChange, focus, acti
       {/* HUD */}
       <div className="pointer-events-none absolute top-3 left-3 z-10 max-w-[260px]">
         <div className="glass-panel px-4 py-3">
-          <h2 className="font-display text-base font-semibold text-white">{t(lang, 'mapTitle')}</h2>
-          <p className="mt-1 text-xs text-slate-400">
+          <h2 className="font-display text-base font-semibold text-ink">{t(lang, 'mapTitle')}</h2>
+          <p className="mt-1 text-xs text-label">
             {formatNumber(visible.length, lang)} {t(lang, 'events')} ·{' '}
             {time.window === 'all' ? t(lang, 'windowAll') : time.window === 0 ? time.year : `${time.year - time.window}–${time.year + time.window}`}
           </p>
-          <div className="mt-2 flex items-center gap-2 text-[11px] text-slate-400">
+          <div className="mt-2 flex items-center gap-2 text-[11px] text-label">
             <span className="inline-block h-2 w-2 rounded-full bg-gold" />
-            <span className="inline-block h-3.5 w-3.5 rounded-full bg-gold/70" />
-            <span className="inline-block h-5 w-5 rounded-full bg-gold/50" />
+            <span className="inline-block h-3.5 w-3.5 rounded-full bg-rubric/70" />
+            <span className="inline-block h-5 w-5 rounded-full bg-rubric/50" />
             <span>= {t(lang, 'events')}</span>
           </div>
         </div>

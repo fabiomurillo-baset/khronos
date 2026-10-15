@@ -23,34 +23,34 @@ export default function EventDetail({ ev, lang, query, onPerson, onPlace, action
   return (
     <article
       id={`event-${ev.id}`}
-      className={`flex gap-4 ${compact ? 'py-3' : 'glass-panel p-5'} ${active ? 'ring-1 ring-gold/70' : ''}`}
+      className={`flex gap-4 ${compact ? 'py-3' : 'glass-panel p-5'} ${active ? 'ring-1 ring-rubric/70' : ''}`}
     >
       <div className={`shrink-0 ${compact ? 'w-14' : 'w-20'}`}>
         <div
-          className={`font-display leading-none font-semibold text-gold ${compact ? 'text-lg' : 'text-2xl'}`}
+          className={`font-display leading-none font-semibold text-rubric ${compact ? 'text-lg' : 'text-2xl'}`}
           title={ev.inferred ? t(lang, 'inferredYear') : undefined}
         >
           {yearLabel}
         </div>
-        {ev.date && <div className="mt-1 text-xs text-slate-400">{ev.date}</div>}
-        <div className="mt-1 font-mono text-[10px] text-slate-600">#{ev.id}</div>
+        {ev.date && <div className="mt-1 text-xs text-label">{ev.date}</div>}
+        <div className="mt-1 font-mono text-[10px] text-label/80">#{ev.id}</div>
         {ev.collection > 0 && getDataset()?.collections?.[ev.collection] && (
-          <div className="mt-1 text-[10px] leading-tight text-sky-300/90" title={t(lang, 'collection')}>
+          <div className="mt-1 text-[10px] leading-tight text-place" title={t(lang, 'collection')}>
             {getDataset().collections[ev.collection].label}
           </div>
         )}
         {ev.corrected && (
-          <div className="mt-1 text-[10px] leading-tight text-emerald-300" title={t(lang, 'correctedBadge')}>
+          <div className="mt-1 text-[10px] leading-tight text-emerald-800" title={t(lang, 'correctedBadge')}>
             ✓ {t(lang, 'correctedBadge')}
           </div>
         )}
       </div>
 
       <div className="min-w-0 flex-1">
-        <p className={`leading-relaxed text-slate-200 ${compact ? 'text-sm' : 'text-[15px]'}`}>
+        <p className={`leading-relaxed text-ink ${compact ? 'text-sm' : 'text-[15px]'}`}>
           <Highlight text={text} query={query} />
         </p>
-        {fallback && <p className="mt-1 text-xs text-slate-500 italic">{t(lang, 'noTranslation')}</p>}
+        {fallback && <p className="mt-1 text-xs text-label italic">{t(lang, 'noTranslation')}</p>}
 
         {ev.people.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-1.5">
@@ -58,7 +58,7 @@ export default function EventDetail({ ev, lang, query, onPerson, onPlace, action
               <button
                 key={person}
                 type="button"
-                className="chip text-gold-soft"
+                className="chip text-rubric"
                 onClick={() => onPerson?.(person)}
                 title={t(lang, 'showInGraph')}
               >
@@ -77,7 +77,7 @@ export default function EventDetail({ ev, lang, query, onPerson, onPlace, action
               <button
                 key={loc}
                 type="button"
-                className="chip text-sky-300"
+                className="chip text-place"
                 onClick={() => onPlace?.(loc)}
               >
                 <span aria-hidden="true" className="text-[10px] opacity-70">
@@ -90,39 +90,39 @@ export default function EventDetail({ ev, lang, query, onPerson, onPlace, action
         )}
 
         {src && (
-          <div className="mt-2 text-[11px] text-slate-500">
+          <div className="mt-2 text-[11px] text-label">
             <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5" title={t(lang, 'sourceTitle')}>
               <span>
                 {t(lang, 'source')}: {src.kind === 'index' ? t(lang, 'sourceRef', src.tomo, src.printed, src.page) : t(lang, 'sourceLeaf', src.label, src.page, src.printed, src.side)}
                 {src.kind === 'index' && src.conf < 0.3 && (
-                  <span className="text-amber-300/80" title={t(lang, 'sourceApprox')}>
+                  <span className="text-amber-800" title={t(lang, 'sourceApprox')}>
                     {' '}
                     ≈
                   </span>
                 )}
                 {src.kind !== 'index' && (
-                  <span className="text-amber-300/80" title={`${t(lang, 'transcriptionCaveat')} ${Math.round(src.conf * 100)}%`}>
+                  <span className="text-amber-800" title={`${t(lang, 'transcriptionCaveat')} ${Math.round(src.conf * 100)}%`}>
                     {' '}
                     ✎ {Math.round(src.conf * 100)}%
                   </span>
                 )}
               </span>
-              <button type="button" className="text-sky-300 hover:text-gold" aria-expanded={showSource} onClick={() => setShowSource((v) => !v)}>
+              <button type="button" className="text-place hover:text-rubric" aria-expanded={showSource} onClick={() => setShowSource((v) => !v)}>
                 {t(lang, showSource ? 'sourceHide' : 'sourceViewer')} {showSource ? '▴' : '▾'}
               </button>
             </div>
             {showSource && (
-              <div className="mt-2 overflow-hidden rounded-lg border border-white/10 bg-ink-950">
-                <div className="flex items-center justify-between gap-2 border-b border-white/8 px-2.5 py-1.5">
-                  <span className="text-slate-400">{src.kind === 'index' ? `Índice de los Protocolos de Cartago · ${t(lang, 'sourceRef', src.tomo, src.printed, src.page)}` : t(lang, 'sourceLeaf', src.label, src.page, src.printed, src.side)}</span>
-                  <a href={src.viewer} target="_blank" rel="noopener" className="text-sky-300 hover:text-gold">
+              <div className="mt-2 overflow-hidden rounded-lg border border-rule bg-paper-2">
+                <div className="flex items-center justify-between gap-2 border-b border-rule px-2.5 py-1.5">
+                  <span className="text-label">{src.kind === 'index' ? `Índice de los Protocolos de Cartago · ${t(lang, 'sourceRef', src.tomo, src.printed, src.page)}` : t(lang, 'sourceLeaf', src.label, src.page, src.printed, src.side)}</span>
+                  <a href={src.viewer} target="_blank" rel="noopener" className="text-place hover:text-rubric">
                     {t(lang, 'sourceOpen')} ↗
                   </a>
                 </div>
                 <iframe
                   src={src.embed}
                   title={`${t(lang, 'source')} · #${ev.id}`}
-                  className="block h-[440px] w-full bg-ink-950"
+                  className="block h-[440px] w-full bg-paper-2"
                   loading="lazy"
                   allowFullScreen
                   referrerPolicy="no-referrer-when-downgrade"
@@ -136,19 +136,19 @@ export default function EventDetail({ ev, lang, query, onPerson, onPlace, action
 
         <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
           {actions.showOnMap && ev.lat != null && (
-            <button className="text-slate-400 hover:text-gold" onClick={() => actions.showOnMap(ev)}>
+            <button className="text-label hover:text-rubric" onClick={() => actions.showOnMap(ev)}>
               {t(lang, 'showOnMap')} →
             </button>
           )}
           {actions.showInTimeline && (
-            <button className="text-slate-400 hover:text-gold" onClick={() => actions.showInTimeline(ev)}>
+            <button className="text-label hover:text-rubric" onClick={() => actions.showInTimeline(ev)}>
               {t(lang, 'viewTimeline')} →
             </button>
           )}
           {actions.contribute && (
             <button
               type="button"
-              className="chip ml-auto border-gold/40 text-gold-soft hover:bg-gold/10"
+              className="chip ml-auto border-rubric/40 text-rubric hover:bg-rubric/10"
               onClick={() => actions.contribute(ev)}
               title={t(lang, 'contributeTitle')}
             >

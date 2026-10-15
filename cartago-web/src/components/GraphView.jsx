@@ -133,25 +133,25 @@ export default function GraphView({ lang, dataset, focus, actions }) {
       const isHover = node.id === hoverKey
       ctx.beginPath()
       ctx.arc(node.x, node.y, r, 0, 2 * Math.PI)
-      ctx.fillStyle = isSelected || isCenter ? '#fff3c4' : '#d4af37'
+      ctx.fillStyle = isSelected || isCenter ? '#c45a52' : '#8a2f2b'
       ctx.globalAlpha = isHover || isSelected || isCenter ? 1 : 0.85
       ctx.fill()
       ctx.globalAlpha = 1
       if (isSelected || isCenter) {
         ctx.lineWidth = 1.5 / scale
-        ctx.strokeStyle = '#ffffff'
+        ctx.strokeStyle = '#1b1f24'
         ctx.stroke()
       }
       const showLabel = isCenter || isSelected || isHover || scale > 1.6 || node.degree > maxDegree * 0.5
       if (showLabel) {
         const fontSize = Math.max(10 / scale, 2.5)
-        ctx.font = `${isCenter || isSelected ? '600 ' : ''}${fontSize}px Inter, system-ui, sans-serif`
+        ctx.font = `${isCenter || isSelected ? '600 ' : ''}${fontSize}px IBM Plex Sans, system-ui, sans-serif`
         ctx.textAlign = 'center'
         ctx.textBaseline = 'top'
-        ctx.fillStyle = 'rgba(15,23,42,0.85)'
+        ctx.fillStyle = 'rgba(242,241,236,0.85)'
         const w = ctx.measureText(node.name).width
         ctx.fillRect(node.x - w / 2 - 2 / scale, node.y + r + 1 / scale, w + 4 / scale, fontSize + 2 / scale)
-        ctx.fillStyle = isCenter || isSelected ? '#fff3c4' : '#e2e8f0'
+        ctx.fillStyle = isCenter || isSelected ? '#8a2f2b' : '#1b1f24'
         ctx.fillText(node.name, node.x, node.y + r + 2 / scale)
       }
     },
@@ -182,7 +182,7 @@ export default function GraphView({ lang, dataset, focus, actions }) {
           nodeCanvasObjectMode={() => 'replace'}
           nodePointerAreaPaint={paintPointerArea}
           nodeRelSize={6}
-          linkColor={(l) => (hoverKey && (l.source.id === hoverKey || l.target.id === hoverKey) ? 'rgba(212,175,55,0.8)' : 'rgba(255,255,255,0.14)')}
+          linkColor={(l) => (hoverKey && (l.source.id === hoverKey || l.target.id === hoverKey) ? 'rgba(138,47,43,0.8)' : 'rgba(27,31,36,0.16)')}
           linkWidth={(l) => Math.min(0.6 + l.weight * 0.6, 4)}
           onNodeClick={onNodeClick}
           onNodeHover={(n) => setHoverKey(n ? n.id : null)}
@@ -195,8 +195,8 @@ export default function GraphView({ lang, dataset, focus, actions }) {
 
         <div className="pointer-events-none absolute top-3 left-3 z-10 max-w-[320px] space-y-2">
           <div className="glass-panel pointer-events-auto px-4 py-3">
-            <h2 className="font-display text-base font-semibold text-white">{t(lang, 'graphTitle')}</h2>
-            <p className="text-xs text-slate-400">{t(lang, 'graphSubtitle')}</p>
+            <h2 className="font-display text-base font-semibold text-ink">{t(lang, 'graphTitle')}</h2>
+            <p className="text-xs text-label">{t(lang, 'graphSubtitle')}</p>
             <div className="relative mt-3">
               <input
                 type="search"
@@ -212,7 +212,7 @@ export default function GraphView({ lang, dataset, focus, actions }) {
                     <li key={n.id}>
                       <button
                         type="button"
-                        className="flex w-full items-center justify-between gap-3 px-3 py-1.5 text-left hover:bg-white/5"
+                        className="flex w-full items-center justify-between gap-3 px-3 py-1.5 text-left hover:bg-ink/5"
                         onClick={() => {
                           setCenter(n.id)
                           setSelectedKey(n.id)
@@ -220,30 +220,30 @@ export default function GraphView({ lang, dataset, focus, actions }) {
                         }}
                       >
                         <span className="truncate">{n.name}</span>
-                        <span className="shrink-0 font-mono text-[10px] text-slate-500">{n.degree}</span>
+                        <span className="shrink-0 font-mono text-[10px] text-label">{n.degree}</span>
                       </button>
                     </li>
                   ))}
                 </ul>
               )}
             </div>
-            <p className="mt-2 text-xs text-gold-soft">{title}</p>
+            <p className="mt-2 text-xs text-rubric">{title}</p>
             {center && (
               <button type="button" className="btn-ghost mt-2" onClick={() => setCenter(null)}>
                 {t(lang, 'reset')}
               </button>
             )}
-            <p className="mt-2 text-[11px] text-slate-500">{t(lang, 'graphHint')}</p>
+            <p className="mt-2 text-[11px] text-label">{t(lang, 'graphHint')}</p>
           </div>
         </div>
       </div>
 
       {selected && (
-        <aside className="max-h-[45%] shrink-0 overflow-y-auto border-t border-white/8 bg-ink-950/70 lg:max-h-none lg:w-[400px] lg:border-t-0 lg:border-l">
-          <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-white/8 bg-ink-950/90 px-5 py-4 backdrop-blur">
+        <aside className="max-h-[45%] shrink-0 overflow-y-auto border-t border-rule bg-paper-2 lg:max-h-none lg:w-[400px] lg:border-t-0 lg:border-l">
+          <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-rule bg-paper-2 px-5 py-4 ">
             <div className="min-w-0">
-              <h3 className="font-display text-lg leading-tight font-semibold text-white">{selected.name}</h3>
-              <p className="mt-1 text-xs text-slate-400">
+              <h3 className="font-display text-lg leading-tight font-semibold text-ink">{selected.name}</h3>
+              <p className="mt-1 text-xs text-label">
                 {selected.degree} {t(lang, 'connections').toLowerCase()} · {t(lang, 'appearsIn', formatNumber(selected.records, lang))}
               </p>
               {center !== selected.id && (
@@ -254,14 +254,14 @@ export default function GraphView({ lang, dataset, focus, actions }) {
             </div>
             <button
               type="button"
-              className="text-slate-400 hover:text-white"
+              className="text-label hover:text-ink"
               onClick={() => setSelectedKey(null)}
               aria-label={t(lang, 'close')}
             >
               ✕
             </button>
           </div>
-          <div className="divide-y divide-white/6 px-5">
+          <div className="divide-y divide-rule px-5">
             {selectedEvents.map((ev) => (
               <EventDetail
                 key={ev.id}

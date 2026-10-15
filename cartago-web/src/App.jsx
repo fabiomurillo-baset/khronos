@@ -169,7 +169,7 @@ export default function App() {
   const ready = dataset && textReady && time.year != null
 
   return (
-    <div className="flex h-dvh w-full flex-col bg-ink-900 text-slate-100">
+    <div className="flex h-dvh w-full flex-col bg-paper text-ink">
       <Header lang={lang} onLangChange={setLang} view={view} onViewChange={goTo} dataset={dataset} />
 
       <main className="relative min-h-0 flex-1">

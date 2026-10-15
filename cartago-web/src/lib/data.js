@@ -360,7 +360,8 @@ function buildIndex(dataset, kind, pick) {
       let bestCount = -1
       for (const [raw, count] of entry.aliases) {
         // Prefer the spelling that is itself the canonical key, then the most frequent one.
-        const own = foldKind(raw) === entry.key ? 1e9 : 0
+        // the bare name wins; a spelling with a parenthetical office or residence loses to one without
+        const own = foldKind(raw) === entry.key ? 1e9 : raw.includes('(') ? -1e6 : 0
         if (own + count > bestCount) {
           bestCount = own + count
           best = raw
