@@ -10,6 +10,7 @@ import EventDetail from './EventDetail.jsx'
 import MergeDialog from './MergeDialog.jsx'
 import References from './References.jsx'
 import { SignInButtons } from './SignIn.jsx'
+import { familySearchPersonUrl, familySearchRecordsUrl, familySearchTreeUrl } from '../lib/familysearch.js'
 
 const PAGE = 25
 
@@ -313,6 +314,28 @@ export default function ProfileView({ kind, entityKey, lang, dataset, session, a
                 <h3 className="mb-1 text-[11px] font-semibold tracking-wide text-label uppercase">{t(lang, 'details')}</h3>
                 <PersonFacts entry={entry} lang={lang} derived={derived} community={community} session={session} actions={{ ...actions, curate: api.curate }} onOpen={onOpen} onChanged={onCurationChanged} />
                 <p className="mt-1 text-[11px] text-label">{t(lang, 'factsHelp')}</p>
+              </section>
+            )}
+
+            {isPerson && (
+              <section className="text-sm text-ink-light">
+                <span className="text-label">FamilySearch: </span>
+                {community?.familysearch?.value ? (
+                  <>
+                    <a href={familySearchPersonUrl(community.familysearch.value)} target="_blank" rel="noopener" className="font-mono text-place hover:text-rubric">
+                      {community.familysearch.value} ↗
+                    </a>
+                    {' · '}
+                  </>
+                ) : null}
+                <a href={familySearchRecordsUrl(entry.name, span)} target="_blank" rel="noopener" className="text-place hover:text-rubric">
+                  {t(lang, 'fsSearchRecords')} ↗
+                </a>
+                {' · '}
+                <a href={familySearchTreeUrl(entry.name, span)} target="_blank" rel="noopener" className="text-place hover:text-rubric">
+                  {t(lang, 'fsSearchTree')} ↗
+                </a>
+                <p className="mt-0.5 text-[11px] text-label">{t(lang, community?.familysearch?.value ? 'fsLinkedHelp' : 'fsHelp')}</p>
               </section>
             )}
 

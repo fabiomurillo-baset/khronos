@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { t } from '../lib/i18n.js'
 import { personKey } from '../lib/data.js'
+import { familySearchPersonUrl, parseFamilySearchId } from '../lib/familysearch.js'
 
-// Order of the biographical fields on a person's profile.
-export const FACT_FIELDS = ['born', 'bapt', 'origin', 'parents', 'spouse', 'marr', 'children', 'siblings', 'roles', 'residence', 'will', 'dead', 'deathPlace']
+// Order of the biographical fields on a person's profile. 'familysearch' holds a Family Tree
+// person id (LZXX-ABC) attached by a contributor; the profile renders it as a link.
+export const FACT_FIELDS = ['born', 'bapt', 'origin', 'parents', 'spouse', 'marr', 'children', 'siblings', 'roles', 'residence', 'will', 'dead', 'deathPlace', 'familysearch']
 
 const PENCIL = (
   <svg viewBox="0 0 20 20" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
@@ -90,10 +92,15 @@ export default function PersonFacts({ entry, lang, derived, community, session, 
   const canEdit = Boolean(session.user)
 
   async function save(field) {
+    let v = value.trim()
+    if (field === 'familysearch') {
+      v = parseFamilySearchId(v)
+      if (!v) return setError({ message: t(lang, 'fsIdInvalid') })
+    }
     setBusy(true)
     setError(null)
     try {
-      await actions.curate({ kind: 'person', action: 'fact', subject: entry.key, target: JSON.stringify({ field, value: value.trim() }), note: note.trim() || null })
+      await actions.curate({ kind: 'person', action: 'fact', subject: entry.key, target: JSON.stringify({ field, value: v }), note: note.trim() || null })
       setEditing(null)
       setValue('')
       setNote('')
@@ -113,7 +120,7 @@ export default function PersonFacts({ entry, lang, derived, community, session, 
         if (value.trim()) save(field)
       }}
     >
-      <input value={value} onChange={(e) => setValue(e.target.value)} className="field max-w-xs" maxLength={160} autoFocus placeholder={t(lang, 'factValue')} />
+      <input value={value} onChange={(e) => setValue(e.target.value)} className="field max-w-xs" maxLength={160} autoFocus placeholder={t(lang, field === 'familysearch' ? 'fsIdPlaceholder' : 'factValue')} />
       <input value={note} onChange={(e) => setNote(e.target.value)} className="field max-w-xs" maxLength={200} placeholder={t(lang, 'factNote')} />
       <button type="submit" className="btn-primary" disabled={busy || !value.trim()}>
         {t(lang, 'save')}
@@ -139,7 +146,13 @@ export default function PersonFacts({ entry, lang, derived, community, session, 
                   <div className="min-w-0 flex-1">
                     {c && (
                       <div>
-                        {c.value}
+                        {field === 'familysearch' ? (
+                          <a href={familySearchPersonUrl(c.value)} target="_blank" rel="noopener" className="font-mono text-place hover:text-rubric">
+                            {c.value} ↗
+                          </a>
+                        ) : (
+                          c.value
+                        )}
                         <span className="ml-2 text-[11px] text-label">
                           {t(lang, 'curatedBy', c.user)}
                           {c.note ? ` · ${c.note}` : ''}
