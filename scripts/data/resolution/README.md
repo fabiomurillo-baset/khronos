@@ -15,6 +15,7 @@ layer of *persons* over the name keys, plus proposals for the community to accep
   (Jaro-Winkler ≥ 0.82 or a subset name), with `confidence` and `reasons`.
 - `scorecard.json` — before/after metrics.
 - `cartago-web/public/data/resolution.json` (written by the same run) — the compact copy the app loads on profile pages.
+- `adjudications.jsonl` (phase 2, `adjudicate_people.py`; not in the repo until a run happens) — one model decision per open question; `resolve_people.py` applies it on its next run.
 
 ## Scorecard
 

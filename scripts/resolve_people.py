@@ -550,6 +550,51 @@ def merge_candidates(persons, record_people):
     return out
 
 
+# ---- adjudications (phase 2, adjudicate_people.py) ------------------------------------------------
+def load_adjudications():
+    out = {"split": {}, "merge": {}}
+    path = os.path.join(OUT, "adjudications.jsonl")
+    if not os.path.exists(path):
+        return out
+    for line in open(path, encoding="utf-8"):
+        if not line.strip():
+            continue
+        r = json.loads(line)
+        out[r["type"]][r["id"]] = r  # the latest answer per question wins
+    return out
+
+
+def regroup(lives, adj):
+    """Rebuild the lives of a key from the model's record → person assignment. Mentions the model did
+    not see go with the life of their nearest assigned record in time."""
+    mentions = [m for l in lives for m in l.mentions]
+    person_of = {}
+    for i, group in enumerate(adj.get("groups") or []):
+        for rid in group:
+            person_of[rid] = i
+    if not person_of:
+        return lives
+    n = max(person_of.values()) + 1
+    if adj.get("n_persons", n) <= 1 or n == 1:
+        one = Life()
+        for m in sorted(mentions, key=lambda m: (m.year is None, m.year or 0, m.rid)):
+            one.add(m) if m.year is not None else one.mentions.append(m)
+        return [one]
+    anchors = sorted((m.year, person_of[m.rid]) for m in mentions if m.rid in person_of and m.year is not None)
+    new = [Life() for _ in range(n)]
+    for m in sorted(mentions, key=lambda m: (m.year is None, m.year or 0, m.rid)):
+        if m.rid in person_of:
+            i = person_of[m.rid]
+        elif m.year is not None and anchors:
+            i = min(anchors, key=lambda a: abs(a[0] - m.year))[1]
+        else:
+            i = n - 1
+        new[i].add(m) if m.year is not None else new[i].mentions.append(m)
+    new = [l for l in new if l.mentions]
+    new.sort(key=lambda l: (l.mentions[0].year is None, l.mentions[0].year or 0))
+    return new
+
+
 # ---- main ------------------------------------------------------------------------------------------
 def main():
     ap = argparse.ArgumentParser()
@@ -559,6 +604,7 @@ def main():
 
     events, facts, texts = load()
     ev_pos = {e["i"]: i for i, e in enumerate(events)}
+    adjud = load_adjudications()
     by_key = build_mentions(events, facts, texts, ev_pos)
     given = given_names(by_key)
     n_hints = sum(len(f.get("born", [])) for f in facts.values())
@@ -587,15 +633,22 @@ def main():
         lives, _undated, reasons = split_key(ms)
         reasons_total.update(reasons)
         lives.sort(key=lambda l: (l.mentions[0].year is None, l.mentions[0].year or 0))
+        gaps = [lives[i + 1].first - lives[i].last for i in range(len(lives) - 1) if lives[i].mentions and lives[i + 1].mentions and lives[i].last is not None and lives[i + 1].first is not None]
+        boundary = "arbitrary" if len(lives) > 1 and set(reasons) <= {"lifespan"} and gaps and min(gaps) < 15 else "evidence"
+        model_note = None
+        adj = adjud["split"].get(key)
+        if adj and boundary == "arbitrary":
+            # the model read the records around the cut: regroup the mentions it assigned, keep the
+            # rest where chronology put them (a record it did not see follows its nearest neighbour)
+            lives = regroup(lives, adj)
+            boundary = "model"
+            model_note = adj
         ps = [consolidate(key, l, len(lives)) for l in lives]
         persons.extend(ps)
         if len(lives) > 1:
-            # a cut made by the lifespan rule alone, with the next life starting right after, is a
-            # boundary the data cannot place: father and son with one name, probably, but where?
-            gaps = [ps[i + 1]["span"][0] - ps[i]["span"][1] for i in range(len(ps) - 1) if ps[i].get("span") and ps[i + 1].get("span")]
-            boundary = "arbitrary" if set(reasons) <= {"lifespan"} and gaps and min(gaps) < 15 else "evidence"
             splits.append({
                 "boundary": boundary,
+                "model": {"n_persons": model_note["n_persons"], "confidence": model_note["confidence"], "reason": model_note["reason"], "model": model_note["model"]} if model_note else None,
                 "type": "split",
                 "key": key,
                 "records": len(ms),
@@ -606,6 +659,28 @@ def main():
 
     record_people = {e["i"]: e.get("p", []) for e in events}
     merges = merge_candidates(persons, record_people)
+    kept = []
+    for m in merges:
+        adj = adjud["merge"].get(f"merge:{m['a']}:{m['b']}")
+        if not adj:
+            kept.append(m)
+            continue
+        m["model"] = {"verdict": adj["verdict"], "confidence": adj["confidence"], "reason": adj["reason"], "model": adj["model"]}
+        if adj["verdict"] == "same":
+            m["confidence"] = round(max(m["confidence"], 0.6 + 0.35 * adj["confidence"]), 2)
+            m["reasons"].append(f"modelo ({adj['confidence']:.2f}): {adj['reason']}")
+            kept.append(m)
+        elif adj["verdict"] == "different":
+            if adj["confidence"] < 0.7:
+                m["confidence"] = round(min(m["confidence"], 0.4), 2)
+                m["reasons"].append(f"modelo duda ({adj['confidence']:.2f}): {adj['reason']}")
+                kept.append(m)
+            # confident "different": the proposal is dropped
+        else:
+            m["reasons"].append(f"modelo no decide: {adj['reason']}")
+            kept.append(m)
+    merges = [m for m in kept if m["confidence"] >= MIN_MERGE]
+    merges.sort(key=lambda r: -r["confidence"])
 
     # scorecard
     after_over = sum(1 for p in persons if p.get("span") and p["span"][1] - p["span"][0] > MAX_LIFE and not p.get("unresolvable"))
@@ -660,11 +735,11 @@ def main():
             if labels[label] > 1:
                 label = f"{label} ({labels[label]})"
             into.append({"label": label, "n": len(p["records"]), "records": p["records"], "born": (p.get("born") or [None])[0], "spouse": [n for n, _ in (p.get("spouse") or [])][:3], "titles": p.get("titles"), "dead_by": (p.get("dead_by") or [None])[0]})
-        app_splits[sp["key"]] = {"id": f"split:{sp['key']}", "boundary": sp["boundary"], "confidence": sp["confidence"], "reasons": sp["reasons"], "into": into}
+        app_splits[sp["key"]] = {"id": f"split:{sp['key']}", "boundary": sp["boundary"], "confidence": sp["confidence"], "reasons": sp["reasons"], "into": into, "model": sp.get("model")}
     app_merges = []
     for m in merges:
         a, b = by_id[m["a"]], by_id[m["b"]]
-        app_merges.append({"id": f"merge:{m['a']}:{m['b']}", "kind": m["kind"], "confidence": m["confidence"], "reasons": m["reasons"],
+        app_merges.append({"id": f"merge:{m['a']}:{m['b']}", "kind": m["kind"], "confidence": m["confidence"], "reasons": m["reasons"], "model": m.get("model"),
                            "a": {"key": a["key"], "name": a["name"], "span": a.get("span"), "n": len(a["records"])},
                            "b": {"key": b["key"], "name": b["name"], "span": b.get("span"), "n": len(b["records"])}})
     with open(os.path.join(DATA, "resolution.json"), "w", encoding="utf-8") as f:

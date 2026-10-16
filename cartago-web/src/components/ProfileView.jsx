@@ -158,6 +158,11 @@ function Proposals({ entry, proposals, index, lang, session, returnHash, busy, o
         <div className="mt-3">
           <p className="text-ink">{t(lang, 'splitProposal', split.into.length)}</p>
           {split.boundary === 'arbitrary' && <p className="mt-0.5 text-[11px] text-rubric">{t(lang, 'splitBoundaryArbitrary')}</p>}
+          {split.model && (
+            <p className="mt-0.5 text-[11px] text-label italic">
+              {t(lang, 'modelRead', split.model.model, Math.round(split.model.confidence * 100))}: {split.model.reason}
+            </p>
+          )}
           <ol className="mt-1.5 space-y-1 text-xs">
             {split.into.map((g, i) => (
               <li key={g.label} className="flex flex-wrap items-baseline gap-x-2">

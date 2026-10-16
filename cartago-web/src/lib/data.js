@@ -363,6 +363,29 @@ export function loadResolution() {
   })
 }
 
+/**
+ * Spelling merges still pending: same name once normalized, compatible lives, neither key split,
+ * not dismissed, not already the same canonical key. Each comes with the merge to send: the entry
+ * with fewer records folds into the one with more.
+ */
+export function pendingSpellingMerges(resolution, index) {
+  if (!resolution) return []
+  const seen = new Set()
+  const out = []
+  for (const list of resolution.mergesByKey.values()) {
+    for (const m of list) {
+      if (m.kind !== 'spelling' || seen.has(m.id) || curation.dismissed.has(m.id)) continue
+      seen.add(m.id)
+      const ka = canonicalKey('person', m.a.key)
+      const kb = canonicalKey('person', m.b.key)
+      if (ka === kb || curation.splits.person.has(ka) || curation.splits.person.has(kb) || !index.get(ka) || !index.get(kb)) continue
+      const [drop, keep] = index.get(ka).events.length <= index.get(kb).events.length ? [ka, kb] : [kb, ka]
+      out.push({ proposal: m, subject: drop, target: keep })
+    }
+  }
+  return out
+}
+
 /** Proposals that touch a profile entry: its own split (if the key is not split yet) and merges with other keys. */
 export function proposalsFor(resolution, entry) {
   if (!resolution || !entry || entry.kind !== 'person') return { split: null, merges: [] }

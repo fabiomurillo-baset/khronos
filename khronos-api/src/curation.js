@@ -92,6 +92,15 @@ export async function addCuration(db, user, body) {
   return row
 }
 
+/** Several decisions at once (bulk accept of spelling merges); each validated like a single one. */
+export async function addCurationBulk(db, user, entries) {
+  await ensureSchema(db)
+  const stmt = db.prepare('INSERT INTO curation (kind, action, subject, target, note, user_id, user_name) VALUES (?, ?, ?, ?, ?, ?, ?)')
+  const batch = entries.map((e) => stmt.bind(e.kind, e.action, e.subject.trim(), e.target.trim(), (e.note || '').trim() || null, user.id, user.name))
+  for (let i = 0; i < batch.length; i += 100) await db.batch(batch.slice(i, i + 100))
+  return entries.length
+}
+
 /** Marks a decision as undone (by anyone signed in: curation is a shared, reversible edit). */
 export async function undoCuration(db, user, id) {
   await ensureSchema(db)

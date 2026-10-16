@@ -12,6 +12,7 @@
 //   GET  /curation                       shared decisions about people/places (merges, renames)
 //   POST /curation                       {kind, action, subject, target, note}   (Bearer token)
 //   POST /curation/:id/undo              revert a decision                        (Bearer token)
+//   POST /curation/bulk                  {entries: [...]} up to 300 merge/dismiss  (Bearer token)
 //   GET  /records/:id/proposals          proposed corrections to a record, with votes
 //   POST /records/:id/proposals          {field, from, to, reason, evidence[]}    (Bearer token)
 //   POST /proposals/:id/vote             {value: 1 | -1 | 0}; opens the GitHub PR at the threshold (Bearer token)
@@ -21,7 +22,7 @@
 //   POST /refs/:id/undo
 
 import { enabledProviders, finishLogin, isEnabled, readSession, startLogin } from './auth.js'
-import { addCuration, describe, listCuration, undoCuration, validate } from './curation.js'
+import { addCuration, addCurationBulk, describe, listCuration, undoCuration, validate } from './curation.js'
 import { createThread, findThread, postAsUser, postLog, readMessages, threadUrl } from './discord.js'
 import { githubEnabled } from './github.js'
 import { createProposal, describeProposal, listProposals, setDiscordMessage, threshold, validateProposal, vote, withdraw } from './proposals.js'
@@ -116,6 +117,23 @@ async function route(request, env, ctx, url) {
       return reply({ entry: row }, 201)
     }
     return reply({ error: 'method not allowed' }, 405)
+  }
+
+  if (path === '/curation/bulk' && method === 'POST') {
+    if (!env.DB) return reply({ error: 'curation disabled' }, 404)
+    const user = await readSession(env, request)
+    if (!user) return reply({ error: 'unauthorized' }, 401)
+    const body = await request.json().catch(() => null)
+    const entries = body?.entries
+    if (!Array.isArray(entries) || entries.length < 1 || entries.length > 300) return reply({ error: 'invalid entries' }, 400)
+    for (const e of entries) {
+      const bad = validate(e)
+      if (bad) return reply({ error: `invalid ${bad}` }, 400)
+      if (e.action !== 'merge' && e.action !== 'dismiss') return reply({ error: 'bulk accepts merge and dismiss only' }, 400)
+    }
+    const n = await addCurationBulk(env.DB, user, entries)
+    ctx.waitUntil(postLog(env, `✏️ ${user.name} aplicó en lote ${n} decisiones (${entries[0].action}${entries[0].note ? `: ${entries[0].note}` : ''})`))
+    return reply({ added: n }, 201)
   }
 
   if ((m = path.match(/^\/curation\/(\d+)\/undo$/)) && method === 'POST') {
