@@ -21,8 +21,10 @@ async function ensureSchema(db) {
 }
 
 const KINDS = new Set(['person', 'place'])
-const FACT_FIELDS = new Set(['born', 'bapt', 'origin', 'parents', 'spouse', 'marr', 'children', 'siblings', 'roles', 'residence', 'will', 'dead', 'deathPlace'])
+const FACT_FIELDS = new Set(['born', 'bapt', 'origin', 'parents', 'spouse', 'marr', 'children', 'siblings', 'roles', 'residence', 'will', 'dead', 'deathPlace', 'familysearch'])
 const KEY = /^[^\s][^\n]{0,199}$/
+// FamilySearch Family Tree person id, e.g. LZXX-ABC; the app normalizes pasted URLs to this before sending.
+const FS_ID = /^[A-Z0-9]{4}-[A-Z0-9]{3,4}$/
 
 /** All active (not undone) decisions, oldest first. */
 export async function listCuration(db) {
@@ -48,6 +50,7 @@ export function validate(body) {
       return 'target'
     }
     if (!f || !FACT_FIELDS.has(f.field) || typeof f.value !== 'string' || !f.value.trim() || f.value.length > 160) return 'target'
+    if (f.field === 'familysearch' && !FS_ID.test(f.value)) return 'target'
   } else if (typeof target !== 'string' || !KEY.test(target)) return 'target'
   if (action === 'merge' && subject === target) return 'target'
   if (note != null && (typeof note !== 'string' || note.length > 500)) return 'note'
