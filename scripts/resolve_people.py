@@ -646,6 +646,29 @@ def main():
             f.write(json.dumps(m, ensure_ascii=False) + "\n")
     with open(os.path.join(OUT, "scorecard.json"), "w", encoding="utf-8") as f:
         json.dump(score, f, ensure_ascii=False, indent=2)
+
+    # compact copy for the app: proposals a profile can show and a signed-in user can accept
+    by_id = {p["id"]: p for p in persons}
+    app_splits = {}
+    for sp in splits:
+        labels = collections.Counter()
+        into = []
+        for x in sp["into"]:
+            p = by_id[x["id"]]
+            label = f"{p['span'][0]}–{p['span'][1]}" if p.get("span") else "s. f."
+            labels[label] += 1
+            if labels[label] > 1:
+                label = f"{label} ({labels[label]})"
+            into.append({"label": label, "n": len(p["records"]), "records": p["records"], "born": (p.get("born") or [None])[0], "spouse": [n for n, _ in (p.get("spouse") or [])][:3], "titles": p.get("titles"), "dead_by": (p.get("dead_by") or [None])[0]})
+        app_splits[sp["key"]] = {"id": f"split:{sp['key']}", "boundary": sp["boundary"], "confidence": sp["confidence"], "reasons": sp["reasons"], "into": into}
+    app_merges = []
+    for m in merges:
+        a, b = by_id[m["a"]], by_id[m["b"]]
+        app_merges.append({"id": f"merge:{m['a']}:{m['b']}", "kind": m["kind"], "confidence": m["confidence"], "reasons": m["reasons"],
+                           "a": {"key": a["key"], "name": a["name"], "span": a.get("span"), "n": len(a["records"])},
+                           "b": {"key": b["key"], "name": b["name"], "span": b.get("span"), "n": len(b["records"])}})
+    with open(os.path.join(DATA, "resolution.json"), "w", encoding="utf-8") as f:
+        json.dump({"splits": app_splits, "merges": app_merges}, f, ensure_ascii=False, separators=(",", ":"))
     print(json.dumps(score, ensure_ascii=False, indent=2))
 
     if args.sample:

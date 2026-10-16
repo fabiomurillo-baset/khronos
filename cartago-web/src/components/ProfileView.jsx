@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { api } from '../lib/community.js'
-import { compareByDate, curationFor, getPeopleIndex, getPlacesIndex, personKey, placeKey, yearSpan, loadPeopleFacts, derivedFacts, communityFacts, curationVersion, getSummary, getDataset, sourceLinks } from '../lib/data.js'
+import { compareByDate, curationFor, getPeopleIndex, getPlacesIndex, personKey, placeKey, yearSpan, loadPeopleFacts, derivedFacts, communityFacts, curationVersion, getSummary, getDataset, sourceLinks, splitEntries, loadResolution, proposalsFor } from '../lib/data.js'
 import { t } from '../lib/i18n.js'
 import { findSimilar } from '../lib/similar.js'
 import { fold, formatNumber, foldPerson } from '../lib/text.js'
@@ -112,6 +112,138 @@ function RecordRow({ ev, lang, open, onToggle, onOpen, actions }) {
   )
 }
 
+/** The persons a split key became, as a list of cards. */
+function SplitList({ siblings, lang, onOpen }) {
+  return (
+    <ul className="mt-4 divide-y divide-rule border-y border-rule">
+      {siblings.map((e) => {
+        const span = yearSpan(e)
+        return (
+          <li key={e.key}>
+            <button type="button" className="flex w-full items-baseline justify-between gap-3 py-2.5 text-left hover:text-rubric" onClick={() => onOpen('person', e.key)}>
+              <span className="text-ink">
+                {e.name} <span className="text-label">· {e.split?.label}</span>
+              </span>
+              <span className="shrink-0 font-mono text-xs text-label">
+                {span ? `${span[0]}–${span[1]} · ` : ''}
+                {e.events.length === 1 ? t(lang, 'recordsOne') : t(lang, 'records', e.events.length)}
+              </span>
+            </button>
+          </li>
+        )
+      })}
+    </ul>
+  )
+}
+
+/**
+ * Automatic proposals from scripts/resolve_people.py: the lives this name seems to hold (accept =
+ * curation 'split') and the other names that may be the same person (Comparar opens the merge
+ * dialog). Descartar hides a proposal for everyone, with undo like every curation entry.
+ */
+function Proposals({ entry, proposals, index, lang, session, returnHash, busy, onCompare, onOpen, onAct }) {
+  const [note, setNote] = useState('')
+  const base = entry.split?.base || entry.key
+  const { split, merges } = proposals
+  const shown = merges.slice().sort((a, b) => b.confidence - a.confidence).slice(0, 8)
+  const canAct = Boolean(session.user)
+  const pct = (c) => `${Math.round(c * 100)}%`
+  const otherOf = (m) => (m.a.key === base ? m.b : m.a)
+  return (
+    <section className="rounded-lg border border-rubric/30 bg-rubric/5 p-3 text-sm">
+      <h4 className="text-sm font-semibold text-ink">{t(lang, 'autoProposals')}</h4>
+      <p className="mt-0.5 text-[11px] text-label">{t(lang, 'autoProposalsHelp')}</p>
+
+      {split && (
+        <div className="mt-3">
+          <p className="text-ink">{t(lang, 'splitProposal', split.into.length)}</p>
+          {split.boundary === 'arbitrary' && <p className="mt-0.5 text-[11px] text-rubric">{t(lang, 'splitBoundaryArbitrary')}</p>}
+          <ol className="mt-1.5 space-y-1 text-xs">
+            {split.into.map((g, i) => (
+              <li key={g.label} className="flex flex-wrap items-baseline gap-x-2">
+                <span className="font-mono text-label">{i + 1}.</span>
+                <span className="text-ink">{g.label}</span>
+                <span className="text-label">
+                  · {g.n === 1 ? t(lang, 'recordsOne') : t(lang, 'records', g.n)}
+                  {g.born ? ` · ${t(lang, 'bioBorn', g.born)}` : ''}
+                  {g.dead_by ? ` · † ≤ ${g.dead_by}` : ''}
+                  {g.spouse?.length ? ` · ${t(lang, 'fact_spouse').toLowerCase()}: ${g.spouse.join(', ')}` : ''}
+                  {g.titles?.clergy ? ` · ${t(lang, 'titleClergy')}` : g.titles?.military ? ` · ${t(lang, 'titleMilitary')}` : ''}
+                </span>
+                <a href={`#r/${g.records[0]}`} className="evidence" title={`#r/${g.records[0]}`}>
+                  {g.records[0]}
+                </a>
+              </li>
+            ))}
+          </ol>
+          {canAct ? (
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <input value={note} onChange={(e) => setNote(e.target.value)} maxLength={500} placeholder={t(lang, 'noteOptional')} className="field max-w-xs text-xs" />
+              <button
+                type="button"
+                className="btn-ghost border border-rubric/50 text-xs text-rubric hover:bg-rubric/10"
+                disabled={busy}
+                onClick={() =>
+                  onAct(
+                    { kind: 'person', action: 'split', subject: base, target: JSON.stringify({ groups: split.into.map((g) => ({ label: g.label, records: g.records })) }), note: note.trim() || null },
+                    () => onOpen('person', base),
+                  )
+                }
+              >
+                {t(lang, 'splitAccept')}
+              </button>
+              <button type="button" className="btn-ghost text-xs" disabled={busy} onClick={() => onAct({ kind: 'person', action: 'dismiss', subject: base, target: split.id, note: note.trim() || null })}>
+                {t(lang, 'dismiss')}
+              </button>
+            </div>
+          ) : (
+            session.user === null && (
+              <div className="mt-2">
+                <SignInButtons lang={lang} config={session.config} returnHash={returnHash} prompt={t(lang, 'signInToCurate')} />
+              </div>
+            )
+          )}
+        </div>
+      )}
+
+      {shown.length > 0 && (
+        <div className={split ? 'mt-4' : 'mt-3'}>
+          <p className="text-ink">{t(lang, 'mergeProposals', merges.length)}</p>
+          <ul className="mt-1.5 space-y-1.5 text-xs">
+            {shown.map((m) => {
+              const other = otherOf(m)
+              const e = index.get(personKey(other.key))
+              return (
+                <li key={m.id} className="flex flex-wrap items-baseline gap-x-2">
+                  <button type="button" className="text-ink hover:text-rubric hover:underline" onClick={() => e && onOpen('person', e.key)} title={t(lang, 'viewProfile')}>
+                    {other.name}
+                  </button>
+                  <span className="text-label">
+                    {other.span ? `${other.span[0]}–${other.span[1]} · ` : ''}
+                    {other.n === 1 ? t(lang, 'recordsOne') : t(lang, 'records', other.n)} · {pct(m.confidence)}
+                    {m.kind === 'spelling' ? ` · ${t(lang, 'mergeSpelling')}` : ''}
+                  </span>
+                  <span className="basis-full text-[11px] text-label italic">{m.reasons.join(' · ')}</span>
+                  {e && (
+                    <button type="button" className="text-rubric hover:underline" onClick={() => onCompare(e)}>
+                      {t(lang, 'compare')}
+                    </button>
+                  )}
+                  {canAct && (
+                    <button type="button" className="text-label hover:text-rubric" disabled={busy} onClick={() => onAct({ kind: 'person', action: 'dismiss', subject: base, target: m.id })}>
+                      {t(lang, 'dismiss')}
+                    </button>
+                  )}
+                </li>
+              )
+            })}
+          </ul>
+        </div>
+      )}
+    </section>
+  )
+}
+
 /**
  * Profile of one person or place: name, one sentence, a life line, then the chronology on the
  * left and the facts, spellings, related entries and curation on the right.
@@ -142,6 +274,23 @@ export default function ProfileView({ kind, entityKey, lang, dataset, session, a
       alive = false
     }
   }, [isPerson])
+  const [resolution, setResolution] = useState(null)
+  useEffect(() => {
+    if (!isPerson) return
+    let alive = true
+    loadResolution()
+      .then((r) => alive && setResolution(r))
+      .catch(() => {})
+    return () => {
+      alive = false
+    }
+  }, [isPerson])
+  const proposals = useMemo(
+    () => (isPerson ? proposalsFor(resolution, entry) : { split: null, merges: [] }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [isPerson, resolution, entry, curationVersion()],
+  )
+  const siblings = useMemo(() => splitEntries(index, kind, entry?.split?.base || canonical), [index, kind, entry, canonical])
   const derived = useMemo(() => (isPerson && entry ? derivedFacts(entry, peopleFacts) : null), [isPerson, entry, peopleFacts])
   const community = useMemo(
     () => (isPerson && entry ? communityFacts('person', entry.key, [...entry.aliases.keys()].map(foldPerson)) : null),
@@ -168,6 +317,25 @@ export default function ProfileView({ kind, entityKey, lang, dataset, session, a
       people: topCounts(people, 10).map(([k, c]) => [peopleIdx.get(k), c]).filter(([e]) => e),
     }
   }, [entry, dataset, isPerson])
+
+  if (!entry && siblings.length > 0) {
+    return (
+      <div className="h-full overflow-y-auto">
+        <div className="mx-auto max-w-3xl px-4 py-7 sm:px-6">
+          <div className="text-[11px] tracking-wide text-label uppercase">
+            <button type="button" className="hover:text-rubric" onClick={() => onOpen('people')}>
+              ← {t(lang, 'viewPeople')}
+            </button>
+          </div>
+          <h2 className="mt-2 font-display text-4xl leading-[1.08] text-ink sm:text-5xl" style={{ textWrap: 'balance' }}>
+            {siblings[0].name}
+          </h2>
+          <p className="mt-3 text-[17px] leading-relaxed text-ink-light">{t(lang, 'splitIntro', siblings.length)}</p>
+          <SplitList siblings={siblings} lang={lang} onOpen={onOpen} />
+        </div>
+      </div>
+    )
+  }
 
   if (!entry) {
     return (
@@ -260,6 +428,26 @@ export default function ProfileView({ kind, entityKey, lang, dataset, session, a
           <h2 className="mt-2 font-display text-4xl leading-[1.08] text-ink sm:text-5xl" style={{ textWrap: 'balance' }}>
             {entry.name}
           </h2>
+        )}
+        {entry.split && (
+          <p className="mt-2 text-sm text-ink-light">
+            {entry.split.leftover ? t(lang, 'splitLeftover', entry.split.total) : t(lang, 'splitPart', entry.split.index, entry.split.total)}
+            {siblings.filter((e) => e.key !== entry.key).length > 0 && (
+              <>
+                {' · '}
+                {siblings
+                  .filter((e) => e.key !== entry.key)
+                  .map((e, i) => (
+                    <span key={e.key}>
+                      {i > 0 && ', '}
+                      <button type="button" className="text-place hover:text-rubric hover:underline" onClick={() => onOpen('person', e.key)}>
+                        {e.split?.label || e.name}
+                      </button>
+                    </span>
+                  ))}
+              </>
+            )}
+          </p>
         )}
         <p className="mt-3 max-w-3xl text-[17px] leading-relaxed text-ink-light">{sentence || fallbackSummary}</p>
         {isPerson && (
@@ -391,6 +579,33 @@ export default function ProfileView({ kind, entityKey, lang, dataset, session, a
 
             <References target={`${isPerson ? 'p' : 'l'}:${entry.key}`} lang={lang} />
 
+            {isPerson && (proposals.split || proposals.merges.length > 0) && (
+              <Proposals
+                entry={entry}
+                proposals={proposals}
+                index={index}
+                lang={lang}
+                session={session}
+                returnHash={returnHash}
+                busy={busy}
+                onCompare={(e) => setCompare(e)}
+                onOpen={onOpen}
+                onAct={async (body, then) => {
+                  setBusy(true)
+                  setError(null)
+                  try {
+                    await api.curate(body)
+                    await onCurationChanged()
+                    then?.()
+                  } catch (err) {
+                    setError(err)
+                  } finally {
+                    setBusy(false)
+                  }
+                }}
+              />
+            )}
+
             <details className="text-sm">
               <summary className="cursor-pointer text-[11px] font-semibold tracking-wide text-label uppercase hover:text-rubric">
                 {t(lang, 'possibleDuplicates')} ({similar.length})
@@ -431,7 +646,15 @@ export default function ProfileView({ kind, entityKey, lang, dataset, session, a
                     <li key={c.id} className="flex items-start gap-2">
                       <span className="min-w-0 flex-1">
                         <span className="block text-ink">
-                          {c.action === 'merge' ? t(lang, 'mergedInto', label(c.subject), label(c.target)) : c.action === 'rename' ? t(lang, 'renamedTo', label(c.subject), c.target) : `${t(lang, 'facts')}: ${c.target}`}
+                          {c.action === 'merge'
+                            ? t(lang, 'mergedInto', label(c.subject), label(c.target))
+                            : c.action === 'rename'
+                              ? t(lang, 'renamedTo', label(c.subject), c.target)
+                              : c.action === 'split'
+                                ? t(lang, 'splitInto', label(c.subject), (() => { try { return JSON.parse(c.target).groups.length } catch { return '?' } })())
+                                : c.action === 'dismiss'
+                                  ? t(lang, 'dismissedProposal', c.target)
+                                  : `${t(lang, 'facts')}: ${c.target}`}
                         </span>
                         {c.note && <span className="block text-label italic">{c.note}</span>}
                         <span className="block text-label">{t(lang, 'curatedBy', c.user_name, new Date(c.at).toLocaleDateString(lang === 'es' ? 'es-CR' : 'en-GB'))}</span>

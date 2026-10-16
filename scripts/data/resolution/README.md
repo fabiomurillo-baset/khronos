@@ -14,6 +14,7 @@ layer of *persons* over the name keys, plus proposals for the community to accep
   `kind: spelling` (identical once particles, abbreviations and titles are normalized) or `similar`
   (Jaro-Winkler ≥ 0.82 or a subset name), with `confidence` and `reasons`.
 - `scorecard.json` — before/after metrics.
+- `cartago-web/public/data/resolution.json` (written by the same run) — the compact copy the app loads on profile pages.
 
 ## Scorecard
 
