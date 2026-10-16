@@ -230,6 +230,8 @@ const curation = {
   entries: [],
   canon: { person: new Map(), place: new Map() }, // folded key -> folded key it was merged into
   names: { person: new Map(), place: new Map() }, // folded key -> display name chosen by a rename
+  splits: { person: new Map(), place: new Map() }, // folded key -> [{ label, records: Set }] (action 'split')
+  dismissed: new Set(), // proposal ids hidden by a 'dismiss'
   version: 0,
 }
 
@@ -239,11 +241,27 @@ export function setCuration(entries) {
   curation.canon = { person: new Map(), place: new Map() }
   curation.names = { person: new Map(), place: new Map() }
   curation.facts = { person: new Map(), place: new Map() }
+  curation.splits = { person: new Map(), place: new Map() }
+  curation.dismissed = new Set()
   for (const e of curation.entries) {
     if (!curation.canon[e.kind]) continue
     if (e.action === 'merge') curation.canon[e.kind].set(e.subject, e.target)
     else if (e.action === 'rename') curation.names[e.kind].set(e.subject, e.target)
-    else if (e.action === 'fact') {
+    else if (e.action === 'dismiss') curation.dismissed.add(e.target)
+    else if (e.action === 'split') {
+      // target is {"groups": [{"label", "records": [ids]}]}; the latest split of a key wins
+      let g = null
+      try {
+        g = JSON.parse(e.target)
+      } catch {
+        continue
+      }
+      if (!Array.isArray(g?.groups)) continue
+      curation.splits[e.kind].set(
+        e.subject,
+        g.groups.map((grp, i) => ({ label: String(grp.label || i + 1), records: new Set(grp.records || []), id: e.id })),
+      )
+    } else if (e.action === 'fact') {
       // target is {"field": ..., "value": ...}; the latest entry per field wins
       let f = null
       try {
@@ -288,21 +306,94 @@ export function derivedFacts(entry, peopleFacts) {
   if (!entry || !peopleFacts) return null
   const keys = new Set([entry.key])
   for (const raw of entry.aliases.keys()) keys.add(foldPerson(raw))
+  // a split entry keeps only the facts whose evidence lies in its own records
+  const own = entry.split ? new Set(entry.events.map((ev) => ev.id)) : null
+  const keep = (field, item) => {
+    if (!own || !Array.isArray(item)) return item
+    if (field === 'roles') return item
+    const ev = item[1]
+    if (Array.isArray(ev)) {
+      const ids = ev.filter((id) => own.has(id))
+      return ids.length ? [item[0], ids, ...item.slice(2)] : null
+    }
+    return ev != null && own.has(ev) ? item : null
+  }
   const out = {}
   for (const k of keys) {
     const f = peopleFacts[k]
     if (!f) continue
     for (const [field, value] of Object.entries(f)) {
       if (!out[field]) out[field] = []
-      for (const item of value) {
+      for (const raw of value) {
+        const item = keep(field, raw)
+        if (!item) continue
         const label = Array.isArray(item) ? String(item[0]) : String(item)
         if (!out[field].some((x) => String(x[0]) === label)) out[field].push(item)
       }
     }
   }
+  for (const field of Object.keys(out)) if (!out[field].length) delete out[field]
   return Object.keys(out).length ? out : null
 }
 export const curationVersion = () => curation.version
+
+/** The sub-entries a split key was divided into, in order (empty when the key is not split). */
+export function splitEntries(index, kind, baseKey) {
+  const groups = curation.splits[kind].get(baseKey)
+  if (!groups) return []
+  return groups.map((g, i) => index.get(canonicalKey(kind, `${baseKey}~${i + 1}`))).filter(Boolean)
+}
+
+export const isDismissed = (proposalId) => curation.dismissed.has(proposalId)
+
+/** resolution.json: automatic split and merge proposals from scripts/resolve_people.py, loaded on demand. */
+export function loadResolution() {
+  if (cache.resolution) return Promise.resolve(cache.resolution)
+  return once('resolution', async () => {
+    const r = await fetchJson('/data/resolution.json').catch(() => ({ splits: {}, merges: [] }))
+    const byKey = new Map()
+    for (const m of r.merges || []) {
+      for (const k of [m.a.key, m.b.key]) {
+        if (!byKey.has(k)) byKey.set(k, [])
+        byKey.get(k).push(m)
+      }
+    }
+    cache.resolution = { splits: r.splits || {}, mergesByKey: byKey }
+    return cache.resolution
+  })
+}
+
+/**
+ * Spelling merges still pending: same name once normalized, compatible lives, neither key split,
+ * not dismissed, not already the same canonical key. Each comes with the merge to send: the entry
+ * with fewer records folds into the one with more.
+ */
+export function pendingSpellingMerges(resolution, index) {
+  if (!resolution) return []
+  const seen = new Set()
+  const out = []
+  for (const list of resolution.mergesByKey.values()) {
+    for (const m of list) {
+      if (m.kind !== 'spelling' || seen.has(m.id) || curation.dismissed.has(m.id)) continue
+      seen.add(m.id)
+      const ka = canonicalKey('person', m.a.key)
+      const kb = canonicalKey('person', m.b.key)
+      if (ka === kb || curation.splits.person.has(ka) || curation.splits.person.has(kb) || !index.get(ka) || !index.get(kb)) continue
+      const [drop, keep] = index.get(ka).events.length <= index.get(kb).events.length ? [ka, kb] : [kb, ka]
+      out.push({ proposal: m, subject: drop, target: keep })
+    }
+  }
+  return out
+}
+
+/** Proposals that touch a profile entry: its own split (if the key is not split yet) and merges with other keys. */
+export function proposalsFor(resolution, entry) {
+  if (!resolution || !entry || entry.kind !== 'person') return { split: null, merges: [] }
+  const base = entry.split?.base || entry.key
+  const split = !entry.split && resolution.splits[base] && !curation.dismissed.has(resolution.splits[base].id) ? resolution.splits[base] : null
+  const merges = (resolution.mergesByKey.get(base) || []).filter((m) => !curation.dismissed.has(m.id) && canonicalKey('person', m.a.key) !== canonicalKey('person', m.b.key))
+  return { split, merges }
+}
 
 /** Follow merges to the canonical key (with a guard against accidental cycles). */
 export function canonicalKey(kind, key) {
@@ -341,10 +432,21 @@ function buildIndex(dataset, kind, pick) {
   for (const ev of dataset.events) {
     let lastKey = null
     for (const raw of pick(ev)) {
-      const key = canonicalKey(kind, foldKind(raw))
+      const base = canonicalKey(kind, foldKind(raw))
+      // a split key sends each record to its sub-entry "key~n"; records no group claims stay on the key
+      const groups = curation.splits[kind].get(base)
+      let key = base
+      let split = null
+      if (groups) {
+        const i = groups.findIndex((g) => g.records.has(ev.id))
+        if (i >= 0) {
+          key = canonicalKey(kind, `${base}~${i + 1}`)
+          split = { base, label: groups[i].label, index: i + 1, total: groups.length, id: groups[i].id }
+        } else split = { base, leftover: true, total: groups.length, id: groups[0].id }
+      }
       let entry = index.get(key)
       if (!entry) {
-        entry = { key, kind, name: raw, events: [], aliases: new Map() }
+        entry = { key, kind, name: raw, events: [], aliases: new Map(), split }
         index.set(key, entry)
       }
       entry.aliases.set(raw, (entry.aliases.get(raw) || 0) + 1)

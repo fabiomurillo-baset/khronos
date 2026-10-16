@@ -39,9 +39,33 @@ export async function listCuration(db) {
 export function validate(body) {
   const { kind, action, subject, target, note } = body || {}
   if (!KINDS.has(kind)) return 'kind'
-  if (action !== 'merge' && action !== 'rename' && action !== 'fact') return 'action'
+  if (!['merge', 'rename', 'fact', 'split', 'dismiss'].includes(action)) return 'action'
   if (typeof subject !== 'string' || !KEY.test(subject)) return 'subject'
-  if (action === 'fact') {
+  if (action === 'split') {
+    // target = {"groups": [{"label": "1607–1640", "records": [ids...]}, ...]}: the key's records
+    // divided into persons; records left out stay on the key itself
+    let g = null
+    try {
+      g = JSON.parse(target)
+    } catch {
+      return 'target'
+    }
+    const groups = g?.groups
+    if (!Array.isArray(groups) || groups.length < 2 || groups.length > 50) return 'target'
+    const seen = new Set()
+    for (const grp of groups) {
+      if (!grp || typeof grp.label !== 'string' || !grp.label.trim() || grp.label.length > 80) return 'target'
+      if (!Array.isArray(grp.records) || grp.records.length < 1 || grp.records.length > 5000) return 'target'
+      for (const id of grp.records) {
+        if (!Number.isInteger(id) || id < 0 || seen.has(id)) return 'target'
+        seen.add(id)
+      }
+    }
+    if (target.length > 200000) return 'target'
+  } else if (action === 'dismiss') {
+    // target = proposal id ("split:<key>" or "merge:<idA>:<idB>"), hides an automatic proposal
+    if (typeof target !== 'string' || !/^(split|merge):[^\n]{1,400}$/.test(target)) return 'target'
+  } else if (action === 'fact') {
     // target = {"field": one of FACT_FIELDS, "value": short text}
     let f = null
     try {
@@ -68,6 +92,15 @@ export async function addCuration(db, user, body) {
   return row
 }
 
+/** Several decisions at once (bulk accept of spelling merges); each validated like a single one. */
+export async function addCurationBulk(db, user, entries) {
+  await ensureSchema(db)
+  const stmt = db.prepare('INSERT INTO curation (kind, action, subject, target, note, user_id, user_name) VALUES (?, ?, ?, ?, ?, ?, ?)')
+  const batch = entries.map((e) => stmt.bind(e.kind, e.action, e.subject.trim(), e.target.trim(), (e.note || '').trim() || null, user.id, user.name))
+  for (let i = 0; i < batch.length; i += 100) await db.batch(batch.slice(i, i + 100))
+  return entries.length
+}
+
 /** Marks a decision as undone (by anyone signed in: curation is a shared, reversible edit). */
 export async function undoCuration(db, user, id) {
   await ensureSchema(db)
@@ -90,7 +123,11 @@ export function describe(row, user, undone = false) {
         ? `renombró **${row.subject}** como **${row.target}**`
         : row.action === 'fact'
           ? `anotó en **${row.subject}**: ${row.target}`
-          : `cambió **${row.subject}**`
+          : row.action === 'split'
+            ? `dividió **${row.subject}** en ${(() => { try { return JSON.parse(row.target).groups.length } catch { return '?' } })()} personas`
+            : row.action === 'dismiss'
+              ? `descartó la propuesta ${row.target} en **${row.subject}**`
+              : `cambió **${row.subject}**`
   const kind = row.kind === 'person' ? 'persona' : 'lugar'
   const note = row.note ? ` — _${row.note}_` : ''
   return undone ? `↩️ ${user.name} deshizo #${row.id} (${kind}: ${what})` : `✏️ ${user.name} (${kind}) ${what}${note} · #${row.id}`

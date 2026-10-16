@@ -1,0 +1,27 @@
+{
+  "name_keys": 20341,
+  "persons": 21394,
+  "keys_split": 913,
+  "persons_from_splits": 1966,
+  "unresolvable_given_name_keys": 1412,
+  "records_in_unresolvable_keys": 7164,
+  "keys_span_over_85y_before": 1079,
+  "persons_span_over_85y_after": 0,
+  "split_conflicts": {
+    "death": 629,
+    "lifespan": 5007,
+    "clergy": 24,
+    "birth": 7
+  },
+  "splits_with_arbitrary_boundary": 132,
+  "birth_hints_in_people_json": 230,
+  "birth_hints_trusted": 233,
+  "dead_hints_in_people_json": 2555,
+  "dead_hints_trusted": 2575,
+  "merge_proposals": 7192,
+  "merge_proposals_spelling": 1972,
+  "merge_proposals_sure": 2000,
+  "single_record_keys_before": 12376,
+  "single_record_persons_after_split": 13018,
+  "single_record_persons_after_sure_merges": 11519
+}

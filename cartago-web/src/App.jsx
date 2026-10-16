@@ -185,7 +185,7 @@ export default function App() {
             {view === 'timeline' && <TimelineView key={cv} lang={lang} dataset={dataset} focus={focus} actions={actions} />}
             {view === 'graph' && <GraphView key={cv} lang={lang} dataset={dataset} focus={focus} actions={actions} />}
             {(view === 'people' || view === 'places') && (
-              <EntityIndex key={`${view}-${cv}`} kind={view === 'people' ? 'person' : 'place'} lang={lang} dataset={dataset} onOpen={openProfile} />
+              <EntityIndex key={`${view}-${cv}`} kind={view === 'people' ? 'person' : 'place'} lang={lang} dataset={dataset} onOpen={openProfile} session={session} onCurationChanged={refreshCuration} />
             )}
             {(view === 'person' || view === 'place') && (
               <ProfileView

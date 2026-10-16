@@ -1,12 +1,83 @@
-import { useDeferredValue, useMemo, useState } from 'react'
-import { getPeopleIndex, getPlacesIndex, sortedEntries, yearSpan } from '../lib/data.js'
+import { useDeferredValue, useEffect, useMemo, useState } from 'react'
+import { api } from '../lib/community.js'
+import { getPeopleIndex, getPlacesIndex, sortedEntries, yearSpan, loadResolution, pendingSpellingMerges, curationVersion } from '../lib/data.js'
 import { t } from '../lib/i18n.js'
 import { fold, formatNumber } from '../lib/text.js'
+import { SignInButtons } from './SignIn.jsx'
 
 const PAGE = 100
+const BULK = 200
+
+/**
+ * "N spelling variants with compatible lives": the merges resolve_people.py is sure about, accepted
+ * in batches of 200 through /curation/bulk. Each is an ordinary merge entry afterwards (undoable one
+ * by one from the profiles) and the batch is named in the note.
+ */
+function BulkSpelling({ lang, index, session, onChanged }) {
+  const [resolution, setResolution] = useState(null)
+  const [progress, setProgress] = useState(null)
+  const [error, setError] = useState(null)
+  useEffect(() => {
+    let alive = true
+    loadResolution()
+      .then((r) => alive && setResolution(r))
+      .catch(() => {})
+    return () => {
+      alive = false
+    }
+  }, [])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const pending = useMemo(() => pendingSpellingMerges(resolution, index), [resolution, index, curationVersion()])
+  if (!resolution || pending.length === 0) return null
+
+  const run = async () => {
+    setError(null)
+    const note = `lote grafías ${new Date().toISOString().slice(0, 10)}`
+    const entries = pending.map((p) => ({ kind: 'person', action: 'merge', subject: p.subject, target: p.target, note }))
+    try {
+      for (let i = 0; i < entries.length; i += BULK) {
+        setProgress([Math.min(i + BULK, entries.length), entries.length])
+        await api.curateBulk(entries.slice(i, i + BULK))
+      }
+      await onChanged?.()
+    } catch (err) {
+      setError(err)
+    } finally {
+      setProgress(null)
+    }
+  }
+
+  return (
+    <div className="mt-4 rounded-lg border border-rubric/30 bg-rubric/5 p-3 text-sm">
+      <p className="text-ink">{t(lang, 'bulkSpelling', formatNumber(pending.length, lang))}</p>
+      <p className="mt-0.5 text-[11px] text-label">{t(lang, 'bulkSpellingHelp')}</p>
+      <p className="mt-1 text-xs text-label">
+        {pending
+          .slice(0, 3)
+          .map((p) => `${p.proposal.a.name} = ${p.proposal.b.name}`)
+          .join(' · ')}
+        {pending.length > 3 ? ' · …' : ''}
+      </p>
+      {session?.user ? (
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <button type="button" className="btn-ghost border border-rubric/50 text-xs text-rubric hover:bg-rubric/10" disabled={Boolean(progress)} onClick={run}>
+            {progress ? t(lang, 'bulkProgress', progress[0], progress[1]) : t(lang, 'bulkAccept')}
+          </button>
+          {error && <span className="text-xs text-rubric">{error.status === 401 ? t(lang, 'sessionExpired') : error.message}</span>}
+        </div>
+      ) : (
+        session?.user === null && (
+          <div className="mt-2">
+            <SignInButtons lang={lang} config={session.config} returnHash="people" prompt={t(lang, 'signInToCurate')} />
+          </div>
+        )
+      )}
+    </div>
+  )
+}
 
 /** Browsable list of people or places: search, sorted by number of records, "load more". */
-export default function EntityIndex({ kind, lang, dataset, onOpen }) {
+export default function EntityIndex({ kind, lang, dataset, onOpen, session, onCurationChanged }) {
   const index = useMemo(() => (kind === 'person' ? getPeopleIndex(dataset) : getPlacesIndex(dataset)), [kind, dataset])
   const all = useMemo(() => sortedEntries(index), [index])
   const [query, setQuery] = useState('')
@@ -46,6 +117,8 @@ export default function EntityIndex({ kind, lang, dataset, onOpen }) {
           className="field mt-4"
           autoFocus
         />
+
+        {isPerson && <BulkSpelling lang={lang} index={index} session={session} onChanged={onCurationChanged} />}
 
         <ol className="mt-4 divide-y divide-rule overflow-hidden rounded-xl border border-rule bg-paper-2">
           {shown.slice(0, limit).map((e) => {
