@@ -64,7 +64,20 @@ P_NATURAL = re.compile(r"\bnatural(?:es)? de\s+" + NAME)
 P_VECINO = re.compile(r"\bvecin[oa]s? de\s+" + NAME)
 P_PARENTS = re.compile(r"\bhij[oa]s? (?:legítim[oa]s? |natural(?:es)? )?(?:de|del)\s+" + DEAD_PFX + NAME + r"(?:\s+y\s+(?:de\s+)?" + DEAD_PFX + NAME + r")?")
 P_SPOUSE = re.compile(r"\b(?:casad[oa] con|esposa de|esposo de|marido de|mujer de|viud[oa] de)\s+" + DEAD_PFX + NAME)
-P_AGE = re.compile(r"\bde\s+(\d{1,2})\s+años\b")
+P_AGE = re.compile(r"\bde\s+(?:unos\s+|como\s+|aproximadamente\s+)?(\d{1,2})\s+años\b")
+# Between a person's name and a phrase about them there must be no other subject: the slave being
+# sold, the child being placed, a spouse or parent named in passing. Otherwise the phrase is theirs.
+OTHER_SUBJECT = re.compile(r"esclav|llamad|mulat|negr|niñ|\bnin[oa]\b|\bindi[oa]\b|\bpard[oa]\b|\bhij[oa]s?\b|esposa|esposo|mujer|marido|criad|sirvient|aprendiz|hu[eé]rfan|\bpadres?\b|\bmadre\b|viud[oa]", re.I)
+# What may stand between a person's name and their own age: a residence clause, a kinship aside
+# in parentheses, "más de", "mayor de", "de edad de", "dijo ser". Anything else (a verb, another
+# name, "por un periodo") means the age belongs to someone or something else.
+AGE_GAP = re.compile(
+    r"^[\s,]*(?:\([^)]{0,40}\)[\s,]*)?(?:(?:vecin[oa]s? de|natural(?:es)? de|residentes? (?:en|de)|oriund[oa] de|estante en)\s+[a-z .]{1,40}[\s,]*)?"
+    r"(?:(?:quien dijo ser|dijo ser|declaro ser|declaro tener|que dijo ser|de edad de|de edad|mayor de|menor de|de mas de|mas de|de unos|como de|casad[oa]|solter[oa]|viud[oa])[\s,]*)*$"
+)
+P_AGE_FOLDED = re.compile(r"\bde\s+(?:unos\s+|como\s+|aproximadamente\s+)?(\d{1,2})\s+anos\b")  # on folded text
+DEAD_BEFORE = re.compile(r"(difunt[oa]s?|viud[oa] de|albaceas? de|herederos? de|bienes de|testamentar[ií]a de|finad[oa])\s*(?:(?:el|la|los|las|don|dona|capitan|alferez|sargento mayor|licenciado|presbitero|padre|fray|sr|dr)\.?\s+){0,3}$")
+DEAD_AFTER = re.compile(r"^[\s,(]{0,3}(?:ya\s+)?(?:difunt[oa]|finad[oa])")
 P_WILL = re.compile(r"\btestamento\b|\bcodicilo\b")
 P_DEAD = re.compile(r"\bdifunt[oa]s?\b")
 P_DOTE = re.compile(r"\b(?:carta de )?dote\b")
@@ -89,6 +102,66 @@ def sentences(text):
 
 def name_tokens(key):
     return [t for t in key.split() if len(t) > 2 and t not in ("de", "del", "la", "las", "los", "y", "e", "don", "dona")]
+
+
+def name_spans(sentence, key, raw_names):
+    """Character spans where this person's own name sits in the sentence (folded), longest spelling first."""
+    f = fold(sentence)
+    out = []
+    for raw in sorted({fold(r).strip() for r in raw_names} | {key}, key=len, reverse=True):
+        if len(raw) < 4:
+            continue
+        start = 0
+        while True:
+            i = f.find(raw, start)
+            if i < 0:
+                break
+            if not any(a <= i < b for a, b in out):
+                out.append((i, i + len(raw)))
+            start = i + 1
+    return f, out
+
+
+def own_age(sentence, key, raw_names, year):
+    """Birth year from "de N años" that follows the person's own name with nobody else in between."""
+    f, spans = name_spans(sentence, key, raw_names)
+    for _a, b in spans:
+        tail = f[b : b + 80]
+        m = P_AGE_FOLDED.search(tail)
+        if m and AGE_GAP.match(tail[: m.start()]):
+            age = int(m.group(1))
+            if 0 < age < 100 and year:
+                return year - age, m.group(0)
+    return None
+
+
+def own_death(sentence, key, raw_names):
+    """The sentence calls this person dead by name: "difunto X", "X, difunto", "viuda de X", "albacea de X"."""
+    f, spans = name_spans(sentence, key, raw_names)
+    for a, b in spans:
+        if DEAD_BEFORE.search(f[max(0, a - 60) : a]) or DEAD_AFTER.match(f[b : b + 14]):
+            return True
+    return False
+
+
+P_SUBJECT = re.compile(NAME + r"\s*,?\s*$")
+
+
+def subject_before(sentence, pos):
+    """The capitalized name that ends right before position pos ("Luisa Hernández, viuda de …")."""
+    head = sentence[:pos]
+    head = re.sub(r"\s*,?\s*(?:(?:el|la|don|doña|dona|capitán|capitan|alférez|alferez|sargento mayor|licenciado|presbítero|presbitero|padre|fray|sr\.|dr\.)\s+)*$", "", head, flags=re.I)
+    m = P_SUBJECT.search(head)
+    return clean_name(m.group(1)) if m else ""
+
+
+def own_subject(sentence, key, raw_names, pos):
+    """This person's name ends within a few words before pos, with nobody else named in between."""
+    f, spans = name_spans(sentence, key, raw_names)
+    for _a, b in spans:
+        if b <= pos and not OTHER_SUBJECT.search(f[b:pos]) and len(f[b:pos].split()) <= 6:
+            return True
+    return False
 
 
 def mentions(sentence, key):
@@ -140,12 +213,16 @@ def main():
             continue
         year = ev.get("y")
         rid = ev["i"]
-        keys = {fold_person(p) for p in ev.get("p") or []}
+        raws = collections.defaultdict(set)
+        for p in ev.get("p") or []:
+            raws[fold_person(p)].add(p)
+        keys = set(raws)
         sents = sentences(summ)
         for key in keys:
             if not key:
                 continue
             fx = facts[key]
+            raw_names = raws[key]
             for s in sents:
                 if not mentions(s, key):
                     continue
@@ -157,20 +234,28 @@ def main():
                     if clean_name(m.group(1)):
                         fx["residence"][clean_name(m.group(1))].add(rid)
                 m = P_PARENTS.search(s)
-                # "X, hijo de A y B": only when this person is X, i.e. not one of the names after "hijo de"
-                if m and not any(g and fold_person(clean_name(g)) == key for g in (m.group(1), m.group(2))):
+                # "X, hijo de A y B": only when this person is X: named right before "hijo de", and not A or B
+                if m and not any(g and fold_person(clean_name(g)) == key for g in (m.group(1), m.group(2))) and own_subject(s, key, raw_names, m.start()):
                     for g in (m.group(1), m.group(2)):
                         if g and clean_name(g):
                             fx["parents"][clean_name(g)].add(rid)
                 for m in P_SPOUSE.finditer(s):
-                    if clean_name(m.group(1)):
-                        fx["spouse"][clean_name(m.group(1))].add(rid)
-                m = P_AGE.search(s)
-                if m and year:
-                    fx["born"].append([year - int(m.group(1)), rid, m.group(0)])
+                    other = clean_name(m.group(1))
+                    if not other:
+                        continue
+                    if fold_person(other) == key:
+                        # "Y, viuda de X" where X is this person: the spouse is the subject Y, right before
+                        subj = subject_before(s, m.start())
+                        if subj and fold_person(subj) != key:
+                            fx["spouse"][subj].add(rid)
+                    elif own_subject(s, key, raw_names, m.start()):
+                        fx["spouse"][other].add(rid)
+                age = own_age(s, key, raw_names, year)
+                if age:
+                    fx["born"].append([age[0], rid, age[1]])
                 if year and P_WILL.search(s):
                     fx["will"].append([year, rid])
-                if year and P_DEAD.search(s):
+                if year and own_death(s, key, raw_names):
                     fx["dead"].append([year, rid])
                 if year and P_DOTE.search(s):
                     fx["marr"].append([year, rid])
