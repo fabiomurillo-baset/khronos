@@ -1,0 +1,67 @@
+name: Adjudicate people (phase 2)
+
+# Runs scripts/adjudicate_people.py with the GEMINI_API_KEY repository secret, then
+# resolve_people.py to apply the decisions, and commits adjudications.jsonl plus the
+# regenerated proposals and resolution.json to main. Manual only: nothing spends money
+# on a schedule. Resumable: a second run continues where the first stopped.
+
+on:
+  workflow_dispatch:
+    inputs:
+      max_cost:
+        description: "Stop when the estimated spend reaches this many USD"
+        default: "3"
+        required: true
+      limit:
+        description: "Answer at most this many questions (empty = all)"
+        default: ""
+        required: false
+      model:
+        description: "Gemini model"
+        default: "gemini-2.5-flash"
+        required: true
+
+concurrency:
+  group: adjudicate
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  adjudicate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install "google-genai>=1.0"
+      - name: Check the secret
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          if [ -z "$GEMINI_API_KEY" ]; then
+            echo "::error::Add GEMINI_API_KEY under Settings → Secrets and variables → Actions, then rerun."
+            exit 1
+          fi
+      - name: Ask the model
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          ARGS="--model ${{ inputs.model }} --max-cost ${{ inputs.max_cost }}"
+          if [ -n "${{ inputs.limit }}" ]; then ARGS="$ARGS --limit ${{ inputs.limit }}"; fi
+          python scripts/adjudicate_people.py $ARGS
+      - name: Apply the decisions
+        run: python scripts/resolve_people.py
+      - name: Commit
+        run: |
+          git config user.name "khronos-bot"
+          git config user.email "khronos-bot@users.noreply.github.com"
+          git add scripts/data/resolution cartago-web/public/data/resolution.json
+          if git diff --cached --quiet; then echo "nothing new"; exit 0; fi
+          N=$(wc -l < scripts/data/resolution/adjudications.jsonl)
+          git commit -m "Phase 2: $N model decisions applied to the people proposals"
+          git push origin HEAD:main
