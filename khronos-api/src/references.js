@@ -20,11 +20,12 @@ const TARGET = /^(r:\d+|[pl]:[^\n#]{1,200})$/
 const KINDS = new Set(['ia', 'url'])
 const LOCATORS = new Set(['leaf', 'page', 'pdfpage', 'url', 'none'])
 const IA_ID = /^[A-Za-z0-9._-]{3,100}$/
+const HTTP_URL = /^https?:\/\/\S{1,500}$/
 
 export function validateWork(b) {
   if (!b || !KINDS.has(b.kind)) return 'kind'
   if (b.kind === 'ia' && !(typeof b.ia === 'string' && IA_ID.test(b.ia))) return 'ia'
-  if (b.kind === 'url' && !(typeof b.url === 'string' && /^https?:\/\/\S{1,500}$/.test(b.url))) return 'url'
+  if (b.kind === 'url' && !(typeof b.url === 'string' && HTTP_URL.test(b.url))) return 'url'
   if (typeof b.title !== 'string' || !b.title.trim() || b.title.length > 300) return 'title'
   for (const k of ['author', 'year', 'publisher', 'note']) if (b[k] != null && (typeof b[k] !== 'string' || b[k].length > 300)) return k
   return null
@@ -35,6 +36,8 @@ export function validateRef(b) {
   if (!(typeof b.work_id === 'string' || Number.isInteger(b.work_id)) || !String(b.work_id).trim()) return 'work_id'
   if (!LOCATORS.has(b.locator_type)) return 'locator_type'
   if (b.locator_type !== 'none' && !(typeof b.locator === 'string' && b.locator.trim() && b.locator.length <= 500)) return 'locator'
+  // A URL locator is rendered as a link and, for PDFs, as an iframe src: only http(s), never javascript: or data:.
+  if (b.locator_type === 'url' && !HTTP_URL.test(b.locator)) return 'locator'
   if (b.quote != null && (typeof b.quote !== 'string' || b.quote.length > 2000)) return 'quote'
   if (b.note != null && (typeof b.note !== 'string' || b.note.length > 1000)) return 'note'
   return null

@@ -77,16 +77,20 @@ export function setSession(token) {
 }
 
 /**
- * After sign-in the Worker sends the browser back to `SITE_URL?auth=<token>#r/<id>`.
- * Store the token, clean the address bar, and report whether a sign-in just happened.
+ * After sign-in the Worker sends the browser back to `SITE_URL#auth=<token>&return=r/<id>`.
+ * The token lives in the fragment, which browsers never send to a server. Store it, rewrite
+ * the address bar to the plain route (`#r/<id>`), and report whether a sign-in just happened.
+ * Must run before anything reads the hash as a route.
  */
 export function consumeAuthFromUrl() {
   const url = new URL(window.location.href)
-  const auth = url.searchParams.get('auth')
-  if (!auth) return null
-  url.searchParams.delete('auth')
+  const hash = url.hash.replace(/^#\/?/, '')
+  if (!hash.startsWith('auth=')) return null
+  const params = new URLSearchParams(hash)
+  const auth = params.get('auth')
+  url.hash = params.get('return') || ''
   window.history.replaceState(null, '', url.pathname + url.search + url.hash)
-  if (auth === 'error') return { error: true }
+  if (!auth || auth === 'error') return { error: true }
   setSession(auth)
   return { ok: true }
 }

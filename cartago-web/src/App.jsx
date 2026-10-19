@@ -22,6 +22,10 @@ const VIEWS = ['map', 'timeline', 'graph', 'people', 'places']
  * `#r/123` opens the timeline on a record; `#p/<name>` and `#l/<name>` open a person or
  * place profile (keys are folded names, URL-encoded).
  */
+// A sign-in redirect lands here with the session token in the fragment; take it out before
+// the hash is parsed as a route (the state initializers below run in order).
+const initialAuth = consumeAuthFromUrl()
+
 function readHash() {
   const hash = decodeURIComponent(window.location.hash.replace(/^#\/?/, ''))
   let m
@@ -85,11 +89,8 @@ export default function App() {
     const { eventId } = readHash()
     return eventId ? { eventId, nonce: Date.now() } : null
   })
-  // Record open in the contribution panel. Coming back from sign-in (?auth=…#r/N) reopens it.
-  const [contributing, setContributing] = useState(() => {
-    const auth = consumeAuthFromUrl()
-    return auth?.ok ? readHash().eventId : null
-  })
+  // Record open in the contribution panel. Coming back from sign-in (#auth=...&return=r/N) reopens it.
+  const [contributing, setContributing] = useState(() => (initialAuth?.ok ? readHash().eventId : null))
 
   useEffect(() => {
     document.documentElement.lang = lang

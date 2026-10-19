@@ -120,6 +120,11 @@ export async function vote(env, user, id, value, context) {
   await ensureSchema(db)
   const row = parse(await db.prepare('SELECT * FROM proposals WHERE id = ?').bind(id).first())
   if (!row) return null
+  // Votes only move an open proposal; a submitted or withdrawn one is frozen.
+  if (row.status !== 'open') {
+    const votes = (await voteCounts(db, [id])).get(id) || { up: 0, down: 0 }
+    return { proposal: { ...row, votes, threshold: threshold(env) }, submitted: null, closed: true }
+  }
   if (value === 0) await db.prepare('DELETE FROM votes WHERE proposal_id = ? AND user_id = ?').bind(id, user.id).run()
   else
     await db

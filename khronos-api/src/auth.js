@@ -109,27 +109,31 @@ export async function startLogin(env, requestUrl, provider, returnHash) {
   return Response.redirect(url.toString(), 302)
 }
 
-/** Step 2: validate state, exchange the code, mint a session, return to the record. */
+/**
+ * Step 2: validate state, exchange the code, mint a session, return to the record.
+ * The token travels in the URL fragment (`#auth=...&return=...`): fragments are not sent to
+ * the server, so they stay out of access logs and Referer headers; the app reads it once
+ * and rewrites the address bar to the plain route.
+ */
 export async function finishLogin(env, requestUrl, provider) {
   const url = new URL(requestUrl)
   const code = url.searchParams.get('code')
   const state = url.searchParams.get('state')
   const saved = state && (await env.KV.get(`oauth:${state}`, 'json'))
   if (!code || !saved || saved.provider !== provider) {
-    return Response.redirect(`${env.SITE_URL}?auth=error`, 302)
+    return Response.redirect(`${env.SITE_URL}#auth=error`, 302)
   }
   await env.KV.delete(`oauth:${state}`)
   let user
   try {
     user = await PROVIDERS[provider].exchange(env, code, redirectUri(requestUrl, provider))
   } catch {
-    return Response.redirect(`${env.SITE_URL}?auth=error`, 302)
+    return Response.redirect(`${env.SITE_URL}#auth=error`, 302)
   }
   const token = await signSession(env, user)
-  const back = new URL(env.SITE_URL)
-  back.searchParams.set('auth', token)
-  if (saved.returnHash) back.hash = saved.returnHash
-  return Response.redirect(back.toString(), 302)
+  const frag = new URLSearchParams({ auth: token })
+  if (saved.returnHash) frag.set('return', saved.returnHash)
+  return Response.redirect(`${env.SITE_URL}#${frag}`, 302)
 }
 
 // ---- sessions -------------------------------------------------------------

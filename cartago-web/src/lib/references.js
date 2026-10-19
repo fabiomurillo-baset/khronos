@@ -130,7 +130,8 @@ export function referenceLinks(work, ref) {
     }
   }
   const url = ref?.locator_type === 'url' && ref.locator ? ref.locator : work.url
-  if (!url) return null
+  // Only http(s) may become an href or an iframe src; anything else (javascript:, data:) is dropped.
+  if (!url || !/^https?:\/\//i.test(url)) return null
   const isPdf = /\.pdf(\?|#|$)/i.test(url)
   const withPage = isPdf && ref?.locator_type === 'pdfpage' ? `${url.split('#')[0]}#page=${ref.locator}` : url
   return { open: withPage, embed: isPdf ? withPage : null }

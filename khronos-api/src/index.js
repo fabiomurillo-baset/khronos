@@ -4,7 +4,7 @@
 //   GET  /health
 //   GET  /config                         enabled sign-in providers, invite link
 //   GET  /auth/:provider/start?record=N  begin sign-in (discord | google | facebook)
-//   GET  /auth/:provider/callback        provider returns here; redirects to the site with ?auth=token
+//   GET  /auth/:provider/callback        provider returns here; redirects to the site with the token in the fragment (#auth=token&return=…)
 //   GET  /me                             the signed-in user (Bearer token)
 //   GET  /records/:id/messages?after=M   thread of a record (public)
 //   POST /records/:id/messages           multipart: content, title, summary, files[] (Bearer token)
@@ -49,8 +49,9 @@ export default {
       for (const [k, v] of Object.entries(cors)) res.headers.set(k, v)
       return res
     } catch (err) {
+      // Details stay in the Worker logs; the response never echoes upstream status text, ids or paths.
       console.error(err)
-      return reply({ error: 'internal', detail: String(err.message || err) }, 500, cors)
+      return reply({ error: 'internal' }, 500, cors)
     }
   },
 }
@@ -191,6 +192,7 @@ async function route(request, env, ctx, url) {
     if (!recordOf) return reply({ error: 'not found' }, 404)
     const threadId = await findThread(env, recordOf.record)
     const result = await vote(env, user, id, value, { recordUrl: `${env.SITE_URL}#r/${recordOf.record}`, threadUrl: threadId ? threadUrl(env, threadId) : null })
+    if (result?.closed) return reply({ error: 'closed', proposal: result.proposal }, 409)
     if (result?.submitted) ctx.waitUntil(postLog(env, `🔀 Propuesta #${id} alcanzó el umbral de votos: PR ${result.submitted.url}`))
     return reply(result)
   }
@@ -230,6 +232,10 @@ async function route(request, env, ctx, url) {
     const headers = new Headers()
     obj.writeHttpMetadata(headers)
     headers.set('cache-control', 'public, max-age=31536000, immutable')
+    // The stored content type is what the uploader declared: never let the browser sniff past it,
+    // and name the file after the stored key so a PDF opens as a document, not as a page of this origin.
+    headers.set('x-content-type-options', 'nosniff')
+    headers.set('content-disposition', `inline; filename="${safeName(m[1].split('/').pop() || 'file')}"`)
     return new Response(obj.body, { headers })
   }
 
